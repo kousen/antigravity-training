@@ -28,7 +28,7 @@ export class TaskManager {
   }
 
   async addTask(title, description, dueDate) {
-    const id = Date.now().toString();
+    const id = Math.random().toString(36).substr(2, 9);
     const newTask = new Task(id, title, description, 'pending', dueDate);
     this.tasks.push(newTask);
     await this.save();
@@ -55,7 +55,29 @@ export class TaskManager {
     return task;
   }
 
-  listTasks() {
-    return this.tasks;
+  listTasks(filters = {}) {
+    let filteredTasks = [...this.tasks];
+
+    if (filters.status) {
+      filteredTasks = filteredTasks.filter(task => task.status === filters.status);
+    }
+
+    if (filters.searchTerm) {
+      const term = filters.searchTerm.toLowerCase();
+      filteredTasks = filteredTasks.filter(task => 
+        task.title.toLowerCase().includes(term) || 
+        task.description.toLowerCase().includes(term)
+      );
+    }
+
+    if (filters.sortBy === 'dueDate') {
+      filteredTasks.sort((a, b) => {
+        if (!a.dueDate) return 1;
+        if (!b.dueDate) return -1;
+        return new Date(a.dueDate) - new Date(b.dueDate);
+      });
+    }
+
+    return filteredTasks;
   }
 }

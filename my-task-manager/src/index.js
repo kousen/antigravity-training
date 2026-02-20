@@ -8,19 +8,36 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
+const colors = {
+  reset: '\x1b[0m',
+  pending: '\x1b[33m',    // Yellow
+  'in-progress': '\x1b[36m', // Cyan
+  completed: '\x1b[32m', // Green
+  header: '\x1b[1m\x1b[35m', // Bold Magenta
+  error: '\x1b[31m'      // Red
+};
+
 const question = (query) => new Promise((resolve) => rl.question(query, resolve));
+
+function printTask(task) {
+  const statusColor = colors[task.status] || colors.reset;
+  console.log(`${colors.header}[${task.id}]${colors.reset} ${task.title} - ${statusColor}${task.status}${colors.reset} (Due: ${task.dueDate || 'N/A'})`);
+  console.log(`    ${task.description}`);
+}
 
 async function main() {
   await taskManager.load();
 
   while (true) {
-    console.log('
---- Task Manager ---');
+    console.log(`\n${colors.header}--- Task Manager ---${colors.reset}`);
     console.log('1. Add Task');
-    console.log('2. List Tasks');
-    console.log('3. Update Task');
-    console.log('4. Remove Task');
-    console.log('5. Exit');
+    console.log('2. List All Tasks');
+    console.log('3. Filter Tasks by Status');
+    console.log('4. Search Tasks');
+    console.log('5. Sort Tasks by Due Date');
+    console.log('6. Update Task');
+    console.log('7. Remove Task');
+    console.log('8. Exit');
 
     const choice = await question('Select an option: ');
 
@@ -38,35 +55,61 @@ async function main() {
         if (tasks.length === 0) {
           console.log('No tasks found.');
         } else {
-          tasks.forEach(task => {
-            console.log(`[${task.id}] ${task.title} - ${task.status} (Due: ${task.dueDate || 'N/A'})`);
-            console.log(`    ${task.description}`);
-          });
+          tasks.forEach(printTask);
         }
         break;
       }
       case '3': {
-        const id = await question('Task ID to update: ');
-        const status = await question('New status (pending/completed): ');
-        try {
-          await taskManager.updateTask(id, { status });
-          console.log('Task updated.');
-        } catch (error) {
-          console.error(error.message);
+        const status = await question('Status to filter by (pending/in-progress/completed): ');
+        const tasks = taskManager.listTasks({ status });
+        if (tasks.length === 0) {
+          console.log(`No tasks found with status: ${status}`);
+        } else {
+          tasks.forEach(printTask);
         }
         break;
       }
       case '4': {
+        const searchTerm = await question('Search term (title or description): ');
+        const tasks = taskManager.listTasks({ searchTerm });
+        if (tasks.length === 0) {
+          console.log('No matching tasks found.');
+        } else {
+          tasks.forEach(printTask);
+        }
+        break;
+      }
+      case '5': {
+        const tasks = taskManager.listTasks({ sortBy: 'dueDate' });
+        if (tasks.length === 0) {
+          console.log('No tasks found.');
+        } else {
+          tasks.forEach(printTask);
+        }
+        break;
+      }
+      case '6': {
+        const id = await question('Task ID to update: ');
+        const status = await question('New status (pending/in-progress/completed): ');
+        try {
+          await taskManager.updateTask(id, { status });
+          console.log('Task updated.');
+        } catch (error) {
+          console.error(`${colors.error}${error.message}${colors.reset}`);
+        }
+        break;
+      }
+      case '7': {
         const id = await question('Task ID to remove: ');
         try {
           await taskManager.removeTask(id);
           console.log('Task removed.');
         } catch (error) {
-          console.error(error.message);
+          console.error(`${colors.error}${error.message}${colors.reset}`);
         }
         break;
       }
-      case '5': {
+      case '8': {
         rl.close();
         return;
       }
