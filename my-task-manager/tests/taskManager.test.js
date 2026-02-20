@@ -1,63 +1,94 @@
 import { TaskManager } from '../src/taskManager.js';
 import fs from 'fs/promises';
 
-async function runTests() {
-  const testDb = 'test-tasks-extended.json';
-  const taskManager = new TaskManager(testDb);
+describe('TaskManager', () => {
+  const testDb = 'test-tasks-jest.json';
+  let taskManager;
 
-  try {
-    console.log('Starting extended tests...');
+  beforeEach(async () => {
+    taskManager = new TaskManager(testDb);
+    // Ensure the test db doesn't exist before each test
+    try {
+      await fs.unlink(testDb);
+    } catch (e) {
+      // ignore
+    }
+  });
 
-    // Setup: Add multiple tasks
-    console.log('Adding Alpha...');
-    await taskManager.addTask('Alpha Task', 'Description A', '2026-12-01');
-    console.log('Adding Beta...');
-    await taskManager.addTask('Beta Task', 'Description B', '2026-01-01');
-    console.log('Adding Gamma...');
-    const taskC = await taskManager.addTask('Gamma Task', 'Searchable context', '2026-06-01');
-    
-    console.log('Updating Gamma to completed...');
+  afterEach(async () => {
+    try {
+      await fs.unlink(testDb);
+    } catch (e) {
+      // ignore
+    }
+  });
+
+  it('should load an empty array if the file does not exist', async () => {
+    await taskManager.load();
+    expect(taskManager.tasks).toEqual([]);
+
+    // It should have created the file
+    const fileExists = await fs.access(testDb).then(() => true).catch(() => false);
+    expect(fileExists).toBe(true);
+  });
+
+  it('should add a task and persist it', async () => {
+    await taskManager.load();
+    const task = await taskManager.addTask('Title 1', 'Desc 1', '2026-10-10');
+
+    expect(task.id).toBeDefined();
+    expect(task.title).toBe('Title 1');
+    expect(task.status).toBe('pending');
+    expect(taskManager.tasks.length).toBe(1);
+
+    // Verify it was saved to file
+    const data = await fs.readFile(testDb, 'utf8');
+    const savedTasks = JSON.parse(data);
+    expect(savedTasks.length).toBe(1);
+    expect(savedTasks[0].id).toBe(task.id);
+  });
+
+  it('should list tasks with and without filters', async () => {
+    await taskManager.load();
+    await taskManager.addTask('Alpha', 'Desc A', '2026-12-01'); // pending
+    await taskManager.addTask('Beta', 'Desc B', '2026-01-01'); // pending
+    const taskC = await taskManager.addTask('Gamma searchable', 'Desc C', '2026-06-01'); // pending -> completed
+
     await taskManager.updateTask(taskC.id, { status: 'completed' });
 
     const allTasks = taskManager.listTasks();
-    console.log('All tasks count:', allTasks.length);
-    allTasks.forEach(t => console.log(` - ${t.id}: ${t.title} (${t.status})`));
+    expect(allTasks.length).toBe(3);
 
-    // 1. Test Filtering by status
-    console.log('Testing Filter by status...');
+    // Filter by status
     const completedTasks = taskManager.listTasks({ status: 'completed' });
-    if (completedTasks.length !== 1 || completedTasks[0].title !== 'Gamma Task') {
-      console.log('Completed tasks found:', completedTasks.length);
-      completedTasks.forEach(t => console.log(` - Found: ${t.title}`));
-      throw new Error('Filtering by status failed');
-    }
-    console.log('✓ Filter by status passed');
+    expect(completedTasks.length).toBe(1);
+    expect(completedTasks[0].title).toBe('Gamma searchable');
 
-    // 2. Test Searching
-    console.log('Testing Search...');
+    // Filter by searchTerm
     const searchResults = taskManager.listTasks({ searchTerm: 'searchable' });
-    if (searchResults.length !== 1 || searchResults[0].title !== 'Gamma Task') {
-      throw new Error('Searching failed');
-    }
-    console.log('✓ Search passed');
+    expect(searchResults.length).toBe(1);
+    expect(searchResults[0].title).toBe('Gamma searchable');
 
-    // 3. Test Sorting
-    console.log('Testing Sort...');
-    const sortedTasks = taskManager.listTasks({ sortBy: 'dueDate' });
-    if (sortedTasks[0].title !== 'Beta Task' || sortedTasks[2].title !== 'Alpha Task') {
-      console.log('Sorted order:', sortedTasks.map(t => t.title).join(', '));
-      throw new Error('Sorting by due date failed');
-    }
-    console.log('✓ Sort by due date passed');
+    // Sort by dueDate
+    const sorted = taskManager.listTasks({ sortBy: 'dueDate' });
+    expect(sorted[0].title).toBe('Beta'); // 2026-01-01
+    expect(sorted[2].title).toBe('Alpha'); // 2026-12-01
+  });
 
-  } catch (error) {
-    console.error('Test failed:', error.message);
-    process.exit(1);
-  } finally {
-    try {
-      await fs.unlink(testDb);
-    } catch (e) {}
-  }
-}
+  it('should remove a task', async () => {
+    await taskManager.load();
+    const task = await taskManager.addTask('To Remove', 'Desc', '2026-01-01');
 
-runTests();
+    expect(taskManager.tasks.length).toBe(1);
+    await taskManager.removeTask(task.id);
+    expect(taskManager.tasks.length).toBe(0);
+
+    // Verify it throws when removing non-existent
+    await expect(taskManager.removeTask('invalid-id')).rejects.toThrow('Task with ID invalid-id not found.');
+  });
+
+  it('should throw an error when updating a non-existent task', async () => {
+    await taskManager.load();
+    await expect(taskManager.updateTask('invalid-id', { status: 'completed' })).rejects.toThrow('Task with ID invalid-id not found.');
+  });
+});

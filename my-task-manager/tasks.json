@@ -1,0 +1,51 @@
+[
+  {
+    "id": "1771603534639",
+    "title": "Learn Gemini CLI",
+    "description": "Learn the command line interface",
+    "status": "pending",
+    "dueDate": "2026-02-20"
+  },
+  {
+    "id": "zyhwdx442",
+    "title": "Buy groceries",
+    "description": "Milk, eggs, bread, and coffee",
+    "status": "pending",
+    "dueDate": "2026-02-25"
+  },
+  {
+    "id": "fxrfdnbxv",
+    "title": "Finish project report",
+    "description": "Complete the final draft for the stakeholders",
+    "status": "in-progress",
+    "dueDate": "2026-02-22"
+  },
+  {
+    "id": "mspv3ozag",
+    "title": "Gym workout",
+    "description": "Leg day and 30 mins cardio",
+    "status": "completed",
+    "dueDate": "2026-02-19"
+  },
+  {
+    "id": "i4rrn16eq",
+    "title": "Read Book",
+    "description": "Read 20 pages of \"Clean Code\"",
+    "status": "pending",
+    "dueDate": "2026-03-01"
+  },
+  {
+    "id": "gnjmmza4b",
+    "title": "Book flight",
+    "description": "Book tickets for the summer vacation",
+    "status": "pending",
+    "dueDate": "2026-05-15"
+  },
+  {
+    "id": "a3r5ncjro",
+    "title": "Update resume",
+    "description": "Add recent achievements and skills",
+    "status": "in-progress",
+    "dueDate": "2026-03-10"
+  }
+]
