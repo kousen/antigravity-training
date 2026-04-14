@@ -14,32 +14,39 @@ async function clearDb() {
 
 describe('Task Class Unit Tests', () => {
     test('should create a Task instance with correct fields', () => {
-        const t = new Task('T', 'D', '2026-04-14');
+        const t = new Task('T', 'D', '2026-04-14', 'high');
         expect(t.title).toBe('T');
         expect(t.id).toHaveLength(36); // UUID length
+        expect(t.priority).toBe('high');
+    });
+
+    test('should default priority to medium', () => {
+        const task = new Task('T', 'D', '2026-01-01');
+        expect(task.priority).toBe('medium');
     });
 
     test('isOverdue should return true for past dates and not completed', () => {
-        const past = new Task('Past', 'D', '2026-04-10', 'pending');
+        const past = new Task('Past', 'D', '2026-04-10', 'medium', 'pending');
         expect(past.isOverdue('2026-04-14')).toBe(true);
     });
 
     test('isOverdue should return false for completed tasks even if date is past', () => {
-        const pastCompleted = new Task('Past', 'D', '2026-04-10', 'completed');
+        const pastCompleted = new Task('Past', 'D', '2026-04-10', 'medium', 'completed');
         expect(pastCompleted.isOverdue('2026-04-14')).toBe(false);
     });
 
     test('isOverdue should return false for future dates', () => {
-        const future = new Task('Future', 'D', '2026-04-20', 'pending');
+        const future = new Task('Future', 'D', '2026-04-20', 'medium', 'pending');
         expect(future.isOverdue('2026-04-14')).toBe(false);
     });
 
     test('fromJSON should correctly re-instantiate a Task', () => {
-        const json = { id: '123', title: 'J', description: 'D', dueDate: '2026-01-01', status: 'in-progress' };
+        const json = { id: '123', title: 'J', description: 'D', dueDate: '2026-01-01', priority: 'high', status: 'in-progress' };
         const t = Task.fromJSON(json);
         expect(t).toBeInstanceOf(Task);
         expect(t.id).toBe('123');
         expect(t.status).toBe('in-progress');
+        expect(t.priority).toBe('high');
     });
 });
 
@@ -92,8 +99,8 @@ describe('TaskManager Integration & Edge Cases', () => {
     });
 
     test('getSummary should count statuses accurately', async () => {
-        const t1 = await tm.addTask('P1', 'D', 'D');
-        const t2 = await tm.addTask('I1', 'D', 'D');
+        const t1 = await tm.addTask('P1', 'D', 'D', 'medium');
+        const t2 = await tm.addTask('I1', 'D', 'D', 'high');
         await tm.updateTask(t2.id, { status: 'in-progress' });
         
         const summary = tm.getSummary();

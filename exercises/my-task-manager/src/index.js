@@ -36,6 +36,15 @@ function getStatusColor(status) {
     }
 }
 
+function getPriorityColor(priority) {
+    switch (priority) {
+        case 'high': return COLORS.red;
+        case 'medium': return COLORS.cyan;
+        case 'low': return COLORS.gray;
+        default: return COLORS.reset;
+    }
+}
+
 function displayTaskTable(tasks) {
     lastList = tasks;
     if (tasks.length === 0) {
@@ -43,28 +52,31 @@ function displayTaskTable(tasks) {
         return;
     }
 
-    console.log(`\n${COLORS.bright}${'#'.padEnd(3)} | ${'ID'.padEnd(8)} | ${'STATUS'.padEnd(10)} | ${'DUE DATE'.padEnd(10)} | ${'TITLE'}${COLORS.reset}`);
-    console.log('-'.repeat(80));
+    console.log(`\n${COLORS.bright}${'#'.padEnd(3)} | ${'ID'.padEnd(8)} | ${'STATUS'.padEnd(10)} | ${'PRIORITY'.padEnd(8)} | ${'DUE DATE'.padEnd(10)} | ${'TITLE'}${COLORS.reset}`);
+    console.log('-'.repeat(90));
 
     tasks.forEach((t, i) => {
         const idShort = t.id.split('-')[0];
         const statusStr = `${getStatusColor(t.status)}${t.status.toUpperCase()}${COLORS.reset}`;
+        const priorityStr = `${getPriorityColor(t.priority)}${t.priority.toUpperCase()}${COLORS.reset}`;
         
         const isOverdue = t.status !== 'completed' && t.dueDate < CURRENT_DATE;
         const dateColor = isOverdue ? COLORS.red : COLORS.reset;
         const dateStr = `${dateColor}${t.dueDate}${COLORS.reset}`;
 
-        console.log(`${(i + 1).toString().padEnd(3)} | ${idShort.padEnd(8)} | ${statusStr.padEnd(19)} | ${dateStr.padEnd(19)} | ${t.title}`);
+        console.log(`${(i + 1).toString().padEnd(3)} | ${idShort.padEnd(8)} | ${statusStr.padEnd(19)} | ${priorityStr.padEnd(17)} | ${dateStr.padEnd(19)} | ${t.title}`);
     });
 }
 
 function displayTaskDetail(t) {
     const sCol = getStatusColor(t.status);
+    const pCol = getPriorityColor(t.priority);
     console.log(`\n${COLORS.bright}--- Task Details ---${COLORS.reset}`);
     console.log(`ID:          ${t.id}`);
     console.log(`Title:       ${COLORS.bright}${t.title}${COLORS.reset}`);
     console.log(`Description: ${t.description}`);
     console.log(`Status:      ${sCol}${t.status.toUpperCase()}${COLORS.reset}`);
+    console.log(`Priority:    ${pCol}${t.priority.toUpperCase()}${COLORS.reset}`);
     console.log(`Due Date:    ${t.dueDate}${t.dueDate < CURRENT_DATE && t.status !== 'completed' ? ` ${COLORS.red}(OVERDUE)${COLORS.reset}` : ''}`);
     console.log('--------------------');
 }
@@ -103,7 +115,8 @@ async function mainMenu() {
             if (!title) { console.log('Title required.'); break; }
             const desc = await ask('Description: ');
             const date = await ask('Due (YYYY-MM-DD): ');
-            const newTask = await taskManager.addTask(title, desc, date);
+            const priority = await ask('Priority (low/medium/high): ') || 'medium';
+            const newTask = await taskManager.addTask(title, desc, date, priority);
             console.log(`\n${COLORS.green}Task added!${COLORS.reset}`);
             break;
 
@@ -129,13 +142,14 @@ async function mainMenu() {
             if (!target) { console.log('Task not found.'); break; }
             displayTaskDetail(target);
             
-            console.log('Update: (t) Title, (d) Desc, (s) Status, (dd) Due Date, (any) Cancel');
+            console.log('Update: (t) Title, (d) Desc, (p) Priority, (s) Status, (dd) Due Date, (any) Cancel');
             const field = (await ask('Field: ')).toLowerCase();
             const newVal = await ask('New Value: ');
             
             const up = {};
             if (field === 't') up.title = newVal;
             else if (field === 'd') up.description = newVal;
+            else if (field === 'p') up.priority = newVal;
             else if (field === 's') up.status = newVal;
             else if (field === 'dd') up.dueDate = newVal;
             else break;

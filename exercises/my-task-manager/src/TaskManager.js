@@ -42,8 +42,8 @@ export class TaskManager {
         }
     }
 
-    async addTask(title, description, dueDate) {
-        const task = new Task(title, description, dueDate);
+    async addTask(title, description, dueDate, priority = 'medium') {
+        const task = new Task(title, description, dueDate, priority);
         this.tasks.push(task);
         await this.save();
         return task;

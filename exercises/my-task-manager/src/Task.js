@@ -1,10 +1,11 @@
 import { randomUUID } from 'crypto';
 
 export class Task {
-    constructor(title, description, dueDate, status = 'pending', id = null) {
+    constructor(title, description, dueDate, priority = 'medium', status = 'pending', id = null) {
         this.id = id || randomUUID();
         this.title = title;
         this.description = description;
+        this.priority = priority;
         this.status = status;
         this.dueDate = dueDate;
     }
@@ -19,6 +20,7 @@ export class Task {
             data.title,
             data.description,
             data.dueDate,
+            data.priority,
             data.status,
             data.id
         );
