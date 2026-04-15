@@ -11,6 +11,7 @@ import java.util.List;
 
 /**
  * REST controller for book operations.
+ * Uses immutable Book records for data transfer.
  */
 @RestController
 @RequestMapping("/api/books")
@@ -59,9 +60,10 @@ public class BookController {
 
     @PostMapping
     public ResponseEntity<Book> createBook(@Valid @RequestBody Book book) {
+        // Using Record component accessors
         Book created = bookService.addBook(
-                book.getTitle(), book.getAuthor(), book.getIsbn(),
-                book.getPrice(), book.getPublishedDate(), book.getGenre(), book.getStock()
+                book.title(), book.author(), book.isbn(),
+                book.price(), book.publishedDate(), book.genre(), book.stock()
         );
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }

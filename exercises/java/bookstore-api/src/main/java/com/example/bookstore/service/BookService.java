@@ -6,67 +6,56 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 /**
  * Service for managing books in the bookstore.
+ * Delegates data access to BookRepository and handles business logic.
  */
 @Service
 public class BookService {
 
-    private final Map<Long, Book> books = new ConcurrentHashMap<>();
-    private final AtomicLong idCounter = new AtomicLong(1);
+    private final BookRepository bookRepository;
 
-    public BookService() {
-        // Initialize with sample data
-        addBook("The Great Gatsby", "F. Scott Fitzgerald", "978-0743273565",
-                new BigDecimal("14.99"), LocalDate.of(1925, 4, 10), "Fiction", 25);
-        addBook("To Kill a Mockingbird", "Harper Lee", "978-0446310789",
-                new BigDecimal("12.99"), LocalDate.of(1960, 7, 11), "Fiction", 18);
-        addBook("1984", "George Orwell", "978-0451524935",
-                new BigDecimal("11.99"), LocalDate.of(1949, 6, 8), "Dystopian", 30);
-        addBook("Clean Code", "Robert C. Martin", "978-0132350884",
-                new BigDecimal("39.99"), LocalDate.of(2008, 8, 1), "Technical", 15);
+    public BookService(BookRepository bookRepository) {
+        this.bookRepository = bookRepository;
     }
 
     public Book addBook(String title, String author, String isbn,
                         BigDecimal price, LocalDate publishedDate, String genre, int stock) {
-        Long id = idCounter.getAndIncrement();
+        Long id = bookRepository.getNextId();
         Book book = new Book(id, title, author, isbn, price, publishedDate, genre, stock);
-        books.put(id, book);
-        return book;
+        return bookRepository.save(book);
     }
 
     public Optional<Book> getBook(Long id) {
-        return Optional.ofNullable(books.get(id));
+        return bookRepository.findById(id);
     }
 
     public List<Book> getAllBooks() {
-        return new ArrayList<>(books.values());
+        return bookRepository.findAll();
     }
 
     public List<Book> getAllBooks(int page, int size, String sortBy) {
-        List<Book> allBooks = new ArrayList<>(books.values());
+        List<Book> allBooks = bookRepository.findAll();
 
-        // Sort
+        // Sort using Record accessors
         allBooks.sort((b1, b2) -> {
             switch (sortBy.toLowerCase()) {
                 case "title":
-                    return b1.getTitle().compareToIgnoreCase(b2.getTitle());
+                    return b1.title().compareToIgnoreCase(b2.title());
                 case "author":
-                    return b1.getAuthor().compareToIgnoreCase(b2.getAuthor());
+                    return b1.author().compareToIgnoreCase(b2.author());
                 case "price":
-                    return b1.getPrice().compareTo(b2.getPrice());
+                    return b1.price().compareTo(b2.price());
                 case "publisheddate":
-                    return b1.getPublishedDate().compareTo(b2.getPublishedDate());
+                    return b1.publishedDate().compareTo(b2.publishedDate());
                 case "genre":
-                    return b1.getGenre().compareToIgnoreCase(b2.getGenre());
+                    return b1.genre().compareToIgnoreCase(b2.genre());
                 case "stock":
-                    return Integer.compare(b1.getStock(), b2.getStock());
+                    return Integer.compare(b1.stock(), b2.stock());
                 default:
-                    return Long.compare(b1.getId(), b2.getId()); // Default sort by ID
+                    return Long.compare(b1.id(), b2.id());
             }
         });
 
@@ -79,47 +68,47 @@ public class BookService {
 
     public List<Book> searchByTitle(String query) {
         String lowerQuery = query.toLowerCase();
-        return books.values().stream()
-                .filter(book -> book.getTitle().toLowerCase().contains(lowerQuery))
+        return bookRepository.findAll().stream()
+                .filter(book -> book.title().toLowerCase().contains(lowerQuery))
                 .collect(Collectors.toList());
     }
 
     public List<Book> getByAuthor(String author) {
         String lowerAuthor = author.toLowerCase();
-        return books.values().stream()
-                .filter(book -> book.getAuthor().toLowerCase().contains(lowerAuthor))
+        return bookRepository.findAll().stream()
+                .filter(book -> book.author().toLowerCase().contains(lowerAuthor))
                 .collect(Collectors.toList());
     }
 
     public List<Book> getByGenre(String genre) {
-        return books.values().stream()
-                .filter(book -> book.getGenre().equalsIgnoreCase(genre))
+        return bookRepository.findAll().stream()
+                .filter(book -> book.genre().equalsIgnoreCase(genre))
                 .collect(Collectors.toList());
     }
 
     public Optional<Book> updateBook(Long id, Book updates) {
-        Book existing = books.get(id);
-        if (existing == null) {
-            return Optional.empty();
-        }
-
-        if (updates.getTitle() != null) existing.setTitle(updates.getTitle());
-        if (updates.getAuthor() != null) existing.setAuthor(updates.getAuthor());
-        if (updates.getIsbn() != null) existing.setIsbn(updates.getIsbn());
-        if (updates.getPrice() != null) existing.setPrice(updates.getPrice());
-        if (updates.getPublishedDate() != null) existing.setPublishedDate(updates.getPublishedDate());
-        if (updates.getGenre() != null) existing.setGenre(updates.getGenre());
-        if (updates.getStock() >= 0) existing.setStock(updates.getStock());
-
-        return Optional.of(existing);
+        return bookRepository.findById(id).map(existing -> {
+            // Records are immutable, so we create a new one with updated values
+            Book updated = new Book(
+                    existing.id(),
+                    updates.title() != null ? updates.title() : existing.title(),
+                    updates.author() != null ? updates.author() : existing.author(),
+                    updates.isbn() != null ? updates.isbn() : existing.isbn(),
+                    updates.price() != null ? updates.price() : existing.price(),
+                    updates.publishedDate() != null ? updates.publishedDate() : existing.publishedDate(),
+                    updates.genre() != null ? updates.genre() : existing.genre(),
+                    updates.stock() >= 0 ? updates.stock() : existing.stock()
+            );
+            return bookRepository.save(updated);
+        });
     }
 
     public boolean deleteBook(Long id) {
-        return books.remove(id) != null;
+        return bookRepository.deleteById(id);
     }
 
     public List<Book> getInStockBooks() {
-        return books.values().stream()
+        return bookRepository.findAll().stream()
                 .filter(Book::isInStock)
                 .collect(Collectors.toList());
     }
