@@ -1,0 +1,48 @@
+name: Build & publish slides PDF
+
+on:
+  push:
+    paths:
+      - 'slides.md'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/build-slides-pdf.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: slides-pdf
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+
+      - name: Export slides to PDF
+        run: npm run export
+
+      - name: Publish rolling "latest" release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: slides-latest
+          name: Latest slides PDF
+          body: |
+            Auto-built from `slides.md` at commit ${{ github.sha }}.
+
+            Download: [`slides-export.pdf`](https://github.com/${{ github.repository }}/releases/latest/download/slides-export.pdf)
+          files: slides-export.pdf
+          make_latest: true
