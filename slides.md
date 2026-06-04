@@ -91,7 +91,22 @@ Kousen IT, Inc.
 - **Core Skills**: File operations, shell integration, context management
 - **Customization**: `GEMINI.md`, `AGENTS.md`, rules, settings
 - **Safety**: Sandbox mode, permission prompts, checkpointing
-- **Advanced**: MCP integration, skills/plugins, session management
+- **Workflow**: Plan, approve, inspect, test, recover, commit
+- **Extensions**: MCP, skills/plugins, subagents, session management
+
+</v-clicks>
+
+---
+
+# Course Through-Line
+
+<v-clicks>
+
+- Start with a small generated app to learn the interface
+- Move quickly into existing codebases
+- Ask for a plan before meaningful edits
+- Review diffs, run tests, and use checkpoints/rewind
+- Finish with a weather API modernization capstone
 
 </v-clicks>
 
@@ -805,12 +820,25 @@ backgroundSize: cover
 
 <div class="mt-20">
   <h2 class="text-4xl font-bold text-white bg-black bg-opacity-60 px-6 py-3 rounded-lg">
-    Power User Tools
+    Optional Extension Tools
   </h2>
   <p class="text-xl text-white bg-black bg-opacity-60 px-4 py-2 rounded mt-4">
-    MCP, Extensions, Sessions
+    MCP, Skills, Plugins, Sessions
   </p>
 </div>
+
+---
+
+# Advanced Features: Teaching Stance
+
+<v-clicks>
+
+- Useful after students understand the core agent loop
+- Demonstrate one MCP or skill workflow, not every option
+- Keep configuration examples version-checked with `agy --help`
+- Treat subagents and plugins as follow-up practice when time is short
+
+</v-clicks>
 
 ---
 
@@ -1187,6 +1215,25 @@ Check @./src/routes.py and @./src/middleware.py"
 
 ---
 
+# Capstone: Weather API Modernization
+
+<v-clicks>
+
+- Audit the README, Swagger docs, routes, services, and tests
+- Make offline behavior intentional and testable
+- Add a small caching or refactoring improvement
+- Run unit, integration, and browser/e2e tests
+- Inspect the diff and create a clear commit
+
+</v-clicks>
+
+```bash
+cd exercises/python/weather-app
+agy
+```
+
+---
+
 # Git Workflows
 
 <v-clicks>
@@ -1386,11 +1433,11 @@ backgroundSize: cover
 
 <v-clicks>
 
-- **Start in default mode** - Get comfortable first
+- **Plan first** - Ask what will change before approving edits
 - **Enable checkpointing** - Safety net for mistakes
-- **Review generated code** - Don't blindly accept
-- **Use sandbox** for exploratory work
-- **Commit often** - Git is your safety net
+- **Review generated code** - Inspect the diff before committing
+- **Use sandbox** - Helpful for exploratory work
+- **Run tests and commit** - Make progress auditable
 
 </v-clicks>
 
