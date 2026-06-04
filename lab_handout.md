@@ -570,12 +570,19 @@ echo "# Config Test" > README.md
 
 ### Part C: MCP Server Integration (10 minutes)
 
-8. **List available MCP servers**:
+8. **Check available plugin/MCP support**:
    ```bash
-   agy mcp list
+   agy --help
+   agy plugin list
    ```
 
-9.  **Configure Firecrawl MCP**:
+9.  **Import compatible Gemini CLI plugins if needed**:
+    ```bash
+    agy plugin import gemini
+    agy plugin list
+    ```
+
+10. **Configure Firecrawl MCP**:
 
     ```
 
@@ -593,7 +600,7 @@ echo "# Config Test" > README.md
 
 
 
-10.  **Test MCP integration**:
+11.  **Test MCP integration**:
 
     If configured:
 
@@ -603,13 +610,13 @@ echo "# Config Test" > README.md
 
     ```
 
-11. **Explore MCP tools**:
+12. **Explore MCP tools**:
     ```
     What MCP tools are available in this session?
     Show me an example of using one of them.
     ```
 
-12. **Prompt quality booster**:
+13. **Prompt quality booster**:
     ```
     /prompt-suggest
     ```
@@ -617,7 +624,7 @@ echo "# Config Test" > README.md
 
 ### Part D: Non-Interactive Checks (5 minutes)
 
-13. **Check current CLI flags**:
+14. **Check current CLI flags**:
     ```bash
     agy --help
     ```
@@ -730,12 +737,12 @@ After completing this lab:
 
    Then run:
    ```bash
-   agy mcp list
+   agy plugin list
    ```
    In interactive mode:
    ```
-   /mcp list
-   /mcp refresh
+   What MCP or plugin tools are available in this workspace?
+   If I changed MCP configuration, do I need to restart this session?
    ```
 
 7. **MCP resource prompt practice**:
@@ -801,7 +808,7 @@ After completing this optional lab:
 **Solution**: Ask which context files were loaded and check file paths
 
 **Issue**: MCP server not connecting
-**Solution**: Check server configuration in settings.json, then use `agy mcp list` and `/mcp refresh`
+**Solution**: Check the Antigravity MCP/plugin configuration, run `agy plugin list`, and restart `agy` if newly imported tools do not appear
 
 ---
 

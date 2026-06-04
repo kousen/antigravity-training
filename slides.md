@@ -891,32 +891,33 @@ backgroundSize: cover
 
 ---
 
-# Managing MCP Servers
+# Managing MCP / Plugin Servers
 
 ```bash
-# List configured MCP servers
-agy mcp list
+# Check the installed command surface first
+agy --help
 
-# Add a new MCP server
-agy mcp add github npx -y @modelcontextprotocol/server-github
+# List imported Antigravity plugins
+agy plugin list
 
-# Remove an MCP server
-agy mcp remove github
+# Import compatible Gemini CLI extensions/plugins
+agy plugin import gemini
 ```
 
 ---
 
-# Managing MCP Auth/Refresh
+# Verifying MCP Tools
 
 ```bash
-# List MCP tools/resources from inside session
-/mcp list
+# Inside an agy session, ask what tools are loaded
+What MCP or plugin tools are available in this workspace?
 
-# Authenticate with OAuth-enabled MCP server
-/mcp auth github
+# After config changes, restart agy if tools do not appear
+exit
+agy
 
-# Refresh MCP tools/resources
-/mcp refresh
+# Avoid stale Gemini CLI-era examples
+# Version-check before teaching any agy mcp ... command
 ```
 
 ---
@@ -967,14 +968,16 @@ agy mcp remove github
 <v-clicks>
 
 - Antigravity CLI separates MCP server config from general settings
-- Gemini CLI `settings.json` MCP entries migrate to `mcp_config.json`
+- Gemini CLI `settings.json` MCP entries may need migration
 - Some Gemini CLI extensions become Antigravity plugins
+- `agy mcp ...` is not advertised in Antigravity CLI 1.0.5 help
 - Not every extension migrates 1:1
 
 </v-clicks>
 
 ```bash
-agy mcp list
+agy plugin list
+agy plugin import gemini
 ```
 
 📖 [antigravity.google/docs/gcli-migration](https://antigravity.google/docs/gcli-migration)
@@ -1360,18 +1363,18 @@ agy
 
 ---
 
-# Skills + MCP Commands
+# Skills + MCP Operations
 
 ```bash
-# Skills lifecycle
-/skills list
-/skills disable skill-name
-/skills enable skill-name
+# Check the installed command surface
+agy --help
+agy plugin --help
 
-# MCP visibility and maintenance
-/mcp list
-/mcp auth server-name
-/mcp refresh
+# Inspect imported plugin packages
+agy plugin list
+
+# Verify loaded tools from inside the session
+What skills, plugins, and MCP tools are available?
 ```
 
 ---
