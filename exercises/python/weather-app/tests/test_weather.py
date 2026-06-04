@@ -35,12 +35,11 @@ def test_get_weather_valid(client):
 
 @patch("app.services.weather_service.API_KEY", None)
 def test_get_weather_invalid(client):
-    """Test getting weather for an invalid city (falls back to simulation)."""
+    """Test getting weather for an unknown city."""
     response = client.get('/weather/atlantis')
-    assert response.status_code == 200
+    assert response.status_code == 404
     data = response.get_json()
-    assert data['city'] == "Atlantis"
-    assert data.get('source') == 'simulated'
+    assert data["error"] == "City not found"
 
 def test_get_forecast_valid(client):
     """Test getting forecast for a valid city."""
@@ -53,9 +52,8 @@ def test_get_forecast_valid(client):
 
 @patch("app.services.weather_service.API_KEY", None)
 def test_get_forecast_invalid(client):
-    """Test getting forecast for an invalid city (falls back to simulation)."""
+    """Test getting forecast for an unknown city."""
     response = client.get('/forecast/atlantis')
-    assert response.status_code == 200
+    assert response.status_code == 404
     data = response.get_json()
-    assert data['city'] == "Atlantis"
-    assert data.get('source') == 'simulated'
+    assert data["error"] == "City not found"

@@ -23,6 +23,6 @@ def home():
         "endpoints": {
             "/weather/<city>": "Get current weather for a city",
             "/cities": "List available cities",
-            "/forecast/<city>": "Get 5-day forecast (TODO)",
+            "/forecast/<city>": "Get 5-day forecast for a city",
         }
     })

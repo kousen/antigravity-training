@@ -10,7 +10,15 @@ def create_app(config_object=None):
         app.config.from_object(config_object)
 
     # Initialize Swagger
-    swagger = Swagger(app)
+    swagger_template = {
+        "swagger": "2.0",
+        "info": {
+            "title": "Weather API",
+            "description": "Flask weather API for Antigravity CLI training",
+            "version": "1.0.0",
+        },
+    }
+    swagger = Swagger(app, template=swagger_template)
 
     # Register Blueprints
     from app.routes.main import main_bp

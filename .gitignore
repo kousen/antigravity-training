@@ -8,6 +8,7 @@ dist/
 # AI Assistant local settings
 .claude/
 .gemini/
+.gemini-clipboard/
 
 # IDE
 .idea/
@@ -46,6 +47,10 @@ env/
 .pytest_cache/
 .coverage
 htmlcov/
+
+# Generated exercise reports
+exercises/python/weather-app/report.html
+exercises/python/weather-app/assets/
 
 # Java
 target/

@@ -1,9 +1,11 @@
-import os
-import requests
-from datetime import datetime, timedelta
 import random
+from datetime import datetime, timedelta
+import os
 
-# For demonstration, keeping a list of "known" cities for the /cities endpoint
+import requests
+
+# Known cities are available without an OpenWeatherMap API key. Other cities
+# require successful geocoding through the real API.
 KNOWN_CITIES = {
     "new york": "New York",
     "london": "London",
@@ -18,6 +20,23 @@ API_KEY = os.environ.get("OPENWEATHERMAP_API_KEY")
 
 GEOCODING_BASE_URL = "http://api.openweathermap.org/geo/1.0/direct"
 ONE_CALL_BASE_URL = "https://api.openweathermap.org/data/3.0/onecall"
+
+
+def _normalize_city_name(city_name):
+    """Normalize path-friendly city identifiers into lookup keys."""
+    return city_name.strip().lower().replace("_", " ")
+
+
+def _get_known_city_name(city_name):
+    """Return the display name for a known offline city, or None."""
+    return KNOWN_CITIES.get(_normalize_city_name(city_name))
+
+
+def _rng_for(city_name, purpose):
+    """Build a deterministic RNG so simulated data is stable for tests/demos."""
+    seed = f"{purpose}:{_normalize_city_name(city_name)}"
+    return random.Random(seed)
+
 
 def _get_lat_lon_from_city_name(city_name):
     """
@@ -50,22 +69,22 @@ def _get_lat_lon_from_city_name(city_name):
 
 def _generate_simulated_weather(city_name, lat=None, lon=None):
     """Generate simulated weather data for a city (fallback)."""
-    # Use default lat/lon if not provided, or a generic value
     lat = lat if lat is not None else 0.0
     lon = lon if lon is not None else 0.0
+    rng = _rng_for(city_name, "weather")
     
     return {
-        "city": city_name.title(), # Capitalize for display
+        "city": city_name,
         "location": {"lat": lat, "lon": lon},
         "temperature": {
-            "current": round(random.uniform(0, 35), 1),
-            "feels_like": round(random.uniform(0, 35), 1),
-            "min": round(random.uniform(-5, 15), 1),
-            "max": round(random.uniform(20, 40), 1),
+            "current": round(rng.uniform(0, 35), 1),
+            "feels_like": round(rng.uniform(0, 35), 1),
+            "min": round(rng.uniform(-5, 15), 1),
+            "max": round(rng.uniform(20, 40), 1),
         },
-        "condition": random.choice(CONDITIONS),
-        "humidity": random.randint(30, 90),
-        "wind_speed": round(random.uniform(0, 50), 1),
+        "condition": rng.choice(CONDITIONS),
+        "humidity": rng.randint(30, 90),
+        "wind_speed": round(rng.uniform(0, 50), 1),
         "timestamp": datetime.now().isoformat(),
         "source": "simulated"
     }
@@ -120,14 +139,18 @@ def get_weather_data(city_name):
         weather = _fetch_real_weather(city_name)
         if weather:
             return weather
-            
-    # Fallback to simulated data if API fails or no API key
-    return _generate_simulated_weather(city_name)
+
+    known_city_name = _get_known_city_name(city_name)
+    if not known_city_name:
+        return None
+
+    return _generate_simulated_weather(known_city_name)
 
 def _generate_simulated_forecast(city_name, lat=None, lon=None):
     """Generate 5-day simulated forecast."""
     lat = lat if lat is not None else 0.0
     lon = lon if lon is not None else 0.0
+    rng = _rng_for(city_name, "forecast")
     
     forecast = []
     current_date = datetime.now()
@@ -136,13 +159,13 @@ def _generate_simulated_forecast(city_name, lat=None, lon=None):
         date = current_date + timedelta(days=i)
         forecast.append({
             "date": date.strftime("%Y-%m-%d"),
-            "temp_min": round(random.uniform(-5, 15), 1),
-            "temp_max": round(random.uniform(20, 40), 1),
-            "condition": random.choice(CONDITIONS)
+            "temp_min": round(rng.uniform(-5, 15), 1),
+            "temp_max": round(rng.uniform(20, 40), 1),
+            "condition": rng.choice(CONDITIONS)
         })
         
     return {
-        "city": city_name.title(),
+        "city": city_name,
         "forecast": forecast,
         "source": "simulated"
     }
@@ -196,8 +219,12 @@ def get_forecast_data(city_name):
         forecast = _fetch_real_forecast(city_name)
         if forecast:
             return forecast
-            
-    return _generate_simulated_forecast(city_name)
+
+    known_city_name = _get_known_city_name(city_name)
+    if not known_city_name:
+        return None
+
+    return _generate_simulated_forecast(known_city_name)
 
 def get_all_cities():
     """Return list of all known cities (for display purposes)."""

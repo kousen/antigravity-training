@@ -138,17 +138,27 @@ def test_fetch_real_weather_failure_fallback(mock_get, mock_geo):
 
 @patch("app.services.weather_service.API_KEY", "fake_key")
 @patch("app.services.weather_service._get_lat_lon_from_city_name")
-def test_fetch_real_weather_geocoding_fail_fallback(mock_geo):
-    """Test Geocoding failure falls back to simulation."""
+def test_fetch_real_weather_geocoding_fail_for_unknown_city(mock_geo):
+    """Test geocoding failure returns None for an unknown city."""
     # Mock geocoding failure
     mock_geo.return_value = None
 
     # Call function
     result = get_weather_data("UnknownCity")
 
-    # Verify fallback happened
+    assert result is None
+
+
+@patch("app.services.weather_service.API_KEY", "fake_key")
+@patch("app.services.weather_service._get_lat_lon_from_city_name")
+def test_fetch_real_weather_geocoding_fail_fallback_for_known_city(mock_geo):
+    """Test geocoding failure still falls back for a known offline city."""
+    mock_geo.return_value = None
+
+    result = get_weather_data("london")
+
     assert result is not None
-    assert result["city"] == "Unknowncity" # Simulated title-cases it
+    assert result["city"] == "London"
     assert result["source"] == "simulated"
 
 @patch("app.services.weather_service.API_KEY", "fake_key")
