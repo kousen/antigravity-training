@@ -1,7 +1,7 @@
 {
-  "name": "gemini-cli-training",
+  "name": "antigravity-cli-training",
   "version": "1.0.0",
-  "description": "Training course for Google Gemini CLI - Agentic Coding in the Terminal",
+  "description": "Training course for Google Antigravity CLI - Agentic Coding in the Terminal",
   "scripts": {
     "dev": "slidev",
     "build": "slidev build",
@@ -15,7 +15,7 @@
   "author": "Kenneth Kousen <ken.kousen@kousenit.com>",
   "license": "MIT",
   "keywords": [
-    "gemini",
+    "antigravity",
     "google",
     "ai",
     "cli",

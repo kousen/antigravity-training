@@ -1,7 +1,7 @@
 # Project: Bookstore API
 
 ## Overview
-This project is a Spring Boot REST API designed for educational purposes, specifically for training with the Gemini CLI. It simulates a bookstore backend allowing users to manage a collection of books.
+This project is a Spring Boot REST API designed for educational purposes, specifically for training with the Antigravity CLI. It simulates a bookstore backend allowing users to manage a collection of books.
 
 **Key Characteristics:**
 *   **Framework:** Spring Boot 3.2.0 (Web)

@@ -1,6 +1,6 @@
-# Node.js CLI Task Manager
+# Antigravity Task Demo
 
-A simple, robust command-line interface (CLI) application for managing personal tasks. Built with Node.js, it offers features like persistent storage, task filtering, sorting, and search capabilities.
+A simple, robust task manager application used as a completed Antigravity CLI training demo. Built with Node.js, it offers persistent storage, task filtering, sorting, search, a CLI, and a small web UI.
 
 ## Features
 
@@ -23,7 +23,7 @@ A simple, robust command-line interface (CLI) application for managing personal 
 1.  **Clone the repository** (or download the source code):
     ```bash
     git clone <repository-url>
-    cd my-task-manager
+    cd antigravity-task-demo
     ```
 
 2.  **Install dependencies**:
@@ -34,10 +34,16 @@ A simple, robust command-line interface (CLI) application for managing personal 
 
 ## Usage
 
-Start the application by running:
+Start the CLI application by running:
 
 ```bash
 node index.js
+```
+
+Start the web application by running:
+
+```bash
+npm start
 ```
 
 You will be presented with an interactive menu:

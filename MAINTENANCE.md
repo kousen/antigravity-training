@@ -58,7 +58,7 @@ in class regardless, so a stale dep or two is not a teaching hazard.
 
 - **Do not** run `npm audit fix --force` at the root without testing the
   deck rebuild afterwards. It will bump Slidev across a major version.
-- **Do not** upgrade Gemini CLI mid-class. Pin a version on students'
-  machines during the prereq step.
+- **Do not** upgrade Antigravity CLI mid-class. Install and verify before
+  class, then keep the toolchain stable through the session.
 - **Do not** delete `slides.pdf` without regenerating it — students get
   the PDF as a handout.

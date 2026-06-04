@@ -9,7 +9,7 @@ class: text-center
 highlighter: shiki
 lineNumbers: true
 info: |
-  ## Agentic Coding with Gemini CLI
+  ## Agentic Coding with Antigravity CLI
 
   By Kenneth Kousen
 
@@ -17,7 +17,7 @@ info: |
 drawings:
   persist: false
 transition: slide-left
-title: "Agentic Coding with Gemini CLI"
+title: "Agentic Coding with Antigravity CLI"
 mdc: true
 slidev:
   slide-number: true
@@ -40,7 +40,7 @@ css: unocss
 }
 </style>
 
-# Agentic Coding with Gemini CLI
+# Agentic Coding with Antigravity CLI
 
 ## Google's AI Agent in Your Terminal
 
@@ -89,40 +89,38 @@ Kousen IT, Inc.
 
 - **Foundation**: Installation, CLI basics, authentication
 - **Core Skills**: File operations, shell integration, context management
-- **Customization**: GEMINI.md, custom commands, settings.json
-- **Safety**: Sandbox mode, approval policies, checkpointing
-- **Advanced**: MCP integration, skills/extensions, session management
+- **Customization**: `GEMINI.md`, `AGENTS.md`, rules, settings
+- **Safety**: Sandbox mode, permission prompts, checkpointing
+- **Advanced**: MCP integration, skills/plugins, session management
 
 </v-clicks>
 
 ---
 
-# What's New in 0.30 – 0.37
+# The 2026 Transition
 
 <v-clicks>
 
-- **Agent Skills** stable and default-on · **SDK** + `SessionContext` (0.30)
-- **Policy Engine** replaces `--allowed-tools` / `tools.exclude` (0.30)
-- **Gemini 3.1 Pro Preview** available via `/model` (0.31)
-- **Workspace model steering** + parallel extension loading (0.32)
-- **A2A remote agents** over authenticated HTTP (0.33)
-- **Plan Mode** (opt-in via `--approval-mode plan`); gVisor/LXC sandboxing on Linux (0.34)
-- **Multi-registry MCP/extensions**, macOS Seatbelt, Windows sandboxing, Git worktrees (0.36)
-- **Ctrl+G** replaces `Ctrl+X` for external editor; persistent policy approvals (0.37)
-- **Latest stable track**: Gemini CLI `0.37.x`
+- Google is moving Gemini CLI users to **Antigravity CLI**
+- Consumer/free/AI Pro/AI Ultra Gemini CLI requests stop **June 18, 2026**
+- Enterprise Gemini Code Assist access is handled differently
+- Antigravity CLI is **not** a 1:1 feature clone at launch
+- Core constructs survive: context files, skills, hooks, subagents, MCP, plugins
+- Command name changes from `gemini` to `agy`
 
 </v-clicks>
 
 ---
 
-# What is Gemini CLI?
+# What is Antigravity CLI?
 
 <v-clicks>
 
-- Open-source AI agent from Google
-- **Gemini 3.1 Pro Preview** (newest) · Gemini 3 Pro · Gemini 2.5 Pro/Flash
-- Built-in tools: Google Search, file ops, shell, web fetch
+- Terminal-first surface for Google Antigravity agents
+- Launched as the supported successor to Gemini CLI
+- Built-in tools: file ops, shell, web/search capabilities
 - Model Context Protocol (MCP) support
+- Background and parallel subagent workflows
 - Designed for developers who live in the terminal
 
 </v-clicks>
@@ -133,64 +131,27 @@ Kousen IT, Inc.
 
 <v-clicks>
 
-- **Massive Context**: 1 million token context window
-- **Google Search Grounding**: Real-time web access
-- **Free Tier Available**: Generous API limits
-- **Open Source**: Fully open, community-driven
-- **MCP Native**: Built-in Model Context Protocol support
+- **Unified Harness**: Shares Antigravity's agent platform
+- **Terminal-First**: `agy` keeps agent work in your shell
+- **Subagents**: Delegate work to background agent sessions
+- **Configurable**: Permissions, keybindings, themes, settings
+- **MCP / Skills / Plugins**: Extensible workflows
 
 </v-clicks>
 
 ---
 
-# Models Available
+# Antigravity Surfaces
 
 <v-clicks>
 
-- **Gemini 3.1 Pro Preview**: Newest, added in Gemini CLI 0.31
-- **Gemini 3 Pro**: Most intelligent stable model, best for complex coding
-- **Gemini 2.5 Pro**: Strong performance, 1M token context
-- **Gemini 2.5 Flash**: Faster, lower cost option
-- **Auto routing**: CLI picks the best model for each task
-- **Workspace model steering** (0.32+): pin a model per workspace
+- **Antigravity**: agent-first desktop app for orchestration
+- **Antigravity IDE**: developer IDE surface
+- **Antigravity CLI**: terminal UI, launched with `agy`
+- **Antigravity SDK**: preview path for custom agents
+- The course focuses on **Antigravity CLI**
 
 </v-clicks>
-
----
-
-# API Access
-
-<v-clicks>
-
-- **Free Tier**: Generous daily limits
-- **Google AI Ultra**: Full Gemini 3 Pro access
-- **Paid API Key**: Pay-as-you-go pricing
-- Enable via `/settings` → "Preview features"
-
-</v-clicks>
-
-📖 **Get API Key**: [Google AI Studio](https://aistudio.google.com/apikey)
-
----
-
-# Installation
-
-<v-clicks>
-
-- **npm** (recommended): `npm install -g @google/gemini-cli`
-- **npx** (no install): `npx @google/gemini-cli`
-- Verify: `gemini --version`
-- Current version: 0.37.x (latest stable as of April 2026)
-
-</v-clicks>
-
-```bash
-# Install globally
-npm install -g @google/gemini-cli
-
-# Verify installation
-gemini --version
-```
 
 ---
 
@@ -198,22 +159,53 @@ gemini --version
 
 <v-clicks>
 
-- **Environment Variable**: `export GEMINI_API_KEY="your-key"`
-- **Global .env file**: `~/.gemini/.env`
-- **Project .env file**: `./.gemini/.env`
-- **Google Cloud**: `GOOGLE_CLOUD_PROJECT` for Vertex AI
+- Local use defaults to browser-based Google sign-in
+- SSH sessions print a URL and authorization-code flow
+- Enterprise use can connect Google Cloud projects
+- Logout from the TUI with `/logout`
+- First launch also asks for theme, rendering mode, and workspace trust
+
+</v-clicks>
+
+---
+
+# Installation
+
+<v-clicks>
+
+- **macOS / Linux**: `curl -fsSL https://antigravity.google/cli/install.sh | bash`
+- **Windows PowerShell**: `irm https://antigravity.google/cli/install.ps1 | iex`
+- Installs the `agy` binary
+- Verify: `agy --version`
+- Start inside a trusted project directory
 
 </v-clicks>
 
 ```bash
-# Option 1: Environment variable
-export GEMINI_API_KEY="your-api-key"
+# Install on macOS / Linux
+curl -fsSL https://antigravity.google/cli/install.sh | bash
 
-# Option 2: Global .env file
-echo 'GEMINI_API_KEY=your-api-key' >> ~/.gemini/.env
+# Verify installation
+agy --version
+```
 
-# Option 3: Project .env file
-mkdir -p .gemini && echo 'GEMINI_API_KEY=your-api-key' >> .gemini/.env
+---
+
+# First Launch
+
+<v-clicks>
+
+- Open a project directory
+- Run `agy`
+- Pick visual theme and rendering mode
+- Confirm workspace trust
+- Complete Google sign-in
+
+</v-clicks>
+
+```bash
+cd my-project
+agy
 ```
 
 ---
@@ -222,22 +214,22 @@ mkdir -p .gemini && echo 'GEMINI_API_KEY=your-api-key' >> .gemini/.env
 
 <v-clicks>
 
-- **Interactive REPL**: `gemini` - Start a conversation
-- **One-shot**: `gemini "prompt"` - Single response
-- **Piped input**: `echo "task" | gemini`
-- **Interactive with context**: `gemini -i "initial context"`
+- **Interactive REPL**: `agy` - Start a conversation
+- **One-shot**: `agy "prompt"` - Single response
+- **Piped input**: `echo "task" | agy`
+- **Interactive with context**: `agy -i "initial context"`
 
 </v-clicks>
 
 ```bash
 # Interactive mode
-gemini
+agy
 
 # One-shot mode
-gemini "Explain what this codebase does"
+agy "Explain what this codebase does"
 
 # With initial context
-gemini -i "You are a Python expert"
+agy -i "You are a Python expert"
 ```
 
 ---
@@ -272,13 +264,13 @@ backgroundSize: cover
 
 ```bash
 # Reference a specific file
-gemini "Explain @./src/app.py"
+agy "Explain @./src/app.py"
 
 # Reference multiple files
-gemini "Compare @./old.js and @./new.js"
+agy "Compare @./old.js and @./new.js"
 
 # Reference a directory
-gemini "Analyze the architecture in @./src/"
+agy "Analyze the architecture in @./src/"
 ```
 
 ---
@@ -289,7 +281,7 @@ gemini "Analyze the architecture in @./src/"
 
 - Execute shell commands: `!git status`
 - Toggle persistent shell mode: `!`
-- Gemini can observe and analyze output
+- Antigravity can observe and analyze output
 - Combine with AI analysis
 
 </v-clicks>
@@ -297,10 +289,10 @@ gemini "Analyze the architecture in @./src/"
 ```bash
 # In interactive mode:
 > !npm test
-# Gemini sees the test output
+# Antigravity sees the test output
 
 > !git diff
-# Ask Gemini to analyze the changes
+# Ask Antigravity to analyze the changes
 
 # Toggle persistent shell mode
 > !
@@ -314,8 +306,8 @@ gemini "Analyze the architecture in @./src/"
 
 - `/help` - Show available commands
 - `/clear` - Clear conversation history
-- `/memory show` - View loaded context
-- `/memory refresh` - Reload GEMINI.md files
+- `/config` - Open settings
+- `/permissions` - Manage tool permissions
 
 </v-clicks>
 
@@ -325,9 +317,9 @@ gemini "Analyze the architecture in @./src/"
 
 <v-clicks>
 
-- `/init` - Generate project GEMINI.md
-- `/prompt-suggest` - Generate stronger prompts
-- `/stats` - Session and quota metrics
+- `/agents` - Open subagents panel
+- `/fork` - Branch from an earlier point
+- `/logout` - Remove saved credentials
 
 </v-clicks>
 
@@ -348,17 +340,15 @@ gemini "Analyze the architecture in @./src/"
 # Slash Commands in Action (Context)
 
 ```bash
-# Show what context is loaded
-/memory show
+# Open settings and permissions
+/config
+/permissions
 
-# Reload all GEMINI.md files
-/memory refresh
+# Inspect subagents
+/agents
 
-# Generate a GEMINI.md for current project
-/init
-
-# Suggest stronger prompt wording
-/prompt-suggest
+# Ask about active context
+What context files and rules did you load?
 ```
 
 ---
@@ -394,10 +384,10 @@ gemini "Analyze the architecture in @./src/"
 
 <v-clicks>
 
-- `Ctrl+Y` - Toggle auto-approval (YOLO mode)
-- `Shift+Tab` - Cycle approval mode (default/auto_edit/plan)
+- Use the built-in help screen for current keybindings
+- Treat auto-approval shortcuts as version-specific
 - `Ctrl+C` - Cancel current operation
-- `Ctrl+D` - Exit Gemini CLI
+- `Ctrl+D` - Exit Antigravity CLI
 
 </v-clicks>
 
@@ -415,7 +405,7 @@ gemini "Analyze the architecture in @./src/"
 </v-clicks>
 
 ```bash
-# Gemini automatically uses appropriate tools
+# Antigravity automatically uses appropriate tools
 "Search the web for React 19 new features"
 # Uses google_web_search()
 
@@ -445,30 +435,23 @@ backgroundSize: cover
 
 ---
 
-# Approval Modes
+# Permissions
 
 <v-clicks>
 
-- **default** *(the default)*: Prompt for approval on each tool call
-- **plan**: Read-only — draft a plan, no execution until you approve
-- **auto_edit**: Auto-approve file edit tools only
-- **yolo**: Auto-approve ALL tool calls
+- Antigravity CLI prompts before sensitive tool use
+- Use `/permissions` to review and adjust what agents may do
+- Use `/config` or `/settings` for broader safety behavior
+- `--sandbox` isolates execution where supported
+- `--dangerously-skip-permissions` is for disposable demos only
 
 </v-clicks>
 
 ```bash
-# Default - interactive, prompts per tool call
-gemini
+agy
 
-# Draft a plan first (read-only until approved)
-gemini --approval-mode plan
-
-# Auto-approve edits only
-gemini --approval-mode auto_edit
-
-# Auto-approve everything (YOLO mode)
-gemini --approval-mode yolo
-# Or use Ctrl+Y in interactive mode
+/permissions
+/config
 ```
 
 ---
@@ -477,18 +460,17 @@ gemini --approval-mode yolo
 
 <v-clicks>
 
-- **Opt-in with `--approval-mode plan`** — read-only until you approve
-- Drafts a structured plan before touching any file or tool
-- Open the plan in your external editor with `Ctrl+G`
-- Use `Shift+Tab` to cycle into `default` / `auto_edit` once you're ready
-- 0.33+ adds research subagents, annotations, and a `copy` subcommand
+- Ask for a plan before approving file edits or commands
+- Review the intended files, tests, and fallback path
+- Open longer prompts in your external editor with `Ctrl+G`
+- Use `/rewind` or `/undo` when the conversation drifts
+- Use `/fork` to branch from a useful earlier point
 - Great first step when exploring an unfamiliar codebase
 
 </v-clicks>
 
 ```bash
-# Launch in plan mode
-gemini --approval-mode plan
+Plan the change first. Do not edit files yet.
 ```
 
 ---
@@ -506,36 +488,31 @@ gemini --approval-mode plan
 
 ```bash
 # Run in sandbox mode (picks the best backend for your OS)
-gemini --sandbox
+agy --sandbox
 
 # Short form
-gemini -s "Refactor this entire codebase"
+agy -s "Refactor this entire codebase"
 ```
 
 ---
 
-# Sandbox Backends (0.34 – 0.36)
+# Sandbox Mode
 
 <v-clicks>
 
-- **Docker / Podman**: original cross-platform option
-- **gVisor (runsc)**: Linux, added in 0.34 — strong kernel-level isolation
-- **LXC**: Linux, experimental in 0.34
-- **macOS Seatbelt**: native in 0.36, no Docker required
-- **Windows sandboxing**: native subagent sandboxing in 0.36
+- Use sandbox mode when letting agents run commands
+- Combine with small, reviewable tasks
+- Still inspect generated changes
+- Sandbox behavior depends on platform support
+- Good for unfamiliar repos, generated tests, and refactors
 
 </v-clicks>
 
-```json
-// ~/.gemini/settings.json
-{
-  "tools": {
-    "sandbox": "docker"   // or "gvisor", "seatbelt", etc.
-  }
-}
+```bash
+agy --sandbox
 ```
 
-📖 [geminicli.com/docs/cli/settings/](https://geminicli.com/docs/cli/settings/)
+📖 [antigravity.google/docs/cli-settings](https://antigravity.google/docs/cli-settings)
 
 ---
 
@@ -544,14 +521,14 @@ gemini -s "Refactor this entire codebase"
 <v-clicks>
 
 - **Automatic**: Snapshots created before each file modification
-- **Shadow Git**: Stored in `~/.gemini/history/` (not your repo)
+- **Session History**: Resume and rewind are built into the TUI
 - **Includes**: Files + conversation + tool call
 - **Disabled by default**: Must enable in settings
 
 </v-clicks>
 
 ```json
-// ~/.gemini/settings.json
+// ~/.gemini/antigravity-cli/settings.json
 { "general": { "checkpointing": { "enabled": true } } }
 ```
 
@@ -579,7 +556,7 @@ backgroundSize: cover
 
 <div class="text-center mt-20">
   <h2 class="text-4xl font-bold text-white bg-black bg-opacity-60 px-6 py-3 rounded-lg">
-    GEMINI.md Files
+    Context Files and Rules
   </h2>
   <p class="text-xl text-white bg-black bg-opacity-60 px-4 py-2 rounded mt-4">
     Project memory and instructions
@@ -588,15 +565,16 @@ backgroundSize: cover
 
 ---
 
-# What is GEMINI.md?
+# Context Files
 
 <v-clicks>
 
-- **Project memory** loaded automatically
+- **Workspace context** loaded automatically
 - **Coding standards** and conventions
 - **Architecture context** for the AI
 - **Persistent instructions** across sessions
-- Similar to CLAUDE.md or AGENTS.md
+- Antigravity CLI reads both `GEMINI.md` and `AGENTS.md`
+- Workspace rules can also live under `.agents/rules/`
 
 </v-clicks>
 
@@ -606,9 +584,9 @@ backgroundSize: cover
 
 ```mermaid
 graph TD
-    A[~/.gemini/GEMINI.md<br/>Global Rules] --> B[project/GEMINI.md<br/>Project Standards]
-    B --> C[project/frontend/GEMINI.md<br/>Frontend Conventions]
-    B --> D[project/backend/GEMINI.md<br/>Backend Patterns]
+    A[~/.gemini/GEMINI.md<br/>Global Rules] --> B[project/AGENTS.md<br/>Shared Agent Rules]
+    B --> C[project/GEMINI.md<br/>Antigravity Context]
+    C --> D[.agents/rules/*.md<br/>Workspace Rules]
 
     style A fill:#FFE5CC,stroke:#333,stroke-width:2px,color:#000
     style B fill:#CCE5FF,stroke:#333,stroke-width:2px,color:#000
@@ -616,11 +594,11 @@ graph TD
     style D fill:#CCFFE5,stroke:#333,stroke-width:2px,color:#000
 ```
 
-More specific files override general ones
+Keep shared rules in `AGENTS.md`; use `GEMINI.md` only for Antigravity-specific context.
 
 ---
 
-# Example GEMINI.md
+# Example AGENTS.md
 
 ```markdown
 # Project: Weather API
@@ -638,26 +616,20 @@ Implementing caching layer for API responses
 
 ---
 
-# Memory Commands
+# Context Commands
 
 <v-clicks>
 
-- `/memory show` - View combined context
-- `/memory refresh` - Reload all GEMINI.md files
-- `/memory add <text>` - Append to global GEMINI.md
-- `/init` - Generate starter GEMINI.md
+- `/config` - Manage settings
+- `@` - Reference files and rules directly
+- `/rewind` - Back out of context drift
+- `/fork` - Branch from a useful earlier point
+- Ask the agent what context it loaded
 
 </v-clicks>
 
 ```bash
-# See what context is loaded
-/memory show
-
-# Add a quick note to global memory
-/memory add "Always use async/await for database calls"
-
-# Generate a project-specific GEMINI.md
-/init
+What project rules and context files are active right now?
 ```
 
 ---
@@ -673,7 +645,7 @@ Implementing caching layer for API responses
 </v-clicks>
 
 ```markdown
-# GEMINI.md
+# AGENTS.md
 
 ## Project Overview
 @./docs/architecture.md
@@ -704,15 +676,15 @@ backgroundSize: cover
 
 ---
 
-# Configuration Layers
+# Configuration Files
 
 <v-clicks>
 
-1. **Default values** - Built-in defaults
-2. **User settings** - `~/.gemini/settings.json`
-3. **Project settings** - `.gemini/settings.json`
-4. **Environment variables** - Including `.env` files
-5. **Command-line arguments** - Highest priority
+1. **Settings** - `~/.gemini/antigravity-cli/settings.json`
+2. **Keybindings** - `~/.gemini/antigravity-cli/keybindings.json`
+3. **Global rules** - `~/.gemini/GEMINI.md`
+4. **Workspace rules** - `.agents/rules/`
+5. **Workspace skills** - `.agents/skills/`
 
 </v-clicks>
 
@@ -748,34 +720,23 @@ backgroundSize: cover
 
 ---
 
-# Tool Configuration
+# Tool Permissions
 
 <v-clicks>
 
-- **tools.allowed**: Whitelist available tools
-- **Policy Engine** (preferred): `deny` rules for blocking tools
-- `tools.exclude` still works but is **deprecated** since 0.30
+- Use `/permissions` for interactive permission management
+- Use `/config` or `/settings` for persistent settings
+- Keep high-risk commands behind prompts in teaching demos
+- Prefer sandbox mode for generated shell work
 
 </v-clicks>
 
-```json
-{
-  "tools": {
-    "allowed": ["read_file", "write_file", "glob"]
-  }
-}
-```
-
-Pass a policy file to block tools:
-
 ```bash
-gemini --policy ./policy.toml
+/permissions
+/config
 ```
 
-Policy files use TOML with `decision` + `priority` fields per rule.
-See the current schema at the docs link below.
-
-📖 [geminicli.com/docs/reference/policy-engine](https://geminicli.com/docs/reference/policy-engine/)
+📖 [antigravity.google/docs/cli-permissions](https://antigravity.google/docs/cli-permissions)
 
 ---
 
@@ -785,7 +746,7 @@ See the current schema at the docs link below.
 
 - **respectGitIgnore**: Honor .gitignore patterns
 - **enableRecursiveFileSearch**: Recursive completion
-- **.geminiignore**: Custom ignore patterns
+- **Rules**: Keep generated/sensitive paths out of agent context
 
 </v-clicks>
 
@@ -794,7 +755,6 @@ See the current schema at the docs link below.
   "context": {
     "fileFiltering": {
       "respectGitIgnore": true,
-      "respectGeminiIgnore": true,
       "enableRecursiveFileSearch": true
     }
   }
@@ -807,35 +767,32 @@ See the current schema at the docs link below.
 
 | Variable | Purpose |
 |----------|---------|
-| `GEMINI_API_KEY` | Google AI Studio authentication |
-| `GOOGLE_API_KEY` | Vertex API key authentication |
-| `GEMINI_MODEL` | Override default model |
+| Browser sign-in | Default local authentication |
+| `GOOGLE_API_KEY` | API-key route when supported |
 | `GOOGLE_CLOUD_PROJECT` | GCP project for Vertex AI |
 | `GOOGLE_CLOUD_LOCATION` | GCP region |
-| `GEMINI_CLI_HOME` | Override Gemini CLI home directory |
 | `HTTP_PROXY` | Network proxy |
 
 ---
 
-# Custom Context Filename
+# Context File Strategy
 
 <v-clicks>
 
-- Change from `GEMINI.md` to a custom name
-- **`AGENTS.md` is officially supported** — friendly to multi-agent repos
-- Support multiple filenames in priority order
-- Include additional directories
+- Use `AGENTS.md` for cross-tool repository rules
+- Keep `GEMINI.md` for Antigravity/Gemini-specific context
+- Put reusable workspace rules under `.agents/rules/`
+- Put workspace skills under `.agents/skills/`
 
 </v-clicks>
 
-```json
-{
-  "context": {
-    "fileName": ["AGENTS.md", "GEMINI.md", "CONTEXT.md"],
-    "includeDirectories": ["~/shared-context"],
-    "loadMemoryFromIncludeDirectories": true
-  }
-}
+```text
+project/
+├── AGENTS.md
+├── GEMINI.md
+└── .agents/
+    ├── rules/
+    └── skills/
 ```
 
 ---
@@ -910,13 +867,13 @@ backgroundSize: cover
 
 ```bash
 # List configured MCP servers
-gemini mcp list
+agy mcp list
 
 # Add a new MCP server
-gemini mcp add github npx -y @modelcontextprotocol/server-github
+agy mcp add github npx -y @modelcontextprotocol/server-github
 
 # Remove an MCP server
-gemini mcp remove github
+agy mcp remove github
 ```
 
 ---
@@ -977,24 +934,22 @@ gemini mcp remove github
 
 ---
 
-# Multi-Registry Architecture (0.36+)
+# Plugins and MCP
 
 <v-clicks>
 
-- Gemini CLI now supports **multiple extension/MCP registries** side by side
-- Mix the public MCP registry with internal/private registries
-- Useful for teams that host vetted MCP servers internally
-- Extensions load in parallel (added in 0.32)
+- Antigravity CLI separates MCP server config from general settings
+- Gemini CLI `settings.json` MCP entries migrate to `mcp_config.json`
+- Some Gemini CLI extensions become Antigravity plugins
+- Not every extension migrates 1:1
 
 </v-clicks>
 
 ```bash
-# List registries and what each provides
-gemini extensions list
-gemini mcp list
+agy mcp list
 ```
 
-📖 [geminicli.com/docs/changelogs/latest/](https://geminicli.com/docs/changelogs/latest/)
+📖 [antigravity.google/docs/gcli-migration](https://antigravity.google/docs/gcli-migration)
 
 ---
 
@@ -1002,10 +957,10 @@ gemini mcp list
 
 <v-clicks>
 
-- Gemini CLI can call **remote agents over HTTP** via the A2A protocol
-- Authenticated agent-card discovery for private catalogs
-- Same permissioning story as MCP: allow/deny per server
-- Good fit for internal "shared agents" a team maintains centrally
+- Antigravity CLI is built for multi-agent workflows
+- Use `/agents` to open the agent panel
+- Delegate background work to subagents
+- Monitor status without blocking your terminal flow
 
 </v-clicks>
 
@@ -1015,49 +970,41 @@ gemini mcp list
 
 <v-clicks>
 
-- Extend Gemini CLI capabilities
-- Place in `~/.gemini/extensions/`
-- Configure with `gemini-extension.json`
-- List with `gemini --list-extensions`
+- Extend Antigravity with plugins and skills
+- Global CLI skills live under `~/.gemini/antigravity-cli/skills/`
+- Workspace skills live under `.agents/skills/`
+- Reusable prompts belong in skills/workflows
 
 </v-clicks>
 
 ```bash
-# List available extensions
-gemini --list-extensions
-
-# Use specific extensions only
-gemini -e extension1 -e extension2
-
-# Manage extensions
-gemini extensions list
-gemini extensions enable my-extension
+/agents
+/config
 ```
 
 ---
 
-# Custom Commands
+# Reusable Skills
 
 <v-clicks>
 
-- Create reusable prompt templates
-- Place TOML files in `~/.gemini/commands/`
-- Access via slash command syntax
+- Skills package repeatable agent behavior
+- Store workspace skills in `.agents/skills/<name>/SKILL.md`
+- Keep descriptions specific so agents know when to use them
+- Use skills for review, test generation, docs, refactoring
 
 </v-clicks>
 
-```toml
-# ~/.gemini/commands/review.toml
-description = "Review code for issues"
+```markdown
+---
+name: code-review
+description: Review code for issues.
+---
 
-prompt = """
-Review the following code for:
+Review code for:
 - Security vulnerabilities
 - Performance issues
 - Best practices violations
-
-{{args}}
-"""
 ```
 
 ---
@@ -1067,43 +1014,34 @@ Review the following code for:
 <v-clicks>
 
 - **Resume sessions**: Continue previous conversations
-- **List sessions**: View available sessions
-- **Delete sessions**: Clean up old conversations
+- **Auto-save resume**: CLI prints a resume command on exit
+- **Session browser**: `/resume` from inside the TUI
+- **Rewind**: `/rewind` or `/undo` backs out of drift
 
 </v-clicks>
 
 ```bash
-# Resume the latest session
-gemini --resume
-
-# Resume by index
-gemini --resume 3
-
-# List available sessions
-gemini --list-sessions
-
-# Delete a session
-gemini --delete-session 5
+agy
+/resume
+/rewind
 ```
 
 ---
 
-# Output Formats
+# Keybindings
 
 <v-clicks>
 
-- **text**: Default human-readable output
-- **json**: Structured JSON for scripting
-- **stream-json**: Streaming JSON for real-time
+- `/keybindings` opens the shortcut editor
+- `Ctrl+G` opens your prompt in `$EDITOR`
+- `Ctrl+D` exits the TUI
+- `Ctrl+L` clears the screen
+- `Ctrl+C` or `Esc` cancels/backs out
 
 </v-clicks>
 
 ```bash
-# JSON output for automation
-gemini -o json "List all TODO comments"
-
-# Stream JSON for real-time processing
-gemini -o stream-json "Analyze this codebase"
+/keybindings
 ```
 
 ---
@@ -1114,7 +1052,7 @@ gemini -o stream-json "Analyze this codebase"
 
 - **VS Code Integration**: Connect to workspace
 - **Native diff viewing**: Review changes in editor
-- **Context sharing**: IDE context available to Gemini
+- **Context sharing**: IDE context available to Antigravity agents
 
 </v-clicks>
 
@@ -1155,10 +1093,10 @@ backgroundSize: cover
 </v-clicks>
 
 ```bash
-gemini "Analyze the architecture of @./src/ and explain
+agy "Analyze the architecture of @./src/ and explain
 how the components interact"
 
-gemini "Trace the flow from the API endpoint to the database
+agy "Trace the flow from the API endpoint to the database
 in @./src/controllers/ and @./src/services/"
 ```
 
@@ -1176,10 +1114,10 @@ in @./src/controllers/ and @./src/services/"
 </v-clicks>
 
 ```bash
-gemini "Create comprehensive unit tests for @./src/utils.py
+agy "Create comprehensive unit tests for @./src/utils.py
 with pytest, including edge cases"
 
-gemini "Generate integration tests for @./src/api/users.py
+agy "Generate integration tests for @./src/api/users.py
 with proper mocking"
 ```
 
@@ -1197,12 +1135,12 @@ with proper mocking"
 </v-clicks>
 
 ```bash
-gemini "Generate a comprehensive README.md for this project"
+agy "Generate a comprehensive README.md for this project"
 
-gemini "Add detailed docstrings to all public functions
+agy "Add detailed docstrings to all public functions
 in @./src/services/"
 
-gemini "Create a Mermaid diagram showing the system architecture"
+agy "Create a Mermaid diagram showing the system architecture"
 ```
 
 ---
@@ -1219,10 +1157,10 @@ gemini "Create a Mermaid diagram showing the system architecture"
 </v-clicks>
 
 ```bash
-gemini "Refactor @./src/legacy.py to use modern Python 3.12
+agy "Refactor @./src/legacy.py to use modern Python 3.12
 features like type hints and match statements"
 
-gemini "Convert this callback-based code to async/await
+agy "Convert this callback-based code to async/await
 @./src/api.js"
 ```
 
@@ -1240,10 +1178,10 @@ gemini "Convert this callback-based code to async/await
 </v-clicks>
 
 ```bash
-gemini "This test is failing with @./tests/output.log.
+agy "This test is failing with @./tests/output.log.
 Analyze the error and fix the issue in @./src/app.py"
 
-gemini "Debug why the API returns 500 errors.
+agy "Debug why the API returns 500 errors.
 Check @./src/routes.py and @./src/middleware.py"
 ```
 
@@ -1276,21 +1214,16 @@ from the last 5 commits"
 
 <v-clicks>
 
-- Non-interactive mode for pipelines
-- JSON output for parsing
-- Exit codes for success/failure
-- Automated code reviews
+- Use the CLI only where current `agy --help` confirms support
+- Keep CI prompts deterministic and repo-scoped
+- Store logs/artifacts for auditability
+- Prefer human review for code-changing workflows
 
 </v-clicks>
 
 ```bash
-# In CI/CD pipeline
-gemini "Review @./src/ for security issues" -o json > review.json
-
-# Check exit code
-if gemini "Verify all tests pass" -o json; then
-  echo "All checks passed"
-fi
+agy --help
+agy "Review @./src/ for security issues"
 ```
 
 ---
@@ -1316,9 +1249,10 @@ backgroundSize: cover
 <v-clicks>
 
 - **Login with Google**: Best default for local interactive usage
-- **`GEMINI_API_KEY`**: Simple personal/team scripts via AI Studio
-- **Vertex + ADC**: Enterprise cloud projects and IAM-managed access
-- **Service account credentials**: CI/CD and headless automation
+- **Browser sign-in**: Best default for local interactive usage
+- **Google Cloud project**: Enterprise onboarding path
+- **ADC / service account**: CI and controlled automation where supported
+- **June 18, 2026**: Gemini CLI consumer transition deadline
 
 </v-clicks>
 
@@ -1327,16 +1261,15 @@ backgroundSize: cover
 # Auth Quick Checks
 
 ```bash
-# API key route
-export GEMINI_API_KEY="..."
-gemini
+# Local route
+agy
 
-# Vertex route (ADC)
-unset GEMINI_API_KEY GOOGLE_API_KEY
+# Cloud route (ADC)
+unset GOOGLE_API_KEY
 gcloud auth application-default login
 export GOOGLE_CLOUD_PROJECT="my-project"
 export GOOGLE_CLOUD_LOCATION="us-central1"
-gemini
+agy
 ```
 
 ---
@@ -1400,8 +1333,8 @@ gemini
 
 <v-clicks>
 
-- Prefer `-o json` for machine-readable parsing
-- Use exit codes for pipeline gates
+- Verify current non-interactive flags with `agy --help`
+- Use exit codes only after testing the exact command
 - Keep prompts deterministic and repo-scoped
 - Store logs/artifacts for auditability
 
@@ -1412,13 +1345,8 @@ gemini
 # CI Example: Gate + Report
 
 ```bash
-gemini -o json "Review @./src/ for security issues" > review.json
-
-if gemini -o json "Run checks and report pass/fail"; then
-  echo "Gate passed"
-else
-  echo "Gate failed" && exit 1
-fi
+agy --help
+agy "Review @./src/ for security issues and write a concise report"
 ```
 
 ---
@@ -1472,23 +1400,23 @@ backgroundSize: cover
 
 <v-clicks>
 
-1. Create comprehensive GEMINI.md
-2. Set up project-specific settings.json
+1. Create concise `AGENTS.md`
+2. Add Antigravity-specific `GEMINI.md` only when needed
 3. Configure relevant MCP servers
-4. Create custom commands for common tasks
+4. Create `.agents/skills/` for common workflows
 5. Establish team conventions
 
 </v-clicks>
 
 ---
 
-# GEMINI.md Best Practices
+# Context Best Practices
 
 <v-clicks>
 
 - **Keep it focused** - Relevant project info only
 - **Update regularly** - Reflect current state
-- **Use imports** - Modularize large contexts
+- **Prefer AGENTS.md** - Shared rules across tools
 - **Include examples** - Show expected patterns
 - **Document conventions** - Style guides, patterns
 
@@ -1500,9 +1428,9 @@ backgroundSize: cover
 
 <v-clicks>
 
-- Share GEMINI.md in version control
-- Standardize settings.json across team
-- Create shared custom commands
+- Share `AGENTS.md` in version control
+- Document Antigravity settings for the team
+- Create shared skills, rules, and workflows
 - Document AI-assisted workflows
 - Review AI-generated code together
 
@@ -1515,9 +1443,9 @@ backgroundSize: cover
 <v-clicks>
 
 - **Overly broad prompts** → Be specific
-- **Missing context** → Use GEMINI.md
+- **Missing context** → Use AGENTS.md or workspace rules
 - **Skipping review** → Always verify output
-- **YOLO mode too early** → Build trust first
+- **Skipping permissions** → Only for disposable demos
 - **Ignoring checkpoints** → Enable early
 
 </v-clicks>
@@ -1528,23 +1456,24 @@ backgroundSize: cover
 
 <v-clicks>
 
-- **Authentication issues**: Check `GEMINI_API_KEY`
+- **Authentication issues**: Re-run browser sign-in or `/logout`
 - **Rate limits**: Use appropriate tier
 - **Tool failures**: Check MCP server status
-- **Context not loading**: Run `/memory refresh`
-- **Debug mode**: Use `gemini -d` for details
+- **Context not loading**: Ask which files/rules were loaded
+- **CLI flags**: Use `agy --help` for the current reference
 
 </v-clicks>
 
 ```bash
 # Debug mode for troubleshooting
-gemini -d
+agy --help
 
-# Check memory/context
-/memory show
+# Inspect loaded context
+What context files and rules did you load?
 
-# Refresh context files
-/memory refresh
+# Review active settings and permissions
+/config
+/permissions
 ```
 
 ---
@@ -1553,16 +1482,16 @@ gemini -d
 
 <div class="grid grid-cols-2 gap-8 mt-8 place-items-center">
   <div class="flex flex-col items-center">
-    <h3>Gemini CLI Docs</h3>
+    <h3>Antigravity CLI Docs</h3>
     <QRCode
       :width="200"
       :height="200"
       type="svg"
-      data="https://github.com/google-gemini/gemini-cli"
+      data="https://antigravity.google/docs/cli-getting-started"
       :margin="5"
       :dotsOptions="{ type: 'rounded', color: '#3b82f6' }"
     />
-    <p class="text-sm mt-2">github.com/google-gemini/gemini-cli</p>
+    <p class="text-sm mt-2">antigravity.google/docs/cli-getting-started</p>
   </div>
   <div class="flex flex-col items-center">
     <h3>Course Repository</h3>
@@ -1587,10 +1516,10 @@ gemini -d
 <v-clicks>
 
 ### 📚 Official Documentation
-`https://github.com/google-gemini/gemini-cli`
+`https://antigravity.google/docs/cli-getting-started`
 
-### 🔑 Get API Key
-`https://aistudio.google.com/apikey`
+### 🔁 Migration Guide
+`https://antigravity.google/docs/gcli-migration`
 
 ### 📦 MCP Server Registry
 `https://modelcontextprotocol.io/registry`
@@ -1608,13 +1537,13 @@ gemini -d
 
 ```bash
 # Interactive mode
-gemini
+agy
 
 # One-shot mode
-gemini "prompt"
+agy "prompt"
 
 # Interactive with initial context
-gemini -i "context"
+agy -i "context"
 ```
 
 ---
@@ -1623,13 +1552,10 @@ gemini -i "context"
 
 ```bash
 # Run in sandbox mode
-gemini --sandbox
+agy --sandbox
 
-# Auto-approve all tool calls
-gemini --approval-mode yolo
-
-# Auto-approve file edits only
-gemini --approval-mode auto_edit
+# Disposable demo only
+agy --dangerously-skip-permissions
 ```
 
 ---
@@ -1637,14 +1563,9 @@ gemini --approval-mode auto_edit
 # Command Reference: Sessions
 
 ```bash
-# Resume last session
-gemini --resume
-
-# List available sessions
-gemini --list-sessions
-
-# Delete a session
-gemini --delete-session 2
+agy
+/resume
+/rewind
 ```
 
 ---
@@ -1652,14 +1573,8 @@ gemini --delete-session 2
 # Command Reference: Output
 
 ```bash
-# JSON output for scripting
-gemini -o json "prompt"
-
-# Streaming JSON events
-gemini -o stream-json "prompt"
-
-# Debug mode
-gemini -d
+agy --help
+agy "prompt"
 ```
 
 ---

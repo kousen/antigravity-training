@@ -1,6 +1,6 @@
 # Bookstore API
 
-A Spring Boot REST API for managing books, designed for Gemini CLI training exercises.
+A Spring Boot REST API for managing books, designed for Antigravity CLI training exercises.
 
 ## Setup
 
@@ -22,7 +22,7 @@ A Spring Boot REST API for managing books, designed for Gemini CLI training exer
 
 ## Exercise Goals
 
-Use Gemini CLI to:
+Use Antigravity CLI to:
 1. Explore the Spring Boot architecture
 2. Add input validation with Bean Validation
 3. Add proper exception handling with @ControllerAdvice

@@ -1,12 +1,20 @@
 # Weather App
 
-A simple Flask-based weather API for Gemini CLI training exercises.
+A simple Flask-based weather API for Antigravity CLI training exercises.
 
 ## Setup
 
 ```bash
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
 python app.py
+```
+
+Run the test suite:
+
+```bash
+pytest
 ```
 
 ## API Endpoints
@@ -18,7 +26,7 @@ python app.py
 
 ## Exercise Goals
 
-Use Gemini CLI to:
+Use Antigravity CLI to:
 1. Explore and understand the codebase
 2. Add comprehensive error handling
 3. Implement the forecast endpoint

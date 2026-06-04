@@ -1,6 +1,6 @@
-# Node.js Task Manager CLI
+# Antigravity Lab Task Manager
 
-A robust, interactive command-line application for managing tasks, built entirely with Node.js native modules (ESM). It features persistent JSON storage, a color-coded dashboard, priority levels, and comprehensive search/filtering capabilities.
+A robust, interactive command-line application for managing tasks, built as an Antigravity CLI lab result with Node.js native modules (ESM). It features persistent JSON storage, a color-coded dashboard, priority levels, and comprehensive search/filtering capabilities.
 
 ## Features
 
@@ -62,7 +62,7 @@ Filter/Sort: a
 
 #   | ID       | STATUS             | PRIORITY         | DUE DATE           | TITLE
 ------------------------------------------------------------------------------------------
-1   | fafa1830 | PENDING            | HIGH             | 2026-04-14         | Learn Gemini CLI
+1   | fafa1830 | PENDING            | HIGH             | 2026-04-14         | Learn Antigravity CLI
 2   | a1b2c3d4 | IN-PROGRESS        | MEDIUM           | 2026-04-10         | Write Documentation
 ```
 *(Note: If a task is past its due date and not completed, its date will be highlighted in red)*

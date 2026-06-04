@@ -1,20 +1,6 @@
 {
-  "$schema": "https://raw.githubusercontent.com/google-gemini/gemini-cli/main/schemas/settings.schema.json",
-  "_comment": "Basic Gemini CLI configuration for getting started",
-
-  "general": {
-    "preferredEditor": "vscode",
-    "vimMode": false,
-    "defaultApprovalMode": "default",
-    "checkpointing": {
-      "enabled": true
-    }
-  },
-  "ui": {
-    "hideTips": false,
-    "hideBanner": false
-  },
-  "tools": {
-    "sandbox": false
-  }
+  "_comment": "Illustrative Antigravity CLI settings. Confirm current keys in /config or the live docs before using.",
+  "preferredEditor": "code",
+  "vimMode": false,
+  "sandbox": false
 }

@@ -1,6 +1,6 @@
 /**
  * Task Manager - A Node.js task management module.
- * Exercise project for Gemini CLI training.
+ * Exercise project for Antigravity CLI training.
  */
 
 class Task {

@@ -1,6 +1,6 @@
 # Task Manager
 
-A Node.js task management CLI for Gemini CLI training exercises.
+A Node.js task management CLI for Antigravity CLI training exercises.
 
 ## Setup
 
@@ -19,7 +19,7 @@ npm start
 
 ## Exercise Goals
 
-Use Gemini CLI to:
+Use Antigravity CLI to:
 1. Explore the code architecture
 2. Add a CLI interface using readline
 3. Add colored console output

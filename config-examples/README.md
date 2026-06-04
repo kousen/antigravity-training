@@ -1,69 +1,49 @@
 # Configuration Examples
 
-This folder contains example `settings.json` configurations for Gemini CLI.
-They use the current nested schema (`general`, `ui`, `tools`, `context`, etc.).
+This folder contains illustrative Antigravity CLI configuration snippets.
+
+Antigravity CLI stores user settings in:
+
+```text
+~/.gemini/antigravity-cli/settings.json
+```
+
+Keybindings live in:
+
+```text
+~/.gemini/antigravity-cli/keybindings.json
+```
+
+MCP server configuration is separate from general settings. If you are migrating from Gemini CLI, do not assume old inline `mcpServers` entries belong in `settings.json`; use the Antigravity migration guide and current docs.
 
 ## Files
 
-### settings-basic.json
-Minimal configuration for beginners. Enables checkpointing for safety while keeping most other features near defaults.
+- `settings-basic.json`: small personal-preference example
+- `settings-advanced.json`: more opinionated UI/editor example
+- `settings-safe.json`: classroom safety notes in JSON form
+- `settings-mcp.json`: MCP-related settings notes for classroom discussion
 
-**Use when**: Getting started with Gemini CLI
-
-### settings-advanced.json
-Full-featured configuration with:
-- Vim mode enabled
-- Tips and banner hidden for cleaner interface
-- Tool output summarization for shell output
-- File filtering with `.gitignore` and `.geminiignore`
-- Explicit tool allow/exclude lists
-
-**Use when**: You're comfortable with Gemini CLI and want optimal productivity
-
-### settings-safe.json
-Restricted configuration for maximum safety:
-- Sandbox mode enabled (`docker`)
-- Only read-only tools allowed
-- Shell and write operations disabled
-- Session turn limits
-- YOLO mode disabled
-
-**Use when**: Exploring untrusted codebases or training new users
-
-### settings-mcp.json
-Configuration with MCP server integrations:
-- GitHub server for repo/issue operations
-- Filesystem server for extended file access
-- PostgreSQL server for database queries
-- Global MCP allow/exclude controls via `mcp.allowed` / `mcp.excluded`
-
-**Use when**: You need to integrate with external tools and services
+Treat these as teaching material, not guaranteed copy/paste production config. Antigravity is moving quickly enough that the live docs win.
 
 ## Usage
 
-Copy the desired configuration to your project or user settings:
-
 ```bash
-# Project-specific settings
-mkdir -p .gemini
-cp settings-advanced.json .gemini/settings.json
-
-# User-level settings (all projects)
-cp settings-advanced.json ~/.gemini/settings.json
+mkdir -p ~/.gemini/antigravity-cli
+cp settings-basic.json ~/.gemini/antigravity-cli/settings.json
+agy
 ```
 
-## Environment Variables
+Inside the TUI, prefer:
 
-MCP configurations use `$VAR_NAME` (or `${VAR_NAME}`) syntax for environment variable substitution. Set these before starting Gemini CLI:
-
-```bash
-export GITHUB_TOKEN="your-github-token"
-export DATABASE_URL="postgres://user:pass@localhost:5432/db"
+```text
+/config
+/settings
+/permissions
+/keybindings
 ```
 
-Or add them to your `.gemini/.env` file:
+## References
 
-```
-GITHUB_TOKEN=your-github-token
-DATABASE_URL=postgres://user:pass@localhost:5432/db
-```
+- https://antigravity.google/docs/cli-settings
+- https://antigravity.google/docs/cli-permissions
+- https://antigravity.google/docs/gcli-migration

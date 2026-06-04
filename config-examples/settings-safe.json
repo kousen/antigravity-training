@@ -1,49 +1,9 @@
 {
-  "$schema": "https://raw.githubusercontent.com/google-gemini/gemini-cli/main/schemas/settings.schema.json",
-  "_comment": "Safety-focused configuration - restricted tools, sandbox enabled. NOTE: tools.exclude is deprecated as of 0.30 - prefer a policy file (gemini --policy policy.toml) with deny rules. Legacy exclude still works but will be removed in a future release.",
-
-  "general": {
-    "preferredEditor": "vscode",
-    "vimMode": false,
-    "defaultApprovalMode": "plan",
-    "checkpointing": {
-      "enabled": true
-    }
-  },
-  "ui": {
-    "hideTips": false,
-    "hideBanner": false
-  },
-  "model": {
-    "maxSessionTurns": 50
-  },
-  "context": {
-    "fileFiltering": {
-      "respectGitIgnore": true,
-      "respectGeminiIgnore": true,
-      "enableRecursiveFileSearch": false,
-      "enableFuzzySearch": false
-    }
-  },
-  "tools": {
-    "sandbox": "docker",
-    "allowed": [
-      "read_file",
-      "read_many_files",
-      "glob",
-      "search_file_content",
-      "google_web_search"
-    ],
-    "exclude": [
-      "run_shell_command",
-      "write_file",
-      "replace"
-    ]
-  },
-  "privacy": {
-    "usageStatisticsEnabled": false
-  },
-  "security": {
-    "disableYoloMode": true
+  "_comment": "Classroom safety checklist encoded as JSON notes, not a guaranteed schema.",
+  "recommended": {
+    "useSandbox": true,
+    "keepTerminalCommandsBehindPrompts": true,
+    "avoidDangerouslySkipPermissions": true,
+    "reviewPlansBeforeEdits": true
   }
 }
