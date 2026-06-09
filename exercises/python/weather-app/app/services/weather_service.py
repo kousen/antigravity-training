@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import random
 from flask import has_app_context, current_app
 import logging
+from app.exceptions import CityNotFoundError, ExternalAPIError
 
 # Configure fallback logger
 logger = logging.getLogger(__name__)
@@ -55,6 +56,14 @@ def _get_lat_lon_from_city_name(city_name):
     try:
         geocoding_url = _get_config_value("GEOCODING_BASE_URL", "http://api.openweathermap.org/geo/1.0/direct")
         response = requests.get(geocoding_url, params=params, timeout=5)
+        
+        if response.status_code == 404:
+            raise CityNotFoundError(f"City '{city_name}' not found")
+        elif response.status_code == 401:
+            raise ExternalAPIError("Invalid API key or unauthorized", status_code=401)
+        elif 500 <= response.status_code < 600:
+            raise ExternalAPIError(f"External API server error: {response.status_code}", status_code=response.status_code)
+            
         response.raise_for_status()
         data = response.json()
 
@@ -63,7 +72,18 @@ def _get_lat_lon_from_city_name(city_name):
             return result["lat"], result["lon"], result["name"]
         else:
             return None
+    except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
+        _log_error(f"Connection/timeout error fetching geocoding data for {city_name}: {e}")
+        return None
     except requests.RequestException as e:
+        if e.response is not None:
+            status_code = e.response.status_code
+            if status_code == 404:
+                raise CityNotFoundError(f"City '{city_name}' not found") from e
+            elif status_code == 401:
+                raise ExternalAPIError("Invalid API key or unauthorized", status_code=401) from e
+            elif 500 <= status_code < 600:
+                raise ExternalAPIError(f"External API server error: {status_code}", status_code=status_code) from e
         _log_error(f"Error fetching geocoding data for {city_name}: {e}")
         return None
 
@@ -109,6 +129,14 @@ def _fetch_real_weather(city_name):
     try:
         one_call_url = _get_config_value("ONE_CALL_BASE_URL", "https://api.openweathermap.org/data/3.0/onecall")
         response = requests.get(one_call_url, params=params, timeout=5)
+        
+        if response.status_code == 404:
+            raise CityNotFoundError(f"City '{city_name}' not found")
+        elif response.status_code == 401:
+            raise ExternalAPIError("Invalid API key or unauthorized", status_code=401)
+        elif 500 <= response.status_code < 600:
+            raise ExternalAPIError(f"External API server error: {response.status_code}", status_code=response.status_code)
+            
         response.raise_for_status()
         data = response.json()
         
@@ -131,7 +159,18 @@ def _fetch_real_weather(city_name):
             "timestamp": datetime.fromtimestamp(current.get("dt")).isoformat() if current.get("dt") else None,
             "source": "openweathermap"
         }
+    except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
+        _log_error(f"Connection/timeout error fetching weather for {city_name}: {e}")
+        return None
     except requests.RequestException as e:
+        if e.response is not None:
+            status_code = e.response.status_code
+            if status_code == 404:
+                raise CityNotFoundError(f"City '{city_name}' not found") from e
+            elif status_code == 401:
+                raise ExternalAPIError("Invalid API key or unauthorized", status_code=401) from e
+            elif 500 <= status_code < 600:
+                raise ExternalAPIError(f"External API server error: {status_code}", status_code=status_code) from e
         _log_error(f"Error fetching weather for {city_name}: {e}")
         return None
 
@@ -189,6 +228,14 @@ def _fetch_real_forecast(city_name):
     try:
         one_call_url = _get_config_value("ONE_CALL_BASE_URL", "https://api.openweathermap.org/data/3.0/onecall")
         response = requests.get(one_call_url, params=params, timeout=5)
+        
+        if response.status_code == 404:
+            raise CityNotFoundError(f"City '{city_name}' not found")
+        elif response.status_code == 401:
+            raise ExternalAPIError("Invalid API key or unauthorized", status_code=401)
+        elif 500 <= response.status_code < 600:
+            raise ExternalAPIError(f"External API server error: {response.status_code}", status_code=response.status_code)
+            
         response.raise_for_status()
         data = response.json()
         
@@ -210,7 +257,18 @@ def _fetch_real_forecast(city_name):
             "forecast": forecast,
             "source": "openweathermap"
         }
+    except (requests.exceptions.ConnectionError, requests.exceptions.Timeout) as e:
+        _log_error(f"Error fetching forecast for {city_name}: {e}")
+        return None
     except requests.RequestException as e:
+        if e.response is not None:
+            status_code = e.response.status_code
+            if status_code == 404:
+                raise CityNotFoundError(f"City '{city_name}' not found") from e
+            elif status_code == 401:
+                raise ExternalAPIError("Invalid API key or unauthorized", status_code=401) from e
+            elif 500 <= status_code < 600:
+                raise ExternalAPIError(f"External API server error: {status_code}", status_code=status_code) from e
         _log_error(f"Error fetching forecast for {city_name}: {e}")
         return None
 

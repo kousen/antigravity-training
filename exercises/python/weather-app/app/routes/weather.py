@@ -73,11 +73,8 @@ def get_weather(city_id):
         description: City not found
     """
     weather = get_weather_data(city_id)
-
-    if weather is None:
-        return jsonify({"error": "City not found"}), 404
-
     return jsonify(weather)
+
 
 
 @weather_bp.route("/forecast/<city_id>")
@@ -119,8 +116,5 @@ def get_forecast(city_id):
         description: City not found
     """
     forecast = get_forecast_data(city_id)
-    
-    if forecast is None:
-        return jsonify({"error": "City not found"}), 404
-        
     return jsonify(forecast)
+

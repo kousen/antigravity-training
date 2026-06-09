@@ -22,4 +22,9 @@ def create_app(config_object=None):
     app.register_blueprint(main_bp)
     app.register_blueprint(weather_bp)
 
+    # Register Error Handlers
+    from app.routes.errors import register_error_handlers
+    register_error_handlers(app)
+
     return app
+

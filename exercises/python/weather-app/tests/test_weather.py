@@ -59,3 +59,23 @@ def test_get_forecast_invalid(client):
     data = response.get_json()
     assert data['city'] == "Atlantis"
     assert data.get('source') == 'simulated'
+
+def test_global_error_handler_city_not_found(client):
+    """Test that CityNotFoundError returns 404 JSON."""
+    with patch("app.routes.weather.get_weather_data") as mock_get:
+        from app.exceptions import CityNotFoundError
+        mock_get.side_effect = CityNotFoundError("City not found: atlantis")
+        response = client.get('/weather/atlantis')
+        assert response.status_code == 404
+        data = response.get_json()
+        assert data == {"error": "City not found: atlantis"}
+
+def test_global_error_handler_external_api_error(client):
+    """Test that ExternalAPIError returns 502 JSON."""
+    with patch("app.routes.weather.get_weather_data") as mock_get:
+        from app.exceptions import ExternalAPIError
+        mock_get.side_effect = ExternalAPIError("External API Error", status_code=502)
+        response = client.get('/weather/london')
+        assert response.status_code == 502
+        data = response.get_json()
+        assert data == {"error": "External API Error"}
