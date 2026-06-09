@@ -5,6 +5,9 @@ def create_app(config_object=None):
     """Application factory function."""
     app = Flask(__name__)
     
+    # Load default configuration
+    app.config.from_object('app.config.Config')
+    
     # Load configuration if provided
     if config_object:
         app.config.from_object(config_object)

@@ -33,9 +33,9 @@ def test_get_weather_valid(client):
     assert "London" in data['city'] 
     assert "temperature" in data
 
-@patch("app.services.weather_service.API_KEY", None)
 def test_get_weather_invalid(client):
     """Test getting weather for an invalid city (falls back to simulation)."""
+    client.application.config['OPENWEATHERMAP_API_KEY'] = None
     response = client.get('/weather/atlantis')
     assert response.status_code == 200
     data = response.get_json()
@@ -51,9 +51,9 @@ def test_get_forecast_valid(client):
     assert "forecast" in data
     assert len(data['forecast']) == 5
 
-@patch("app.services.weather_service.API_KEY", None)
 def test_get_forecast_invalid(client):
     """Test getting forecast for an invalid city (falls back to simulation)."""
+    client.application.config['OPENWEATHERMAP_API_KEY'] = None
     response = client.get('/forecast/atlantis')
     assert response.status_code == 200
     data = response.get_json()

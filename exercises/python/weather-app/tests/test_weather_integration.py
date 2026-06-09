@@ -58,7 +58,7 @@ MOCK_GEO_RESPONSE = [
     }
 ]
 
-@patch("app.services.weather_service.API_KEY", "fake_key")
+@patch.dict("os.environ", {"OPENWEATHERMAP_API_KEY": "fake_key"})
 @patch("app.services.weather_service.requests.get")
 def test_get_lat_lon_success(mock_get):
     """Test successful geocoding lookup."""
@@ -74,7 +74,7 @@ def test_get_lat_lon_success(mock_get):
     assert lon == -0.1276474
     assert name == "London"
 
-@patch("app.services.weather_service.API_KEY", "fake_key")
+@patch.dict("os.environ", {"OPENWEATHERMAP_API_KEY": "fake_key"})
 @patch("app.services.weather_service.requests.get")
 def test_get_lat_lon_not_found(mock_get):
     """Test geocoding lookup for non-existent city."""
@@ -86,7 +86,7 @@ def test_get_lat_lon_not_found(mock_get):
     result = _get_lat_lon_from_city_name("Atlantis")
     assert result is None
 
-@patch("app.services.weather_service.API_KEY", "fake_key")
+@patch.dict("os.environ", {"OPENWEATHERMAP_API_KEY": "fake_key"})
 @patch("app.services.weather_service._get_lat_lon_from_city_name")
 @patch("app.services.weather_service.requests.get")
 def test_fetch_real_weather_success(mock_get, mock_geo):
@@ -117,7 +117,7 @@ def test_fetch_real_weather_success(mock_get, mock_geo):
     assert result["temperature"]["current"] == 15.5
     assert result["source"] == "openweathermap"
 
-@patch("app.services.weather_service.API_KEY", "fake_key")
+@patch.dict("os.environ", {"OPENWEATHERMAP_API_KEY": "fake_key"})
 @patch("app.services.weather_service._get_lat_lon_from_city_name")
 @patch("app.services.weather_service.requests.get")
 def test_fetch_real_weather_failure_fallback(mock_get, mock_geo):
@@ -136,7 +136,7 @@ def test_fetch_real_weather_failure_fallback(mock_get, mock_geo):
     assert result["city"] == "London"
     assert result["source"] == "simulated"
 
-@patch("app.services.weather_service.API_KEY", "fake_key")
+@patch.dict("os.environ", {"OPENWEATHERMAP_API_KEY": "fake_key"})
 @patch("app.services.weather_service._get_lat_lon_from_city_name")
 def test_fetch_real_weather_geocoding_fail_fallback(mock_geo):
     """Test Geocoding failure falls back to simulation."""
@@ -151,7 +151,7 @@ def test_fetch_real_weather_geocoding_fail_fallback(mock_geo):
     assert result["city"] == "Unknowncity" # Simulated title-cases it
     assert result["source"] == "simulated"
 
-@patch("app.services.weather_service.API_KEY", "fake_key")
+@patch.dict("os.environ", {"OPENWEATHERMAP_API_KEY": "fake_key"})
 @patch("app.services.weather_service._get_lat_lon_from_city_name")
 @patch("app.services.weather_service.requests.get")
 def test_fetch_real_forecast_success(mock_get, mock_geo):
