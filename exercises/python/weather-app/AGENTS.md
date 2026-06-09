@@ -88,7 +88,13 @@ PYTHONPATH=. pytest --cov=app tests/
 
 ---
 
-## 6. API Endpoints
+## 6. API Guidelines
+
+@docs/api-guidelines.md
+
+---
+
+## 7. API Endpoints
 
 | Endpoint | Method | Description |
 | :--- | :--- | :--- |
@@ -99,38 +105,25 @@ PYTHONPATH=. pytest --cov=app tests/
 
 ---
 
-## 7. Caching Strategy
+## 8. Caching Strategy
 
-- To prevent redundant, expensive geocoding and forecast lookups, the service layers wrap responses using `Flask-Caching` under keys:
-  - `weather:<city_id>` (timeout: 300s)
-  - `forecast:<city_id>` (timeout: 300s)
+@docs/caching-strategy.md
 
 ---
 
-## 8. Coding Standards
+## 9. Coding Standards
 
-- **PEP 8 Compliance**: All Python code must strictly conform to PEP 8 standards. Use formatting tools like `black`, code linters like `flake8`, and import sorting via `isort`.
-- **Naming Conventions**: 
-  - Functions & variables: `snake_case`
-  - Classes: `PascalCase`
-  - Constants: `UPPERCASE`
-- **Type Hinting**: Ensure clear type hinting for function signatures to improve code readability and maintainability.
+@docs/coding-standards.md
 
 ---
 
-## 9. Preferred Testing Patterns
+## 10. Preferred Testing Patterns
 
-- **Framework**: `pytest` is used for both unit and integration tests.
-- **Dependency Isolation**: External HTTP calls (`requests.get`) must be mocked using `unittest.mock.patch` or `MagicMock` to ensure tests run offline and quickly.
-- **Flask Test Client**: Use the `client` fixture to issue requests against endpoints and inspect JSON responses.
-- **Test Coverage**: Maintain at least **80% code coverage** for the `app` codebase. Check coverage using:
-  ```bash
-  PYTHONPATH=. pytest --cov=app tests/
-  ```
+@docs/testing.md
 
 ---
 
-## 10. Sprint Focus: Implementing Caching
+## 11. Sprint Focus: Implementing Caching
 
 The current sprint focus is **implementing caching** to avoid redundant geocoding requests and external OpenWeatherMap OneCall API requests. 
 - Ensure that cached data handles fallback logic gracefully.
@@ -138,12 +131,9 @@ The current sprint focus is **implementing caching** to avoid redundant geocodin
 
 ---
 
-## 11. Code Review Checklist
+## 12. Code Review Checklist
 
-Before opening a PR or merging code, verify the following:
-- [ ] **Simulated Fallback**: Verify that the code handles missing/invalid API keys gracefully by falling back to the simulated weather data generator.
-- [ ] **API Documentation**: Ensure that Swagger UI (Flasgger) YAML documentation in route docstrings accurately matches the implementation.
-- [ ] **Cache Management**: Verify cache keys are cleared or invalidated if data changes.
-- [ ] **Secret Management**: Ensure there are no hardcoded API keys or secrets in the codebase; all configuration should load from environment variables or `app.config`.
-- [ ] **Tests**: Ensure tests exist for the modified functionality and cover the code adequately.
+@docs/code-review.md
+
+
 
