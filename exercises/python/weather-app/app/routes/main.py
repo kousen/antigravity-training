@@ -1,9 +1,9 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, Response
 
 main_bp = Blueprint('main', __name__)
 
 @main_bp.route("/")
-def home():
+def home() -> Response:
     """
     Home endpoint with API documentation.
     ---

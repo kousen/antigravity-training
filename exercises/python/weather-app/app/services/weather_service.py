@@ -4,23 +4,24 @@ from datetime import datetime, timedelta
 import random
 from flask import has_app_context, current_app
 import logging
+from typing import Any, Dict, List, Optional, Tuple
 from app.exceptions import CityNotFoundError, ExternalAPIError
 
 # Configure fallback logger
 logger = logging.getLogger(__name__)
 
-def _get_config_value(key, default=None):
+def _get_config_value(key: str, default: Any = None) -> Any:
     if has_app_context():
         return current_app.config.get(key, default)
     return os.environ.get(key, default)
 
-def _log_warning(msg):
+def _log_warning(msg: str) -> None:
     if has_app_context():
         current_app.logger.warning(msg)
     else:
         logger.warning(msg)
 
-def _log_error(msg):
+def _log_error(msg: str) -> None:
     if has_app_context():
         current_app.logger.error(msg)
     else:
@@ -37,7 +38,7 @@ KNOWN_CITIES = {
 
 CONDITIONS = ["sunny", "cloudy", "rainy", "partly_cloudy", "stormy", "snowy"]
 
-def _get_lat_lon_from_city_name(city_name):
+def _get_lat_lon_from_city_name(city_name: str) -> Optional[Tuple[float, float, str]]:
     """
     Looks up latitude and longitude for a given city name using OpenWeatherMap Geocoding API.
     Returns (lat, lon, resolved_city_name) or None if not found.
@@ -87,7 +88,7 @@ def _get_lat_lon_from_city_name(city_name):
         _log_error(f"Error fetching geocoding data for {city_name}: {e}")
         return None
 
-def _generate_simulated_weather(city_name, lat=None, lon=None):
+def _generate_simulated_weather(city_name: str, lat: Optional[float] = None, lon: Optional[float] = None) -> Dict[str, Any]:
     """Generate simulated weather data for a city (fallback)."""
     # Use default lat/lon if not provided, or a generic value
     lat = lat if lat is not None else 0.0
@@ -109,7 +110,7 @@ def _generate_simulated_weather(city_name, lat=None, lon=None):
         "source": "simulated"
     }
 
-def _fetch_real_weather(city_name):
+def _fetch_real_weather(city_name: str) -> Optional[Dict[str, Any]]:
     """Fetch real weather data from OpenWeatherMap One Call API 3.0."""
     coords = _get_lat_lon_from_city_name(city_name)
     if not coords:
@@ -174,7 +175,7 @@ def _fetch_real_weather(city_name):
         _log_error(f"Error fetching weather for {city_name}: {e}")
         return None
 
-def get_weather_data(city_name):
+def get_weather_data(city_name: str) -> Dict[str, Any]:
     """Get weather data for a city, preferring API if available."""
     from app import cache
     
@@ -201,7 +202,7 @@ def get_weather_data(city_name):
     return weather
 
 
-def _generate_simulated_forecast(city_name, lat=None, lon=None):
+def _generate_simulated_forecast(city_name: str, lat: Optional[float] = None, lon: Optional[float] = None) -> Dict[str, Any]:
     """Generate 5-day simulated forecast."""
     lat = lat if lat is not None else 0.0
     lon = lon if lon is not None else 0.0
@@ -224,7 +225,7 @@ def _generate_simulated_forecast(city_name, lat=None, lon=None):
         "source": "simulated"
     }
 
-def _fetch_real_forecast(city_name):
+def _fetch_real_forecast(city_name: str) -> Optional[Dict[str, Any]]:
     """Fetch 5-day forecast from OpenWeatherMap."""
     coords = _get_lat_lon_from_city_name(city_name)
     if not coords:
@@ -288,7 +289,7 @@ def _fetch_real_forecast(city_name):
         _log_error(f"Error fetching forecast for {city_name}: {e}")
         return None
 
-def get_forecast_data(city_name):
+def get_forecast_data(city_name: str) -> Dict[str, Any]:
     """Get forecast data for a city."""
     from app import cache
     
@@ -314,6 +315,6 @@ def get_forecast_data(city_name):
     return forecast
 
 
-def get_all_cities():
+def get_all_cities() -> List[Dict[str, str]]:
     """Return list of all known cities (for display purposes)."""
     return [{"id": city.lower().replace(" ", "_"), "name": city} for city in KNOWN_CITIES.values()]

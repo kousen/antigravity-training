@@ -176,3 +176,231 @@ def test_fetch_real_forecast_success(mock_get, mock_geo):
     assert result["source"] == "openweathermap"
     assert "forecast" in result
     assert len(result["forecast"]) == 5
+
+
+from app.exceptions import CityNotFoundError, ExternalAPIError
+from app.services.weather_service import (
+    _fetch_real_weather,
+    _fetch_real_forecast,
+    _log_warning,
+    _log_error
+)
+
+@patch("app.services.weather_service.has_app_context", return_value=False)
+@patch("app.services.weather_service.logger")
+def test_logging_outside_app_context(mock_logger, mock_has_context):
+    """Test logging functions when outside of Flask app context."""
+    _log_warning("Test warning outside context")
+    mock_logger.warning.assert_called_once_with("Test warning outside context")
+    
+    _log_error("Test error outside context")
+    mock_logger.error.assert_called_once_with("Test error outside context")
+
+@patch.dict("os.environ", {}, clear=True)
+@patch("app.services.weather_service.has_app_context", return_value=False)
+def test_geocoding_missing_api_key(mock_has_context):
+    """Test geocoding fails gracefully and warns when API key is missing."""
+    with patch("app.services.weather_service.logger") as mock_logger:
+        result = _get_lat_lon_from_city_name("London")
+        assert result is None
+        mock_logger.warning.assert_called_once_with("API Key not configured for Geocoding.")
+
+@patch.dict("os.environ", {"OPENWEATHERMAP_API_KEY": "fake_key"})
+@patch("app.services.weather_service.requests.get")
+def test_geocoding_api_status_errors(mock_get):
+    """Test geocoding handles various HTTP status codes."""
+    # Test 404
+    mock_response = MagicMock()
+    mock_response.status_code = 404
+    mock_get.return_value = mock_response
+    with pytest.raises(CityNotFoundError):
+        _get_lat_lon_from_city_name("London")
+        
+    # Test 401
+    mock_response.status_code = 401
+    with pytest.raises(ExternalAPIError) as exc:
+        _get_lat_lon_from_city_name("London")
+    assert exc.value.status_code == 401
+    
+    # Test 500
+    mock_response.status_code = 500
+    with pytest.raises(ExternalAPIError) as exc:
+        _get_lat_lon_from_city_name("London")
+    assert exc.value.status_code == 500
+
+@patch.dict("os.environ", {"OPENWEATHERMAP_API_KEY": "fake_key"})
+@patch("app.services.weather_service.requests.get")
+def test_geocoding_request_exceptions(mock_get):
+    """Test geocoding handles requests exceptions with and without responses."""
+    # Timeout/ConnectionError (should log and return None)
+    mock_get.side_effect = requests.exceptions.Timeout("Timeout")
+    result = _get_lat_lon_from_city_name("London")
+    assert result is None
+    
+    # RequestException with 404 response
+    mock_response = MagicMock()
+    mock_response.status_code = 404
+    req_exc = requests.RequestException(response=mock_response)
+    mock_get.side_effect = req_exc
+    with pytest.raises(CityNotFoundError):
+        _get_lat_lon_from_city_name("London")
+        
+    # RequestException with 401 response
+    mock_response.status_code = 401
+    req_exc = requests.RequestException(response=mock_response)
+    mock_get.side_effect = req_exc
+    with pytest.raises(ExternalAPIError) as exc:
+        _get_lat_lon_from_city_name("London")
+    assert exc.value.status_code == 401
+    
+    # RequestException with 500 response
+    mock_response.status_code = 500
+    req_exc = requests.RequestException(response=mock_response)
+    mock_get.side_effect = req_exc
+    with pytest.raises(ExternalAPIError) as exc:
+        _get_lat_lon_from_city_name("London")
+    assert exc.value.status_code == 500
+    
+    # RequestException with other status code (e.g. 418 I'm a teapot)
+    mock_response.status_code = 418
+    req_exc = requests.RequestException(response=mock_response)
+    mock_get.side_effect = req_exc
+    result = _get_lat_lon_from_city_name("London")
+    assert result is None
+
+@patch.dict("os.environ", {"OPENWEATHERMAP_API_KEY": "fake_key"})
+@patch("app.services.weather_service._get_lat_lon_from_city_name")
+@patch("app.services.weather_service.requests.get")
+def test_fetch_real_weather_api_status_errors(mock_get, mock_geo):
+    """Test fetch_real_weather handles various HTTP status codes."""
+    mock_geo.return_value = (51.5074, -0.1278, "London")
+    
+    # Test 404
+    mock_response = MagicMock()
+    mock_response.status_code = 404
+    mock_get.return_value = mock_response
+    with pytest.raises(CityNotFoundError):
+        _fetch_real_weather("London")
+        
+    # Test 401
+    mock_response.status_code = 401
+    with pytest.raises(ExternalAPIError) as exc:
+        _fetch_real_weather("London")
+    assert exc.value.status_code == 401
+    
+    # Test 500
+    mock_response.status_code = 500
+    with pytest.raises(ExternalAPIError) as exc:
+        _fetch_real_weather("London")
+    assert exc.value.status_code == 500
+
+@patch.dict("os.environ", {"OPENWEATHERMAP_API_KEY": "fake_key"})
+@patch("app.services.weather_service._get_lat_lon_from_city_name")
+@patch("app.services.weather_service.requests.get")
+def test_fetch_real_weather_request_exceptions(mock_get, mock_geo):
+    """Test fetch_real_weather handles requests exceptions."""
+    mock_geo.return_value = (51.5074, -0.1278, "London")
+    
+    # ConnectionError/Timeout
+    mock_get.side_effect = requests.exceptions.ConnectionError("Connection failed")
+    result = _fetch_real_weather("London")
+    assert result is None
+    
+    # RequestException with 404 response
+    mock_response = MagicMock()
+    mock_response.status_code = 404
+    req_exc = requests.RequestException(response=mock_response)
+    mock_get.side_effect = req_exc
+    with pytest.raises(CityNotFoundError):
+        _fetch_real_weather("London")
+
+    # RequestException with 401 response
+    mock_response.status_code = 401
+    req_exc = requests.RequestException(response=mock_response)
+    mock_get.side_effect = req_exc
+    with pytest.raises(ExternalAPIError) as exc:
+        _fetch_real_weather("London")
+    assert exc.value.status_code == 401
+
+    # RequestException with 500 response
+    mock_response.status_code = 500
+    req_exc = requests.RequestException(response=mock_response)
+    mock_get.side_effect = req_exc
+    with pytest.raises(ExternalAPIError) as exc:
+        _fetch_real_weather("London")
+    assert exc.value.status_code == 500
+
+    # RequestException with other status
+    mock_response.status_code = 418
+    req_exc = requests.RequestException(response=mock_response)
+    mock_get.side_effect = req_exc
+    result = _fetch_real_weather("London")
+    assert result is None
+
+@patch.dict("os.environ", {"OPENWEATHERMAP_API_KEY": "fake_key"})
+@patch("app.services.weather_service._get_lat_lon_from_city_name")
+@patch("app.services.weather_service.requests.get")
+def test_fetch_real_forecast_api_errors(mock_get, mock_geo):
+    """Test fetch_real_forecast handles various exceptions."""
+    # Case: Geocoding fails (returns None)
+    mock_geo.return_value = None
+    result = _fetch_real_forecast("London")
+    assert result is None
+    
+    # Geocoding succeeds
+    mock_geo.return_value = (51.5074, -0.1278, "London")
+    
+    # Test 404 status
+    mock_response = MagicMock()
+    mock_response.status_code = 404
+    mock_get.return_value = mock_response
+    with pytest.raises(CityNotFoundError):
+        _fetch_real_forecast("London")
+        
+    # Test 401 status
+    mock_response.status_code = 401
+    with pytest.raises(ExternalAPIError) as exc:
+        _fetch_real_forecast("London")
+    assert exc.value.status_code == 401
+    
+    # Test 500 status
+    mock_response.status_code = 500
+    with pytest.raises(ExternalAPIError) as exc:
+        _fetch_real_forecast("London")
+    assert exc.value.status_code == 500
+    
+    # ConnectionError/Timeout
+    mock_get.side_effect = requests.exceptions.Timeout("Timeout")
+    result = _fetch_real_forecast("London")
+    assert result is None
+
+    # RequestException with 404 response
+    mock_response.status_code = 404
+    req_exc = requests.RequestException(response=mock_response)
+    mock_get.side_effect = req_exc
+    with pytest.raises(CityNotFoundError):
+        _fetch_real_forecast("London")
+
+    # RequestException with 401 response
+    mock_response.status_code = 401
+    req_exc = requests.RequestException(response=mock_response)
+    mock_get.side_effect = req_exc
+    with pytest.raises(ExternalAPIError) as exc:
+        _fetch_real_forecast("London")
+    assert exc.value.status_code == 401
+
+    # RequestException with 500 response
+    mock_response.status_code = 500
+    req_exc = requests.RequestException(response=mock_response)
+    mock_get.side_effect = req_exc
+    with pytest.raises(ExternalAPIError) as exc:
+        _fetch_real_forecast("London")
+    assert exc.value.status_code == 500
+
+    # RequestException with other status
+    mock_response.status_code = 418
+    req_exc = requests.RequestException(response=mock_response)
+    mock_get.side_effect = req_exc
+    result = _fetch_real_forecast("London")
+    assert result is None
+

@@ -1,10 +1,10 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, Response
 from app.services.weather_service import get_weather_data, get_forecast_data, get_all_cities
 
 weather_bp = Blueprint('weather', __name__)
 
 @weather_bp.route("/cities")
-def list_cities():
+def list_cities() -> Response:
     """
     List all available cities.
     ---
@@ -26,7 +26,7 @@ def list_cities():
 
 
 @weather_bp.route("/weather/<city_id>")
-def get_weather(city_id):
+def get_weather(city_id: str) -> Response:
     """
     Get current weather for a specific city.
     ---
@@ -78,7 +78,7 @@ def get_weather(city_id):
 
 
 @weather_bp.route("/forecast/<city_id>")
-def get_forecast(city_id):
+def get_forecast(city_id: str) -> Response:
     """
     Get 5-day weather forecast for a city.
     ---

@@ -134,3 +134,47 @@ def test_caching_behavior_forecast(client):
         assert mock_sim.call_count + mock_real.call_count == 1
 
 
+def test_create_app_with_config():
+    """Test creating the app factory with a custom configuration object."""
+    class CustomConfig:
+        TESTING = True
+        CUSTOM_VAL = "custom_test"
+    app = create_app(CustomConfig)
+    assert app.config['TESTING'] is True
+    assert app.config['CUSTOM_VAL'] == "custom_test"
+
+
+def test_global_error_handler_http_exception(client):
+    """Test HTTP exceptions handler returns json."""
+    response = client.post('/cities') # POST to /cities is Method Not Allowed (405)
+    assert response.status_code == 405
+    data = response.get_json()
+    assert "error" in data
+
+
+def test_global_error_handler_generic_exception(client):
+    """Test generic Exception handler returns json."""
+    with patch("app.routes.weather.get_all_cities") as mock_get:
+        mock_get.side_effect = ValueError("Some unexpected error")
+        response = client.get('/cities')
+        assert response.status_code == 500
+        data = response.get_json()
+        assert data == {"error": "An unexpected internal server error occurred"}
+
+
+def test_log_warning_in_app_context(client):
+    """Test warning logging function inside of Flask application context."""
+    from app.services.weather_service import _log_warning
+    with client.application.app_context():
+        _log_warning("Test warning inside app context")
+
+
+def test_log_error_in_app_context(client):
+    """Test error logging function inside of Flask application context."""
+    from app.services.weather_service import _log_error
+    with client.application.app_context():
+        _log_error("Test error inside app context")
+
+
+
+

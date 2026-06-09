@@ -1,10 +1,11 @@
 from flask import Flask
 from flasgger import Swagger
 from flask_caching import Cache
+from typing import Any, Optional
 
-cache = Cache()
+cache: Cache = Cache()
 
-def create_app(config_object=None):
+def create_app(config_object: Optional[Any] = None) -> Flask:
     """Application factory function."""
     app = Flask(__name__)
     
