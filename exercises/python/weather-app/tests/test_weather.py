@@ -79,3 +79,58 @@ def test_global_error_handler_external_api_error(client):
         assert response.status_code == 502
         data = response.get_json()
         assert data == {"error": "External API Error"}
+
+def test_caching_behavior(client):
+    """Test that subsequent calls return cached weather data."""
+    from app import cache
+    cache.clear()
+
+    with patch("app.services.weather_service._fetch_real_weather") as mock_real, \
+         patch("app.services.weather_service._generate_simulated_weather") as mock_sim:
+        
+        test_data = {
+            "city": "TestCity",
+            "temperature": {"current": 20.0},
+            "condition": "sunny"
+        }
+        mock_sim.return_value = test_data
+        mock_real.return_value = test_data
+        
+        # Make the first call
+        response1 = client.get("/weather/testcity")
+        assert response1.status_code == 200
+        
+        # Make the second call
+        response2 = client.get("/weather/testcity")
+        assert response2.status_code == 200
+        
+        # Either mock_real or mock_sim should have been called exactly once
+        assert mock_sim.call_count + mock_real.call_count == 1
+
+def test_caching_behavior_forecast(client):
+    """Test that subsequent calls return cached forecast data."""
+    from app import cache
+    cache.clear()
+
+    with patch("app.services.weather_service._fetch_real_forecast") as mock_real, \
+         patch("app.services.weather_service._generate_simulated_forecast") as mock_sim:
+        
+        test_data = {
+            "city": "TestCity",
+            "forecast": []
+        }
+        mock_sim.return_value = test_data
+        mock_real.return_value = test_data
+        
+        # Make the first call
+        response1 = client.get("/forecast/testcity")
+        assert response1.status_code == 200
+        
+        # Make the second call
+        response2 = client.get("/forecast/testcity")
+        assert response2.status_code == 200
+        
+        # Either mock_real or mock_sim should have been called exactly once
+        assert mock_sim.call_count + mock_real.call_count == 1
+
+

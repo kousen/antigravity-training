@@ -1,9 +1,18 @@
 from flask import Flask
 from flasgger import Swagger
+from flask_caching import Cache
+
+cache = Cache()
 
 def create_app(config_object=None):
     """Application factory function."""
     app = Flask(__name__)
+    
+    # Initialize cache settings
+    app.config.from_mapping({
+        'CACHE_TYPE': 'SimpleCache',
+        'CACHE_DEFAULT_TIMEOUT': 300
+    })
     
     # Load default configuration
     app.config.from_object('app.config.Config')
@@ -11,6 +20,9 @@ def create_app(config_object=None):
     # Load configuration if provided
     if config_object:
         app.config.from_object(config_object)
+
+    # Initialize Cache
+    cache.init_app(app)
 
     # Initialize Swagger
     swagger = Swagger(app)

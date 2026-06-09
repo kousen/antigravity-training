@@ -176,14 +176,30 @@ def _fetch_real_weather(city_name):
 
 def get_weather_data(city_name):
     """Get weather data for a city, preferring API if available."""
+    from app import cache
+    
+    in_context = has_app_context()
+    cache_key = f"weather:{city_name.lower().strip()}"
+    
+    if in_context:
+        cached_data = cache.get(cache_key)
+        if cached_data is not None:
+            return cached_data
+            
     api_key = _get_config_value("OPENWEATHERMAP_API_KEY")
     if api_key:
         weather = _fetch_real_weather(city_name)
         if weather:
+            if in_context:
+                cache.set(cache_key, weather, timeout=300)
             return weather
             
     # Fallback to simulated data if API fails or no API key
-    return _generate_simulated_weather(city_name)
+    weather = _generate_simulated_weather(city_name)
+    if in_context:
+        cache.set(cache_key, weather, timeout=300)
+    return weather
+
 
 def _generate_simulated_forecast(city_name, lat=None, lon=None):
     """Generate 5-day simulated forecast."""
@@ -274,13 +290,29 @@ def _fetch_real_forecast(city_name):
 
 def get_forecast_data(city_name):
     """Get forecast data for a city."""
+    from app import cache
+    
+    in_context = has_app_context()
+    cache_key = f"forecast:{city_name.lower().strip()}"
+    
+    if in_context:
+        cached_data = cache.get(cache_key)
+        if cached_data is not None:
+            return cached_data
+            
     api_key = _get_config_value("OPENWEATHERMAP_API_KEY")
     if api_key:
         forecast = _fetch_real_forecast(city_name)
         if forecast:
+            if in_context:
+                cache.set(cache_key, forecast, timeout=300)
             return forecast
             
-    return _generate_simulated_forecast(city_name)
+    forecast = _generate_simulated_forecast(city_name)
+    if in_context:
+        cache.set(cache_key, forecast, timeout=300)
+    return forecast
+
 
 def get_all_cities():
     """Return list of all known cities (for display purposes)."""
