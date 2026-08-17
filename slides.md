@@ -89,7 +89,7 @@ Kousen IT, Inc.
 
 - **Foundation**: Installation, CLI basics, authentication
 - **Core Skills**: File operations, shell integration, context management
-- **Customization**: AGENTS.md, custom commands, settings.json
+- **Customization**: AGENTS.md, skills, settings.json
 - **Safety**: Sandbox mode, permission rules, checkpointing
 - **Advanced**: MCP integration, skills/plugins, session management
 
@@ -97,19 +97,18 @@ Kousen IT, Inc.
 
 ---
 
-# What's New in Antigravity CLI 1.0.x
+# What's New in Antigravity CLI 1.1.x
 
 <v-clicks>
 
-- **Initial 1.0.0 release** of the Antigravity CLI — a Go-based terminal agent
-- **Multi-model** sessions: Gemini, Claude, and GPT-OSS via `/model` (1.0.5)
-- **`models` subcommand** + `--model` flag to pick a model at launch (1.0.5)
-- **`/permissions`** command to manage tool permission rules in-CLI (1.0.5)
-- **G1 credits** with `/credits`, `/usage`, `/quota` when quota runs out (1.0.3)
-- **MCP via `url`** in `mcp_config.json`; parallel server init (1.0.5/1.0.6)
-- **SQLite conversation format** + `/resume`, `--continue`, `--conversation` (1.0.4)
-- **Plugin discovery** for skills and subagents (1.0.1)
-- **Latest stable track**: Antigravity CLI `1.0.6`
+- **Execution modes**: `Shift+Tab` cycles `default` → `accept-edits` → `plan`; `--mode` flag (1.1.0)
+- **Structured headless output**: `--output-format json|stream-json`, `--json-schema` (1.1.8)
+- **Slash commands in `-p`**: skills expand; read-only commands answer without spending quota (1.1.9–1.1.12)
+- **Model slugs + `--effort`**: pin `gemini-3.1-pro-high`, tune reasoning with `/effort` (1.1.5)
+- **Custom agents in Markdown**: `agent.md` with YAML frontmatter; `--agent`, `agy agents` (1.1.1/1.1.6)
+- **`/codesearch`** (1.1.3), **Vim editor mode** (1.1.11), `/fork`, `/btw`, `/rewind`
+- **Direct Gemini API**: `GEMINI_API_KEY` + `modelProvider: "gemini"` — no sign-in (1.1.13)
+- **Latest stable track**: Antigravity CLI `1.1.13` — see `agy changelog`
 
 </v-clicks>
 
@@ -123,7 +122,7 @@ Kousen IT, Inc.
 - **Multi-model**: Gemini 3.x, Claude Sonnet/Opus 4.6, GPT-OSS — switch with `/model`
 - Built-in tools: web search, file ops, shell, web fetch
 - Model Context Protocol (MCP) support via `mcp_config.json`
-- Shares config with the Antigravity 2.0 desktop app (`/export`)
+- Same `~/.gemini` config family as the Antigravity 2.0 desktop app and IDE
 
 </v-clicks>
 
@@ -136,7 +135,7 @@ Kousen IT, Inc.
 - **Model choice**: mix Gemini, Claude, and GPT-OSS in one tool
 - **Google Search Grounding**: real-time web access
 - **Free tier + G1 credits**: keep working when quota runs out
-- **Desktop continuity**: shares conversations with Antigravity 2.0
+- **Desktop continuity**: same account, quota, and `~/.gemini` config as Antigravity 2.0
 - **MCP Native**: built-in Model Context Protocol support
 
 </v-clicks>
@@ -147,11 +146,12 @@ Kousen IT, Inc.
 
 <v-clicks>
 
-- **Gemini 3.1 Pro**: high-capability Gemini model for complex coding
-- **Gemini 3.5 Flash**: faster, lower-cost option (Low/Medium/High)
+- **Gemini 3.7 / 3.6 / 3.5 Flash**: fast Gemini models, each in Low/Medium/High effort
+- **Gemini 3.1 Pro**: high-capability Gemini model for complex coding (Low/High)
 - **Claude Sonnet 4.6 / Opus 4.6**: Anthropic models (thinking)
 - **GPT-OSS 120B**: open-weights option
-- **List models**: `agy models`  ·  **Switch**: `/model` or `--model`
+- **List models**: `agy models`  ·  **Switch**: `/model` or `--model <slug>`
+- **Reasoning effort**: `--effort low|medium|high` or `/effort` mid-session
 
 </v-clicks>
 
@@ -200,6 +200,8 @@ agy --version
 - **Google Sign-In** (default): launches automatically on first run
 - **Remote / SSH**: shows an authorization URL with a one-time code
 - **API key (alternative)**: `export ANTIGRAVITY_API_KEY="your-key"`
+- **Direct Gemini API** (1.1.13): `GEMINI_API_KEY` + `"modelProvider": "gemini"` in settings — no sign-in
+- Enterprise: Business sign-in, Workforce Identity Federation, ADC (1.1.10)
 - Credentials persist via OAuth in `~/.gemini/`
 
 </v-clicks>
@@ -211,6 +213,9 @@ agy
 # Alternative: API key for scripts / headless use
 export ANTIGRAVITY_API_KEY="your-api-key"
 agy -p "Summarize this repo"
+
+# Alternative: talk to the Gemini API directly (no Google sign-in)
+export GEMINI_API_KEY="your-gemini-key"     # plus "modelProvider": "gemini" in settings.json
 ```
 
 ---
@@ -311,8 +316,9 @@ agy -p "Analyze the architecture in @./src/"
 
 - `/help` - Show available commands and shortcuts
 - `/context` - View loaded context and token usage
-- `/model` - Switch the active model mid-session
+- `/model` · `/effort` - Switch model or reasoning effort mid-session
 - `/settings` - Open settings and preferences
+- `/codesearch <query>` (`/cs`) - Regex search across the workspace
 
 </v-clicks>
 
@@ -322,8 +328,10 @@ agy -p "Analyze the architecture in @./src/"
 
 <v-clicks>
 
-- `/agent <task>` - Dispatch an asynchronous subagent
+- `/agents` · `/tasks` - Monitor subagents and background tasks
+- `/btw <question>` - Ask a side question without interrupting the current task
 - `/permissions` - Add/edit/remove tool permission rules
+- `/mcp` - View and reload MCP servers
 - `/usage` - Session, quota, and rate-limit status
 
 </v-clicks>
@@ -335,7 +343,8 @@ agy -p "Analyze the architecture in @./src/"
 <v-clicks>
 
 - `/resume` - Open the conversation browser
-- `/export` - Send the session to the Antigravity 2.0 desktop app
+- `/fork` - Clone the conversation into a parallel session
+- `/rewind` - Roll back to an earlier message
 - `/credits` · `/quota` - Credit balance and quota panels
 
 </v-clicks>
@@ -366,11 +375,11 @@ agy -p "Analyze the architecture in @./src/"
 # Open the conversation browser
 /resume
 
-# Dispatch an async subagent task
-/agent refactor the auth module
+# Branch this conversation into a parallel session
+/fork
 
-# Push this session to the desktop app
-/export
+# Ask a quick side question without derailing the current task
+/btw what does the retry decorator in @./src/utils.py do?
 ```
 
 ---
@@ -445,9 +454,9 @@ backgroundSize: cover
 
 <v-clicks>
 
-- **Default**: prompt for approval on each tool call
+- **Default** (`request-review`): prompt for approval on each tool call
 - **`/permissions`**: add, edit, or remove allow/deny rules in-CLI
-- **`proceed-in-sandbox`**: auto-approve commands that stay in the sandbox
+- **`toolPermission`** setting: `request-review` · `proceed-in-sandbox` · `strict` · `always-proceed`
 - **`--dangerously-skip-permissions`**: auto-approve everything (use with care)
 
 </v-clicks>
@@ -461,6 +470,29 @@ agy --dangerously-skip-permissions
 
 # Manage allow/deny rules from inside a session
 > /permissions
+```
+
+---
+
+# Execution Modes
+
+<v-clicks>
+
+- **`default`**: pauses for an interactive diff review before writing files (`f` = full diff)
+- **`accept-edits`**: auto-approves file edits and creations
+- **`plan`**: prepends `/plan` — analyze and outline before writing code
+- **Cycle** with `Shift+Tab`; the current mode shows in the status line
+- `/planning` and `/fast` were removed in 1.1.0
+
+</v-clicks>
+
+```bash
+# Pick a mode at launch
+agy --mode accept-edits
+agy --mode plan
+
+# Persist a default in ~/.gemini/antigravity-cli/settings.json
+{ "agentMode": "accept-edits" }
 ```
 
 ---
@@ -702,10 +734,10 @@ backgroundSize: cover
 <v-clicks>
 
 1. **Default values** - Built-in defaults
-2. **User settings** - `~/.gemini/settings.json`
-3. **Project settings** - `.gemini/settings.json`
-4. **Environment variables** - Including `.env` files
-5. **Command-line arguments** - Highest priority
+2. **User settings** - `~/.gemini/antigravity-cli/settings.json` (edit via `/settings`)
+3. **Workspace files** - `.agents/mcp_config.json`, `.agents/agents/`, `AGENTS.md`
+4. **Environment variables** - e.g. `GEMINI_API_KEY`, `AGY_CLI_CMD_OUTPUT_PERCENTAGE`
+5. **Command-line arguments** - `--mode`, `--model`, `--effort`, … highest priority
 
 </v-clicks>
 
@@ -713,31 +745,36 @@ backgroundSize: cover
 
 # settings.json Options
 
+`~/.gemini/antigravity-cli/settings.json` — a flat key/value file:
+
 ```json
 {
-  "general": {
-    "preferredEditor": "vscode",
-    "vimMode": false,
-    "checkpointing": { "enabled": true }
-  }
+  "agentMode": "accept-edits",
+  "toolPermission": "request-review",
+  "artifactReviewPolicy": "asks-for-review",
+  "enableTerminalSandbox": false,
+  "editor": "auto",
+  "editorMode": "vim"
 }
 ```
 
 ---
 
-# settings.json Options (UI + Tools)
+# settings.json Options (UI + Permissions)
 
 ```json
 {
-  "ui": {
-    "hideTips": false,
-    "hideBanner": false
+  "showTips": true,
+  "notifications": true,
+  "colorScheme": "terminal",
+  "permissions": {
+    "allow": ["command(git status)", "command(npm test)"]
   },
-  "tools": {
-    "sandbox": false
-  }
+  "trustedWorkspaces": ["/path/to/project"]
 }
 ```
+
+Full list: `/settings` in-session, or `agy -p "/settings"` to dump current values.
 
 ---
 
@@ -805,19 +842,17 @@ agy --dangerously-skip-permissions
 
 - **`AGENTS.md`** is the documented default context file
 - `GEMINI.md` and `CLAUDE.md` are also recognized
-- Support multiple filenames in priority order
-- Include additional directories for shared context
+- Global rules: `~/.gemini/AGENTS.md`; per-directory files nest under the project
+- Add extra directories to the workspace with `--add-dir` or `/add-dir`
 
 </v-clicks>
 
-```json
-{
-  "context": {
-    "fileName": ["AGENTS.md", "GEMINI.md", "CLAUDE.md"],
-    "includeDirectories": ["~/shared-context"],
-    "loadMemoryFromIncludeDirectories": true
-  }
-}
+```bash
+# Bring shared context from another directory into the workspace
+agy --add-dir ~/shared-context
+
+# ...or mid-session
+> /add-dir ~/shared-context
 ```
 
 ---
@@ -890,11 +925,14 @@ backgroundSize: cover
 
 # Managing MCP Servers
 
-Antigravity has no `mcp` subcommand — edit the config file directly:
+Edit the config file directly, then reload from `/mcp`:
 
 ```bash
-# Open the MCP config
+# Global config
 $EDITOR ~/.gemini/config/mcp_config.json
+
+# Per-project config (checked into the repo)
+$EDITOR .agents/mcp_config.json
 ```
 
 ```json
@@ -914,19 +952,20 @@ Servers initialize in parallel on startup.
 
 # MCP: Remote Servers
 
-Use a `url` for HTTP/remote MCP servers (added in 1.0.5):
+Use `serverUrl` for HTTP/SSE remote MCP servers (`url`/`httpUrl` are **not** supported):
 
 ```json
 {
   "mcpServers": {
     "remote-tools": {
-      "url": "https://mcp.example.com/sse"
+      "serverUrl": "https://mcp.example.com/sse",
+      "headers": { "Authorization": "Bearer ${MY_TOKEN}" }
     }
   }
 }
 ```
 
-Toggle servers from the in-CLI settings; changes reload on restart.
+Per-project servers go in `.agents/mcp_config.json`. Reload with `/mcp`.
 
 ---
 
@@ -947,9 +986,10 @@ Toggle servers from the in-CLI settings; changes reload on restart.
 
 <v-clicks>
 
-- **timeout**: Startup timeout in ms
-- **includeTools/excludeTools**: Filter available tools
-- **trust**: Bypass tool confirmation for this server
+- **`disabled`**: keep a server configured but switched off
+- **`disabledTools`**: withhold specific tools from the agent
+- **`headers`** / **`oauth`** / **`authProviderType: "google_credentials"`**: remote auth
+- **`env`**, **`cwd`**: environment and working directory for stdio servers
 
 </v-clicks>
 
@@ -996,16 +1036,21 @@ agy plugin link my-marketplace ./target
 
 <v-clicks>
 
-- Dispatch focused tasks to a **subagent** with `/agent <task>`
-- Subagents run with their own context and interaction timeout
-- Bundled and discovered through installed plugins
-- Standalone subagent conversations stay separate in `/resume`
+- Ask the agent to **delegate**: it dispatches a subagent via `invoke_subagent`
+- Define your own in Markdown: `.agents/agents/<name>.md` (or `~/.gemini/config/agents/`)
+- Frontmatter: `subagent: true`, `mainAgent`, `model: flash|pro|inherit`, `hidden`, `inheritMcp`
+- Monitor with `/agents`; background shell tasks with `/tasks`; ask a side question with `/btw`
+- Launch straight into a custom agent: `agy --agent <name>` · list with `agy agents`
 
 </v-clicks>
 
-```bash
-# Dispatch an async subagent
-> /agent write unit tests for @./src/utils.py
+```markdown
+---
+subagent: true
+model: flash
+---
+# Test writer
+You write focused unit tests. Never modify source files.
 ```
 
 ---
@@ -1083,18 +1128,23 @@ agy --conversation <id>
 <v-clicks>
 
 - **`-p` / `--print`**: run a single prompt and print the response
+- **`--output-format`**: `text` (default) · `json` (one envelope) · `stream-json` (NDJSON events)
+- **`--json-schema`**: constrain the answer to a schema (inline or file path)
 - **`--print-timeout`**: bound how long print mode waits (default 5m)
-- Sandbox isolation is enforced in print mode too
-- Pipe input from other commands for scripting
+- Skills expand in `-p` (`agy -p "/my-skill …"`); read-only commands like `/settings`, `/quota` answer without spending quota
 
 </v-clicks>
 
 ```bash
-# One-shot print mode
-agy -p "List all TODO comments in @./src"
-
-# Piped input
+# One-shot print mode, piped input
 cat error.log | agy -p "Diagnose this stack trace"
+
+# Machine-readable: {"status":"SUCCESS","response":"…","usage":{…}}
+agy -p "Summarize @./README.md" --output-format json
+
+# Enforce a schema; result lands in "structured_output"
+agy -p "Extract version from @./package.json" --output-format json \
+    --json-schema '{"type":"object","properties":{"version":{"type":"string"}}}'
 ```
 
 ---
@@ -1103,16 +1153,18 @@ cat error.log | agy -p "Diagnose this stack trace"
 
 <v-clicks>
 
-- **Antigravity 2.0 desktop app**: shares config and conversations
-- **`/export`**: push a CLI session into the desktop app
+- **Antigravity 2.0 desktop app** and IDE live alongside the CLI under `~/.gemini`
+- **Shared MCP config**: `~/.gemini/config/mcp_config.json`
 - **Shared permissions**: rules carry across CLI and desktop
 - **External editor**: set `$EDITOR` for prompt and file editing
 
 </v-clicks>
 
 ```bash
-# Push this session to the desktop app
-> /export
+# Open a file in your external editor from inside a session
+> /open src/app.py
+
+# Long prompt? ctrl+g opens $EDITOR for the prompt box
 ```
 
 ---
@@ -1349,7 +1401,7 @@ agy
 
 <v-clicks>
 
-- Antigravity tracks trusted folders (`trustedFolders.json`)
+- Antigravity tracks trusted folders (`trustedWorkspaces` in `settings.json`)
 - Folder trust impacts settings, skills, and context loading
 - Treat untrusted repos with `--sandbox` and stricter rules
 - Combine with `/permissions` for auditable guardrails
@@ -1365,7 +1417,7 @@ agy
 - Skills package repeatable expert workflows for teams
 - MCP connects external systems (docs, data, browsers, APIs)
 - Distribute skills and subagents together inside plugins
-- Use `includeTools`/`excludeTools` to narrow risky MCP exposure
+- Use `disabledTools` to narrow risky MCP exposure
 
 </v-clicks>
 
@@ -1464,7 +1516,7 @@ backgroundSize: cover
 1. Create a comprehensive AGENTS.md
 2. Set up project-specific settings.json
 3. Configure relevant MCP servers
-4. Create custom commands for common tasks
+4. Create skills for common tasks
 5. Establish team conventions
 
 </v-clicks>
@@ -1491,7 +1543,7 @@ backgroundSize: cover
 
 - Share AGENTS.md in version control
 - Standardize settings.json across team
-- Create shared custom commands
+- Create shared skills in `.agents/skills/`
 - Document AI-assisted workflows
 - Review AI-generated code together
 

@@ -1,60 +1,30 @@
 {
-  "$schema": "https://raw.githubusercontent.com/google-gemini/gemini-cli/main/schemas/settings.schema.json",
-  "_comment": "Advanced Gemini CLI configuration with current settings schema. NOTE: tools.exclude is deprecated as of 0.30 - prefer the Policy Engine (--policy policy.toml) for deny rules.",
+  "_comment": "Productivity-focused Antigravity CLI settings: Vim editing, auto-accepted edits, pre-approved shell commands, custom status line.",
 
-  "general": {
-    "preferredEditor": "vscode",
-    "vimMode": true,
-    "defaultApprovalMode": "default",
-    "checkpointing": {
-      "enabled": true
-    }
+  "agentMode": "accept-edits",
+  "toolPermission": "request-review",
+  "artifactReviewPolicy": "agent-decides",
+  "editor": "code",
+  "editorMode": "vim",
+  "vimInsertFirst": true,
+  "showTips": false,
+  "notifications": true,
+  "colorScheme": "terminal",
+  "altScreenMode": "default",
+  "copyOnSelect": true,
+  "historySize": 5000,
+  "permissions": {
+    "allow": [
+      "command(git status)",
+      "command(git diff)",
+      "command(git log)",
+      "command(npm test)",
+      "command(pytest)"
+    ]
   },
-  "ui": {
-    "hideTips": true,
-    "hideBanner": true,
-    "showMemoryUsage": true,
-    "autoThemeSwitching": true
-  },
-  "model": {
-    "maxSessionTurns": -1,
-    "summarizeToolOutput": {
-      "run_shell_command": {
-        "tokenBudget": 4096
-      }
-    }
-  },
-  "context": {
-    "fileName": [
-      "GEMINI.md",
-      "CONTEXT.md"
-    ],
-    "includeDirectories": [],
-    "loadMemoryFromIncludeDirectories": false,
-    "fileFiltering": {
-      "respectGitIgnore": true,
-      "respectGeminiIgnore": true,
-      "enableRecursiveFileSearch": true,
-      "enableFuzzySearch": true,
-      "customIgnoreFilePaths": []
-    }
-  },
-  "tools": {
-    "sandbox": false,
-    "allowed": [
-      "read_file",
-      "read_many_files",
-      "write_file",
-      "replace",
-      "glob",
-      "search_file_content",
-      "run_shell_command",
-      "google_web_search",
-      "web_fetch"
-    ],
-    "exclude": []
-  },
-  "privacy": {
-    "usageStatisticsEnabled": true
+  "statusLine": {
+    "type": "command",
+    "command": "~/.local/bin/agy-statusline.sh",
+    "enabled": true
   }
 }

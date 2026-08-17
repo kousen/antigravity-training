@@ -14,7 +14,7 @@ This document contains hands-on exercises for learning to use the Antigravity CL
 
 ## Prerequisites
 
-- Antigravity CLI installed (version 1.0.6 or later):
+- Antigravity CLI installed (version 1.1.13 or later — check with `agy --version`, update with `agy update`):
   ```bash
   curl -fsSL https://antigravity.google/cli/install.sh | bash
   ```
@@ -405,21 +405,34 @@ echo "# Config Test" > README.md
    ```
    Review the current settings interface.
 
-2. **Create project settings**:
+2. **Inspect and edit your settings file**:
+   The CLI's settings live in `~/.gemini/antigravity-cli/settings.json`
+   (a flat key/value file). Dump the current values without starting a
+   session:
+   ```bash
+   agy -p "/settings"
    ```
-   Create a .gemini/settings.json file with:
-   - Use the current nested schema sections (general/ui/tools)
-   - Vim mode enabled
-   - Sandbox mode disabled
-   - Hide tips set to true
+   Then, in an interactive session, ask the agent:
    ```
+   Update ~/.gemini/antigravity-cli/settings.json so that:
+   - editorMode is "vim"
+   - enableTerminalSandbox is false
+   - showTips is false
+   - agentMode is "accept-edits"
+   ```
+   Restart `agy` and confirm the Vim mode badge in the status line and that
+   `Shift+Tab` shows `accept-edits` as the starting mode. Set `editorMode`
+   back to `"default"` afterward if you prefer.
 
 3. **Manage tool permissions**:
    ```
    /permissions
    ```
-   Add a rule that requires approval for shell commands, and observe how
-   the rules merge across project, user, and CLI settings.
+   Add an allow rule such as `command(git status)`, then look at the
+   `permissions.allow` array that appears in `settings.json`.
+
+   Then try the execution modes: press `Shift+Tab` to cycle
+   `default` → `accept-edits` → `plan`, or launch with `agy --mode plan`.
 
 4. **Test sandbox mode**:
    ```bash
@@ -465,10 +478,11 @@ echo "# Config Test" > README.md
    # List available models
    agy models
 
-   # Launch with a specific model
-   agy --model "Gemini 3.5 Flash (Low)"
+   # Launch with a specific model slug, optionally overriding effort
+   agy --model gemini-3.7-flash-low
+   agy --model gemini-3.1-pro-high --effort low
    ```
-   Or switch mid-session with `/model`.
+   Or switch mid-session with `/model` and `/effort`.
 
 ### Expected Outcomes
 
@@ -545,11 +559,12 @@ echo "# Config Test" > README.md
 ### Part C: MCP Server Integration (10 minutes)
 
 8. **Locate the MCP config**:
-   Antigravity has no `mcp` subcommand — servers are configured in a JSON
-   file:
+   Servers are configured in a JSON file — global or per-project:
    ```bash
-   $EDITOR ~/.gemini/config/mcp_config.json
+   $EDITOR ~/.gemini/config/mcp_config.json   # global
+   $EDITOR .agents/mcp_config.json            # this project only
    ```
+   Inside a session, `/mcp` shows server status and reloads the config.
 
 9.  **Configure Firecrawl MCP** (stdio server):
     ```json
@@ -565,11 +580,11 @@ echo "# Config Test" > README.md
     ```
     Restart `agy` so the server loads (servers initialize in parallel).
 
-10. **Configure a remote MCP server** (URL, added in 1.0.5):
+10. **Configure a remote MCP server** (`serverUrl` — `url`/`httpUrl` are not supported):
     ```json
     {
       "mcpServers": {
-        "remote-tools": { "url": "https://mcp.example.com/sse" }
+        "remote-tools": { "serverUrl": "https://mcp.example.com/sse" }
       }
     }
     ```
@@ -577,7 +592,7 @@ echo "# Config Test" > README.md
 11. **Test MCP integration**:
     In a session:
     ```
-    Use the Firecrawl MCP to search for "latest features of Gemini 3.1 Pro"
+    Use the Firecrawl MCP to search for "latest features of the Antigravity CLI"
     and summarize the findings.
     ```
 
@@ -605,15 +620,37 @@ echo "# Config Test" > README.md
     echo "What are the top 5 Python web frameworks?" | agy -p
     ```
 
+16. **Structured output** (1.1.8+):
+    ```bash
+    # One JSON envelope: status, response, usage (incl. cache_read_tokens)
+    agy -p "Summarize @./README.md in one sentence" --output-format json
+
+    # Enforce a schema; the parsed answer lands in "structured_output"
+    agy -p "How many .py files are in @./src?" --output-format json \
+        --json-schema '{"type":"object","properties":{"count":{"type":"integer"}}}'
+    ```
+    Read-only slash commands also answer in print mode without spending
+    quota — try `agy -p "/quota"` and `agy -p "/model"`.
+
 ### Part E: Subagents (optional, 5 minutes)
 
-16. **Dispatch a subagent**:
-    In a session:
+17. **Define and use a subagent**:
+    Create `.agents/agents/test-writer.md`:
+    ```markdown
+    ---
+    subagent: true
+    model: flash
+    ---
+    # Test writer
+    You write focused pytest unit tests. Never modify source files.
     ```
-    /agent write unit tests for @./src/calculator.py
+    Then in a session:
     ```
-    Subagents run with their own context; their standalone conversations
-    stay separate in `/resume`.
+    Delegate to the test-writer subagent: write unit tests for @./src/calculator.py
+    ```
+    Watch it in `/agents`. Subagents run with their own context; their
+    conversations stay separate in `/resume`. List agents from the shell
+    with `agy agents`; launch straight into one with `agy --agent test-writer`.
 
 ### Expected Outcomes
 
@@ -655,10 +692,11 @@ After completing this lab:
 
 ### Part B: Governance and Safety Controls (10-15 minutes)
 
-3. **Create a team-safe project settings file**:
-   In `.gemini/settings.json`, configure team defaults (UI, tools, editor).
-   Then define permission rules with `/permissions` that **deny** shell
-   commands by default and require explicit approval for risky tools.
+3. **Create a team-safe baseline**:
+   In `~/.gemini/antigravity-cli/settings.json`, set `toolPermission` to
+   `"request-review"` (or `"strict"`) and `agentMode` to `"default"`. Then
+   define permission rules with `/permissions` that allow only the shell
+   commands your team needs; everything else prompts.
 
    ```bash
    # Escape hatch for a trusted, sandboxed run only
@@ -666,7 +704,8 @@ After completing this lab:
    ```
 
 4. **Folder trust**:
-   Antigravity tracks trusted folders (`~/.gemini/trustedFolders.json`).
+   Antigravity tracks trusted folders in the `trustedWorkspaces` array of
+   `~/.gemini/antigravity-cli/settings.json`.
    Open an untrusted repo and observe how trust affects settings, skills,
    and context loading. Treat untrusted repos with `--sandbox` and stricter
    `/permissions` rules.
@@ -683,10 +722,11 @@ After completing this lab:
 
 6. **MCP scoping exercise**:
    Update one MCP server in `~/.gemini/config/mcp_config.json` to:
-   - Add `includeTools` for only the tools you need
-   - Add `excludeTools` for at least one sensitive tool
+   - Add `disabledTools` listing at least one sensitive tool
+   - Set `"disabled": true` on a server you don't need today
 
-   Restart `agy` and confirm the narrowed tool surface in a session.
+   Reload with `/mcp` (or restart `agy`) and confirm the narrowed tool
+   surface in a session.
 
 7. **MCP resource prompt practice**:
    If your MCP server exposes resources, reference one in a prompt and
@@ -748,13 +788,13 @@ After completing this optional lab:
 **Solution**: Add coding standards to your AGENTS.md
 
 **Issue**: Rate limits
-**Solution**: Check `/quota`; G1 credits cover overflow, or switch to a faster model like Gemini 3.5 Flash
+**Solution**: Check `/quota`; G1 credits cover overflow, or switch to a Flash model / lower `/effort`
 
 **Issue**: Context not loading
 **Solution**: Confirm your AGENTS.md location and reload the session; check with `/context`
 
 **Issue**: MCP server not connecting
-**Solution**: Check `~/.gemini/config/mcp_config.json`, then restart `agy` to reload servers
+**Solution**: Check `~/.gemini/config/mcp_config.json` (or `.agents/mcp_config.json`), then `/mcp` to reload
 
 ---
 

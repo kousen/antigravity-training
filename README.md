@@ -40,14 +40,14 @@ gemini-training/
 │   ├── settings-basic.json      # Starter settings
 │   ├── settings-advanced.json   # Full-featured settings
 │   ├── settings-safe.json       # Safety-focused settings
-│   └── settings-mcp.json        # MCP-focused settings
-├── gemini-md-examples/          # GEMINI.md templates
+│   └── mcp_config.json          # MCP server config
+├── gemini-md-examples/          # AGENTS.md / GEMINI.md templates
 │   ├── python-flask.md          # Python Flask template
 │   ├── java-spring.md           # Spring Boot template
-│   └── javascript-react.md      # React project template
-└── commands/                     # Custom command examples
-    ├── review.toml              # Code review command
-    └── test-gen.toml            # Test generation command
+│   └── typescript-react.md      # React project template
+└── skills/                       # Custom skill examples (SKILL.md)
+    ├── review/                  # /review code review
+    └── test-gen/                # /test-gen unit tests
 ```
 
 ## Quick Start
@@ -126,19 +126,19 @@ npm run dev
 ### Advanced Features
 - Model Context Protocol (MCP) servers (`mcp_config.json`)
 - Plugin system (`agy plugin`)
-- Skills and subagents (`/agent`)
+- Skills and subagents (Markdown `agent.md`, `/agents`, `agy agents`)
 - Conversation management (SQLite) and Artifact Review
-- Antigravity 2.0 desktop integration (`/export`)
+- Structured headless output (`--output-format json|stream-json`, `--json-schema`)
 
-### New in Antigravity CLI 1.0.x
-- Initial 1.0.0 release of the Go-based Antigravity CLI
-- Multi-model sessions: Gemini, Claude, GPT-OSS via `/model` (1.0.5)
-- `models` subcommand + `--model` flag to choose a model (1.0.5)
-- `/permissions` to manage tool permission rules in-CLI (1.0.5)
-- G1 credits with `/credits`, `/usage`, `/quota` (1.0.3)
-- MCP `url` support in `mcp_config.json`; parallel init (1.0.5/1.0.6)
-- SQLite conversation format + `/resume`, `--continue` (1.0.4)
-- Plugin discovery for skills and subagents (1.0.1)
+### New in Antigravity CLI 1.1.x (materials verified against 1.1.13)
+- Execution modes: `Shift+Tab` cycles `default` → `accept-edits` → `plan`; `--mode`; `agentMode` setting (1.1.0)
+- Structured headless output: `--output-format json|stream-json`, `--json-schema` (1.1.8)
+- Slash commands and skills expand in `-p`; read-only commands answer without spending quota (1.1.9–1.1.12)
+- Stable model slugs for `--model`, plus `--effort` / `/effort` (1.1.5)
+- Custom agents in Markdown (`agent.md` frontmatter), `--agent`, `agy agents` (1.1.1/1.1.6)
+- `/codesearch` (1.1.3), Vim editor mode (1.1.11), `/fork`, `/btw`, `/rewind`
+- Direct Gemini API access via `GEMINI_API_KEY` + `modelProvider: "gemini"` (1.1.13)
+- Run `agy changelog` for the full release notes
 
 ## Tips for Success
 
@@ -159,7 +159,10 @@ agy -i "context"                    # Interactive with initial prompt
 # Configuration
 agy --sandbox                       # Run in sandbox mode
 agy --dangerously-skip-permissions  # Auto-approve all actions (use with care)
-agy --model "Gemini 3.1 Pro (High)" # Specify a model (see `agy models`)
+agy --model gemini-3.1-pro-high     # Specify a model slug (see `agy models`)
+agy --effort low                    # Reasoning effort: low|medium|high
+agy --mode plan                     # Start in plan mode (or accept-edits)
+agy -p "prompt" --output-format json  # Machine-readable result
 
 # Session management
 agy -c                              # Continue most recent conversation
@@ -172,12 +175,14 @@ agy --conversation <id>             # Resume a specific conversation
 |---------|-------------|
 | `/help` | Show available commands and shortcuts |
 | `/context` | View loaded context and token usage |
-| `/model` | Switch the active model mid-session |
+| `/model` · `/effort` | Switch model or reasoning effort mid-session |
 | `/settings` | Open settings and preferences |
 | `/permissions` | Add/edit/remove tool permission rules |
-| `/resume` | Open the conversation browser |
-| `/agent <task>` | Dispatch an asynchronous subagent |
-| `/export` | Send the session to the desktop app |
+| `/mcp` | View and reload MCP servers |
+| `/codesearch <query>` | Regex search across the workspace (`/cs`) |
+| `/resume` · `/fork` · `/rewind` | Conversation browser, branch, roll back |
+| `/agents` · `/tasks` | Monitor subagents and background tasks |
+| `/btw <question>` | Side question without interrupting the current task |
 | `/diff` | Review changes (supports commit selection) |
 | `/usage` · `/credits` · `/quota` | Quota and credit status |
 

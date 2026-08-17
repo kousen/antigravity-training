@@ -1,0 +1,26 @@
+{
+  "_comment": "This is mcp_config.json, NOT settings.json. Global: ~/.gemini/config/mcp_config.json  Per-project: .agents/mcp_config.json  Reload in-session with /mcp. Remote servers use serverUrl (url/httpUrl are not supported).",
+
+  "mcpServers": {
+    "firecrawl": {
+      "command": "npx",
+      "args": ["-y", "firecrawl-mcp"],
+      "env": { "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}" }
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/allowed/dir"],
+      "disabledTools": ["move_file"]
+    },
+    "context7": {
+      "serverUrl": "https://mcp.context7.com/mcp",
+      "headers": { "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}" }
+    },
+    "postgres": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres"],
+      "env": { "CONNECTION_STRING": "${DATABASE_URL}" },
+      "disabled": true
+    }
+  }
+}

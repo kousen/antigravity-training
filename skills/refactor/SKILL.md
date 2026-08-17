@@ -1,10 +1,12 @@
-# Refactoring Command
-# Place in ~/.gemini/commands/refactor.toml
-# Usage: /refactor @./src/myfile.py
+---
+name: refactor
+description: >-
+  Refactor code for improved quality. Use this skill when the user runs /refactor or asks for
+  this kind of task on a file or directory (e.g. "/refactor @./src/app.py").
+---
 
-description = "Refactor code for improved quality"
+# /refactor
 
-prompt = """
 Refactor the provided code following these principles:
 
 ## Code Quality
@@ -39,5 +41,4 @@ Provide the refactored code with:
 - Before/after comparison for significant changes
 - Any trade-offs or considerations
 
-{{args}}
-"""
+Apply the above to the file(s) or directory the user referenced with `@`.

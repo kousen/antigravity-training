@@ -1,10 +1,12 @@
-# Documentation Generation Command
-# Place in ~/.gemini/commands/docs.toml
-# Usage: /docs @./src/myfile.py
+---
+name: docs
+description: >-
+  Generate comprehensive documentation for code. Use this skill when the user runs /docs or asks for
+  this kind of task on a file or directory (e.g. "/docs @./src/app.py").
+---
 
-description = "Generate comprehensive documentation for code"
+# /docs
 
-prompt = """
 Generate comprehensive documentation for the provided code:
 
 ## README.md
@@ -38,5 +40,4 @@ Use Markdown format with:
 - Tables for parameters and options
 - Links to related documentation
 
-{{args}}
-"""
+Apply the above to the file(s) or directory the user referenced with `@`.

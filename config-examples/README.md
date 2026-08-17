@@ -1,69 +1,53 @@
 # Configuration Examples
 
-This folder contains example `settings.json` configurations for Gemini CLI.
-They use the current nested schema (`general`, `ui`, `tools`, `context`, etc.).
+Example configuration files for the Antigravity CLI (`agy`). Two different files:
+
+| File | Real location | Purpose |
+|------|---------------|---------|
+| `settings-*.json` | `~/.gemini/antigravity-cli/settings.json` | CLI behaviour: modes, permissions, editor, UI |
+| `mcp_config.json` | `~/.gemini/config/mcp_config.json` (global) or `.agents/mcp_config.json` (project) | MCP servers |
+
+`settings.json` is a **flat** key/value file. See every key and your current
+values with `agy -p "/settings"`, or edit interactively with `/settings`.
 
 ## Files
 
 ### settings-basic.json
-Minimal configuration for beginners. Enables checkpointing for safety while keeping most other features near defaults.
-
-**Use when**: Getting started with Gemini CLI
+Sensible defaults: `request-review` permissions, interactive diff review before
+writes, tips on. **Use when**: getting started.
 
 ### settings-advanced.json
-Full-featured configuration with:
-- Vim mode enabled
-- Tips and banner hidden for cleaner interface
-- Tool output summarization for shell output
-- File filtering with `.gitignore` and `.geminiignore`
-- Explicit tool allow/exclude lists
-
-**Use when**: You're comfortable with Gemini CLI and want optimal productivity
+Productivity setup: Vim editor mode, `accept-edits` agent mode, pre-approved
+shell commands in `permissions.allow`, custom status line.
+**Use when**: you're comfortable with `agy` and want fewer prompts.
 
 ### settings-safe.json
-Restricted configuration for maximum safety:
-- Sandbox mode enabled (`docker`)
-- Only read-only tools allowed
-- Shell and write operations disabled
-- Session turn limits
-- YOLO mode disabled
+Locked down: `strict` tool permissions, terminal sandbox on, `plan` mode by
+default, no access outside the workspace, no G1 credit spend.
+**Use when**: exploring untrusted code or training new users.
 
-**Use when**: Exploring untrusted codebases or training new users
-
-### settings-mcp.json
-Configuration with MCP server integrations:
-- GitHub server for repo/issue operations
-- Filesystem server for extended file access
-- PostgreSQL server for database queries
-- Global MCP allow/exclude controls via `mcp.allowed` / `mcp.excluded`
-
-**Use when**: You need to integrate with external tools and services
+### mcp_config.json
+Stdio (`command`/`args`/`env`) and remote (`serverUrl`/`headers`) servers,
+plus `disabledTools` and `disabled` for narrowing exposure.
 
 ## Usage
 
-Copy the desired configuration to your project or user settings:
-
 ```bash
-# Project-specific settings
-mkdir -p .gemini
-cp settings-advanced.json .gemini/settings.json
+# CLI settings (user-level; there is no separate project settings file)
+cp settings-advanced.json ~/.gemini/antigravity-cli/settings.json
 
-# User-level settings (all projects)
-cp settings-advanced.json ~/.gemini/settings.json
+# MCP servers — global, or per project
+cp mcp_config.json ~/.gemini/config/mcp_config.json
+mkdir -p .agents && cp mcp_config.json .agents/mcp_config.json
 ```
+
+Then start `agy` (or `/mcp` in a running session to reload MCP servers).
 
 ## Environment Variables
 
-MCP configurations use `$VAR_NAME` (or `${VAR_NAME}`) syntax for environment variable substitution. Set these before starting Gemini CLI:
+MCP configs use `${VAR_NAME}` for substitution. Export them before starting:
 
 ```bash
-export GITHUB_TOKEN="your-github-token"
-export DATABASE_URL="postgres://user:pass@localhost:5432/db"
-```
-
-Or add them to your `.gemini/.env` file:
-
-```
-GITHUB_TOKEN=your-github-token
-DATABASE_URL=postgres://user:pass@localhost:5432/db
+export FIRECRAWL_API_KEY="fc-..."
+export CONTEXT7_API_KEY="ctx7sk-..."
 ```

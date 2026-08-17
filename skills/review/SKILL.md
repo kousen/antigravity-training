@@ -1,10 +1,12 @@
-# Code Review Command
-# Place in ~/.gemini/commands/review.toml
-# Usage: /review @./src/myfile.py
+---
+name: review
+description: >-
+  Perform a comprehensive code review. Use this skill when the user runs /review or asks for
+  this kind of task on a file or directory (e.g. "/review @./src/app.py").
+---
 
-description = "Perform a comprehensive code review"
+# /review
 
-prompt = """
 Perform a thorough code review focusing on:
 
 ## Security
@@ -35,5 +37,4 @@ Provide specific line numbers and actionable recommendations with severity level
 - WARNING: Should fix soon
 - INFO: Consider improving
 
-{{args}}
-"""
+Apply the above to the file(s) or directory the user referenced with `@`.
