@@ -1,11 +1,11 @@
 {
   "name": "gemini-cli-training",
   "version": "1.0.0",
-  "description": "Training course for Google Gemini CLI - Agentic Coding in the Terminal",
+  "description": "Training course for Google Antigravity CLI (agy) - Agentic Coding in the Terminal",
   "scripts": {
     "dev": "slidev",
     "build": "slidev build",
-    "export": "slidev export"
+    "export": "slidev export --output gemini-training-slides.pdf"
   },
   "dependencies": {
     "@slidev/cli": "^52.12.0",

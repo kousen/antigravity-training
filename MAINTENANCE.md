@@ -60,8 +60,12 @@ in class regardless, so a stale dep or two is not a teaching hazard.
   deck rebuild afterwards. It will bump Slidev across a major version.
 - **Do not** upgrade Gemini CLI mid-class. Pin a version on students'
   machines during the prereq step.
-- **Do not** delete `slides.pdf` without regenerating it — students get
-  the PDF as a handout.
+- **Do not** commit a slides PDF. CI builds `gemini-training-slides.pdf`
+  on every push to `main` that touches `slides.md` and attaches it to the
+  rolling `slides-latest` release
+  (`.github/workflows/build-slides-pdf.yml`). Students get the PDF from
+  `https://github.com/kousen/gemini-training/releases/latest/download/gemini-training-slides.pdf`.
+  Re-run manually from the Actions tab (`workflow_dispatch`) if needed.
 
 ## Refreshing against a new Antigravity CLI release
 

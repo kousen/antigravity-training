@@ -68,3 +68,6 @@ coverage/
 
 # Antigravity clipboard images
 .gemini-clipboard/
+
+# Slides PDF is built by CI and attached to the slides-latest release
+gemini-training-slides.pdf

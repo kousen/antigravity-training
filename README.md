@@ -23,6 +23,14 @@ This 5-hour hands-on workshop covers everything from basic installation to advan
 - Google account for sign-in (or an `ANTIGRAVITY_API_KEY`)
 - Node.js 18+ (only needed to run the Slidev presentation locally)
 
+### 📄 Latest PDF
+
+A current PDF of the slides is rebuilt automatically whenever `slides.md` lands on `main` and attached to a rolling release. Stable download URL:
+
+**<https://github.com/kousen/gemini-training/releases/latest/download/gemini-training-slides.pdf>**
+
+No PDF is committed to the repo — it lives only in [GitHub Releases](https://github.com/kousen/gemini-training/releases/tag/slides-latest), built by [`.github/workflows/build-slides-pdf.yml`](.github/workflows/build-slides-pdf.yml).
+
 ## Repository Structure
 
 ```
