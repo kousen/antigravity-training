@@ -8,21 +8,26 @@ students. Kept so the next refresh doesn't re-litigate the same calls.
 Dependabot routinely reports findings on `main`. **None of them affect
 students or the taught material.** Triage below.
 
-### Current state (after April 2026 refresh)
-
-As of commits `0d4c9e0` and `3b4d7a1`:
+### Current state (after August 2026 refresh)
 
 | Lockfile | Before | After |
 |---|---|---|
-| Root `package-lock.json` (Slidev toolchain) | 20 (1 low / 14 mod / 5 high) | **6** (all moderate) |
-| `exercises/javascript/my-task-manager` | 4 (1 mod / 3 high) | **0** |
+| Root `package-lock.json` (Slidev toolchain) | 18 (2 low / 7 mod / 9 high) | **4** (all high, one root cause) |
+| `exercises/javascript/my-task-manager` | 0 | 0 |
 
-The remaining 6 are all in the `@slidev/cli` → `monaco-editor` →
-`dompurify` chain (moderate mutation-XSS). They only clear with
-`npm audit fix --force`, which downgrades `@slidev/cli` from 52.12.0
-to 52.6.0 (a major-version downgrade). **Don't bother** — the attack
-surface for a slide deck the instructor builds themselves is nil.
-Wait for Slidev upstream to publish a clean update.
+What fixed it (2026-08-19): regenerating the lockfile (`rm -rf node_modules
+package-lock.json && npm install --ignore-scripts`) took Slidev 52.12 → 52.19
+and cleared most of it; a `package.json` override `"dompurify": "^3.4.14"`
+cleared the `monaco-editor`/`mermaid` → `dompurify` chain.
+
+The remaining 4 are all `image-size <=2.0.2` reached via
+`@slidev/cli → @slidev/client → pptxgenjs → image-size`. **There is no patched
+`image-size` release** (2.0.2 is the latest and is itself flagged), so no
+override can clear them — wait for upstream. `npm audit fix --force` would
+*downgrade* `@slidev/cli` to 52.6.0; don't.
+
+GitHub's Dependabot banner counts the whole repo (Java/Python exercise
+manifests included), so its number will be higher than `npm audit`'s.
 
 ### Re-running the audit next time
 
