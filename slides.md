@@ -90,7 +90,7 @@ Kousen IT, Inc.
 - **Foundation**: Installation, CLI basics, authentication
 - **Core Skills**: File operations, shell integration, context management
 - **Customization**: AGENTS.md, skills, settings.json
-- **Safety**: Sandbox mode, permission rules, checkpointing
+- **Safety**: Execution modes, permission rules, sandbox, hooks
 - **Advanced**: MCP integration, skills/plugins, session management
 
 </v-clicks>
@@ -179,7 +179,7 @@ Kousen IT, Inc.
 - **macOS / Linux**: `curl -fsSL https://antigravity.google/cli/install.sh | bash`
 - **Windows (PowerShell)**: `irm https://antigravity.google/cli/install.ps1 | iex`
 - Installs the `agy` binary to `~/.local/bin/`
-- Verify: `agy --version`  ·  Update later: `agy update`
+- Verify: `agy --version`  ·  Update: `agy update`  ·  What changed: `agy changelog`
 
 </v-clicks>
 
@@ -310,6 +310,24 @@ agy -p "Analyze the architecture in @./src/"
 
 ---
 
+# Search the Workspace: `/codesearch`
+
+<v-clicks>
+
+- `/codesearch <query>` (aliases `/cs`, `/search`) — interactive regex search across the workspace
+- `-F` / `--literal` for exact matching; `f:` / `file:` globs to include or exclude paths
+- Falls back to a local search if `ripgrep` can't run (e.g. blocked by endpoint security)
+- Cheaper than asking the agent to "find where X is used" — and you see the results yourself
+
+</v-clicks>
+
+```bash
+> /cs def get_weather
+> /cs -F "TODO:" file:*.py
+```
+
+---
+
 # Slash Commands: Navigation
 
 <v-clicks>
@@ -403,8 +421,28 @@ agy -p "Analyze the architecture in @./src/"
 - `Esc` - Interrupt the active agent stream
 - `Ctrl+C` - Cancel current operation
 - `Ctrl+D` `Ctrl+D` - Exit Antigravity CLI (press twice)
+- `Ctrl+G` - Edit a long prompt in `$EDITOR`
 
 </v-clicks>
+
+---
+
+# Vim Editor Mode
+
+<v-clicks>
+
+- `/settings` → **Editor Mode** → `vim` (or `"editorMode": "vim"` in settings.json)
+- Normal / Insert / Visual modes, a mode badge in the status line
+- Motions, operators, text objects: `w` `b` `e` `0` `$` `gg` `G` `d` `c` `y` `iw` `ap` …
+- **Insert First** option: open each prompt in Insert mode so bare `Enter` submits
+- Remap anything under `vim.*` in `~/.gemini/antigravity-cli/keybindings.json`
+
+</v-clicks>
+
+```bash
+# Persist it
+{ "editorMode": "vim", "vimInsertFirst": true }
+```
 
 ---
 
@@ -564,38 +602,26 @@ agy --sandbox -p "Audit @./src for risky calls"
 
 ---
 
-# Checkpointing
+# Undo & Recovery
 
 <v-clicks>
 
-- **Snapshots**: capture state before file modifications
-- **Shadow storage**: kept under `~/.gemini/` (not your repo)
-- **Includes**: files + conversation + tool call
-- **Manage** checkpoints from the `/context` panel
+- **Before the write**: the default mode pauses on a diff — reject what you don't want
+- **`/rewind`**: roll the conversation back to an earlier message
+- **`/diff`**: see what the agent changed in this session
+- **`/fork`**: branch before a risky experiment; `/resume` / `agy -c` to come back
+- **Your repo is the real safety net**: commit before big asks, `git checkout -- .` to undo
 
 </v-clicks>
 
 ```bash
-# View context and manage checkpoints
-> /context
+# Roll the conversation back, then try a different approach
+> /rewind
+
+# Inspect what changed before you commit
+> /diff
+git diff
 ```
-
----
-
-# Restoring Checkpoints
-
-```bash
-# Open the context panel to review checkpoints
-/context
-
-# Resume an earlier conversation by ID
-agy --conversation <id>
-
-# Continue the most recent conversation
-agy -c
-```
-
-Recover earlier state and pick up where you left off
 
 ---
 layout: image-left
@@ -778,6 +804,30 @@ Full list: `/settings` in-session, or `agy -p "/settings"` to dump current value
 
 ---
 
+# Status Line Customization
+
+<v-clicks>
+
+- The bar under the prompt shows model, mode, and quota by default
+- `/statusline` opens the customization overlay
+- Or point `statusLine` at your own script — it receives session JSON on stdin
+
+</v-clicks>
+
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "~/.local/bin/agy-statusline.sh",
+    "enabled": true
+  }
+}
+```
+
+A working Python example lives in `exercises/python/weather-app/statusline.py`.
+
+---
+
 # Tool Permissions & Rules
 
 <v-clicks>
@@ -894,7 +944,7 @@ backgroundSize: cover
   "mcpServers": {
     "firecrawl": {
       "command": "npx",
-      "args": ["@modelcontextprotocol/server-firecrawl"],
+      "args": ["-y", "firecrawl-mcp"],
       "env": {
         "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}"
       }
@@ -1082,20 +1132,66 @@ agy plugin disable my-plugin
 
 <v-clicks>
 
-- Package reusable expert workflows as **skills**
-- Distributed inside plugins, stored under `~/.gemini/config/skills/`
-- Surface as slash commands via autocomplete
-- Discovered automatically from installed plugins
+- Package reusable expert workflows as **skills**: a folder with a `SKILL.md`
+- Frontmatter `name` + `description` — the agent reads the description to decide when to use it
+- Live in `.agents/skills/` (project, checked in) or `~/.gemini/config/skills/` (global), or inside plugins
+- Surface as `/name` slash commands via autocomplete; `/skills` lists them
+- This repo ships four in `skills/`: `/review`, `/test-gen`, `/docs`, `/refactor`
 
 </v-clicks>
 
-```bash
-# Skills arrive with plugins
-agy plugin install code-review@marketplace
-
-# Invoke a skill-derived command in-session
-> /code-review @./src
+```markdown
+---
+name: review
+description: Perform a code review. Use when the user runs /review on a file.
+---
+# /review
+Review the referenced code for security, performance, and test gaps…
 ```
+
+---
+
+# Lifecycle Hooks
+
+<v-clicks>
+
+- Shell commands that run at fixed points in the agent loop — `hooks.json` in `~/.gemini/config/` or inside a plugin
+- **`PreToolUse`** — gate or rewrite a tool call: return `allow` / `deny` / `ask` (matcher on tool name, e.g. `run_command`)
+- **`PostToolUse`** — run a linter or tests after a tool finishes
+- **`PreInvocation` / `PostInvocation`** — inject context before the model runs; force-continue after
+- **`Stop`** — notify, or refuse to stop until goals are met
+- JSON in on stdin, JSON out on stdout; `/hooks` shows what's loaded
+
+</v-clicks>
+
+---
+
+# Hooks: Examples
+
+```json
+{
+  "no-force-push": {
+    "PreToolUse": [{
+      "matcher": "run_command",
+      "hooks": [{ "command": "./scripts/block-force-push.sh" }]
+    }]
+  },
+  "notify-done": {
+    "Stop": [{ "command": "osascript -e 'display notification \"agy finished\"'; echo '{}'" }]
+  }
+}
+```
+
+```bash
+# block-force-push.sh — stdin has {"toolCall":{"name":"run_command","args":{"CommandLine":"..."}}}
+if grep -q 'push.*--force' <<< "$(cat)"; then
+  echo '{"decision":"deny","reason":"No force pushes from the agent"}'
+else
+  echo '{"decision":"allow"}'
+fi
+```
+
+Example `config-examples/hooks.json` in this repo. ⚠️ As of 1.1.13 the CLI loads hooks from `~/.gemini/config/` and plugins — a workspace `.agents/hooks.json` is documented but not picked up yet (verified).
 
 ---
 
@@ -1390,6 +1486,7 @@ agy
 
 - `--dangerously-skip-permissions` is a per-session escape hatch
 - `/permissions` rules provide durable guardrails across users/projects
+- `PreToolUse` hooks (`~/.gemini/config/hooks.json`, or shipped in a plugin) enforce policy the rules can't express
 - Keep high-risk tools constrained in team settings
 - Prefer explicit allow/deny patterns over ad-hoc approvals
 
@@ -1453,14 +1550,19 @@ $EDITOR ~/.gemini/config/mcp_config.json
 # CI Example: Gate + Report
 
 ```bash
+# Human-readable report for the PR
 agy -p "Review @./src/ for security issues" > review.txt
 
-if agy -p "Run checks and report pass/fail"; then
-  echo "Gate passed"
-else
-  echo "Gate failed" && exit 1
-fi
+# Machine-readable gate: force a yes/no answer with a schema
+verdict=$(agy -p "Does @./src/ contain any CRITICAL security issue?" \
+  --output-format json \
+  --json-schema '{"type":"object","properties":{"critical":{"type":"boolean"}}}' \
+  | jq -r '.structured_output.critical')
+
+[ "$verdict" = "false" ] || { echo "Gate failed — see review.txt"; exit 1; }
 ```
+
+Non-zero exit = the run itself failed (`status` ≠ `SUCCESS`); the schema gives you the *verdict*.
 
 ---
 layout: image-right

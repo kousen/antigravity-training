@@ -65,3 +65,6 @@ coverage/
 *.temp
 *.bak
 .cache/
+
+# Antigravity clipboard images
+.gemini-clipboard/

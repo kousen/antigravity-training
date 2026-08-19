@@ -92,6 +92,24 @@ Facts that bit us this round (don't reintroduce):
 - Per-project customizations go under `.agents/` (`mcp_config.json`,
   `skills/`, `agents/`), not `.gemini/`.
 - Custom commands are skills (`SKILL.md`), not `commands/*.toml`.
+- Hooks: CLI 1.1.13 loads `~/.gemini/config/hooks.json` and plugin hooks
+  only — a workspace `.agents/hooks.json` is NOT picked up (tested with a
+  trusted workspace and a real turn; log says "loaded 1 named hooks from
+  1 hooks.json file(s)"). Re-test on each release; flip the slide/lab
+  wording back to `.agents/` when it starts working. Also: a non-object
+  top-level key (e.g. `_comment`) makes the CLI silently drop the whole file.
+- Checkpointing is a Gemini-CLI feature, not agy. agy has `/rewind`, `/diff`,
+  `/fork`, diff-review-before-write.
+
+## Exercise repos
+
+- `exercises/python/weather-app` on `main` is the **student baseline**
+  (restored to commit 9a5d244 on 2026-08-19). Live-demo results (config,
+  error handling, caching, ARCHITECTURE.md) live on branch
+  `weather-app-demos`. Demo on a branch or `git stash` afterwards — if the
+  app arrives in class fully tested, Lab 4 has nothing to generate.
+- `statusline.py` in weather-app is referenced from the Status Line slide and
+  from `~/.gemini/antigravity-cli/settings.json` on Ken's machine.
 
 The `course-refresh-preflight` skill has a config for this repo
 (`~/.claude/skills/course-refresh-preflight/configs/gemini-training.yml`);

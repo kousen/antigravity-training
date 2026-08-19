@@ -556,9 +556,21 @@ echo "# Config Test" > README.md
    ```
    Skills from installed plugins surface as slash commands via autocomplete.
 
+8. **Write (well, borrow) a skill**:
+   Copy one of this repo's skills into your project and try it:
+   ```bash
+   mkdir -p .agents/skills
+   cp -r <course-repo>/skills/review .agents/skills/
+   ```
+   Start `agy`, run `/skills` to confirm it loaded, then `/review @./src/calculator.py`.
+   Now open `.agents/skills/review/SKILL.md`, add a "## Style" section with one
+   rule of your own (e.g. "flag any function longer than 30 lines"), and run
+   `/review` again. The `description` line is what tells the agent *when* to
+   use it — keep it specific.
+
 ### Part C: MCP Server Integration (10 minutes)
 
-8. **Locate the MCP config**:
+9. **Locate the MCP config**:
    Servers are configured in a JSON file — global or per-project:
    ```bash
    $EDITOR ~/.gemini/config/mcp_config.json   # global
@@ -566,13 +578,13 @@ echo "# Config Test" > README.md
    ```
    Inside a session, `/mcp` shows server status and reloads the config.
 
-9.  **Configure Firecrawl MCP** (stdio server):
+10. **Configure Firecrawl MCP** (stdio server):
     ```json
     {
       "mcpServers": {
         "firecrawl": {
           "command": "npx",
-          "args": ["@modelcontextprotocol/server-firecrawl"],
+          "args": ["-y", "firecrawl-mcp"],
           "env": { "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}" }
         }
       }
@@ -580,7 +592,7 @@ echo "# Config Test" > README.md
     ```
     Restart `agy` so the server loads (servers initialize in parallel).
 
-10. **Configure a remote MCP server** (`serverUrl` — `url`/`httpUrl` are not supported):
+11. **Configure a remote MCP server** (`serverUrl` — `url`/`httpUrl` are not supported):
     ```json
     {
       "mcpServers": {
@@ -589,14 +601,14 @@ echo "# Config Test" > README.md
     }
     ```
 
-11. **Test MCP integration**:
+12. **Test MCP integration**:
     In a session:
     ```
     Use the Firecrawl MCP to search for "latest features of the Antigravity CLI"
     and summarize the findings.
     ```
 
-12. **Explore MCP tools**:
+13. **Explore MCP tools**:
     ```
     What MCP tools are available in this session?
     Show me an example of using one of them.
@@ -604,23 +616,23 @@ echo "# Config Test" > README.md
 
 ### Part D: Non-Interactive (Print) Mode (5 minutes)
 
-13. **Print mode for scripting**:
+14. **Print mode for scripting**:
     ```bash
     agy -p "List the files in the current directory and describe each"
     ```
     Capture the output to a file for downstream processing.
 
-14. **Bound the wait**:
+15. **Bound the wait**:
     ```bash
     agy --print-timeout 2m -p "Explain the concept of microservices architecture"
     ```
 
-15. **Piped workflows**:
+16. **Piped workflows**:
     ```bash
     echo "What are the top 5 Python web frameworks?" | agy -p
     ```
 
-16. **Structured output** (1.1.8+):
+17. **Structured output** (1.1.8+):
     ```bash
     # One JSON envelope: status, response, usage (incl. cache_read_tokens)
     agy -p "Summarize @./README.md in one sentence" --output-format json
@@ -634,7 +646,7 @@ echo "# Config Test" > README.md
 
 ### Part E: Subagents (optional, 5 minutes)
 
-17. **Define and use a subagent**:
+18. **Define and use a subagent**:
     Create `.agents/agents/test-writer.md`:
     ```markdown
     ---
@@ -710,9 +722,23 @@ After completing this lab:
    and context loading. Treat untrusted repos with `--sandbox` and stricter
    `/permissions` rules.
 
+5. **Enforce policy with a hook**:
+   Copy `config-examples/hooks.json` and `config-examples/scripts/` from the
+   course repo into `~/.gemini/config/` (hooks are global or plugin-scoped in
+   CLI 1.1.13 — a workspace `.agents/hooks.json` isn't loaded yet). The
+   `PreToolUse` hook on `run_command` reads the tool call from stdin and
+   answers `{"decision":"deny"}` for `git push --force`. Start `agy`, run
+   `/hooks` to confirm it loaded, then ask:
+   ```
+   Force-push the current branch to origin
+   ```
+   The agent should report that the command was blocked by the hook. Then
+   add a `Stop` hook that runs `echo '{}'` after a desktop notification of
+   your choice — that's the "tell me when it's done" pattern.
+
 ### Part C: Plugins + MCP Hardening (10-15 minutes)
 
-5. **Plugin lifecycle drill**:
+6. **Plugin lifecycle drill**:
    ```bash
    agy plugin list
    agy plugin disable <one-plugin-name>
@@ -720,7 +746,7 @@ After completing this lab:
    ```
    Observe how discoverable skills and subagents change.
 
-6. **MCP scoping exercise**:
+7. **MCP scoping exercise**:
    Update one MCP server in `~/.gemini/config/mcp_config.json` to:
    - Add `disabledTools` listing at least one sensitive tool
    - Set `"disabled": true` on a server you don't need today
@@ -728,32 +754,33 @@ After completing this lab:
    Reload with `/mcp` (or restart `agy`) and confirm the narrowed tool
    surface in a session.
 
-7. **MCP resource prompt practice**:
+8. **MCP resource prompt practice**:
    If your MCP server exposes resources, reference one in a prompt and
    summarize what changed versus a tool-only prompt.
 
 ### Part D: CI/Automation Pattern (10 minutes)
 
-8. **Create a repeatable automation check**:
+9. **Create a repeatable automation check**:
    Add a script snippet to `automation_notes.md`:
    ```bash
    agy -p "Review @./src/ for security issues" > review.txt
-   if agy -p "Summarize risk level in one sentence"; then
-     echo "Check completed"
-   else
-     echo "Check failed" && exit 1
-   fi
+   verdict=$(agy -p "Does @./src/ contain any CRITICAL security issue?" \
+     --output-format json \
+     --json-schema '{"type":"object","properties":{"critical":{"type":"boolean"}}}' \
+     | jq -r '.structured_output.critical')
+   [ "$verdict" = "false" ] || { echo "Gate failed"; exit 1; }
    ```
 
-9. **Post-process output**:
-   Parse `review.txt` with your preferred tool (`grep`, Node, Python) and
-   extract one signal for a simple pass/fail decision.
+10. **Post-process output**:
+   Run the JSON variant once more with `--output-format stream-json` and
+   watch the `init` / `step_update` / `result` events arrive — that's what a
+   CI log or dashboard would consume.
 
 ### Expected Outcomes
 
 After completing this optional lab:
 - Choose the right auth method for local, team, and CI contexts
-- Apply practical governance controls with settings, permissions, and folder trust
+- Apply practical governance controls with settings, permissions, folder trust, and hooks
 - Restrict MCP/plugin behavior to safer team defaults
 - Build a basic non-interactive `agy` automation pattern
 

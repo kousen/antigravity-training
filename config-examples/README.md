@@ -51,3 +51,19 @@ MCP configs use `${VAR_NAME}` for substitution. Export them before starting:
 export FIRECRAWL_API_KEY="fc-..."
 export CONTEXT7_API_KEY="ctx7sk-..."
 ```
+
+### hooks.json (+ scripts/)
+Lifecycle hooks: a `PreToolUse` hook that denies `git push --force`, and a
+`Stop` hook that fires a desktop notification when a turn finishes.
+
+```bash
+cp hooks.json ~/.gemini/config/ && cp -r scripts ~/.gemini/config/
+```
+
+Start `agy` and run `/hooks` to see them registered. (CLI 1.1.13 loads hooks
+from `~/.gemini/config/` and from plugins; a workspace `.agents/hooks.json` is
+documented but not picked up yet — verified 2026-08-19.) If you already have a
+`~/.gemini/config/hooks.json`, merge the named entries instead of overwriting.
+Don't add `_comment`-style keys: every top-level key must be a hook object, and
+a stray string makes the CLI silently drop the entire file (`/hooks` shows nothing). Hook commands run from the
+directory containing `hooks.json`, read JSON on stdin, and must print JSON.

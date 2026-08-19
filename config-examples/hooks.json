@@ -1,0 +1,26 @@
+{
+  "no-force-push": {
+    "PreToolUse": [
+      {
+        "matcher": "run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./scripts/block-force-push.sh",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  },
+  "notify-done": {
+    "enabled": true,
+    "Stop": [
+      {
+        "type": "command",
+        "command": "./scripts/notify-done.sh",
+        "timeout": 5
+      }
+    ]
+  }
+}
