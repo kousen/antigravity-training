@@ -65,11 +65,11 @@ in class regardless, so a stale dep or two is not a teaching hazard.
   deck rebuild afterwards. It will bump Slidev across a major version.
 - **Do not** upgrade Gemini CLI mid-class. Pin a version on students'
   machines during the prereq step.
-- **Do not** commit a slides PDF. CI builds `gemini-training-slides.pdf`
+- **Do not** commit a slides PDF. CI builds `antigravity-training-slides.pdf`
   on every push to `main` that touches `slides.md` and attaches it to the
   rolling `slides-latest` release
   (`.github/workflows/build-slides-pdf.yml`). Students get the PDF from
-  `https://github.com/kousen/gemini-training/releases/latest/download/gemini-training-slides.pdf`.
+  `https://github.com/kousen/antigravity-training/releases/latest/download/antigravity-training-slides.pdf`.
   Re-run manually from the Actions tab (`workflow_dispatch`) if needed.
 
 ## Refreshing against a new Antigravity CLI release
@@ -125,5 +125,5 @@ Facts that bit us this round (don't reintroduce):
   from `~/.gemini/antigravity-cli/settings.json` on Ken's machine.
 
 The `course-refresh-preflight` skill has a config for this repo
-(`~/.claude/skills/course-refresh-preflight/configs/gemini-training.yml`);
+(`~/.claude/skills/course-refresh-preflight/configs/antigravity-training.yml`);
 run it first — it writes a file:line report without touching the repo.

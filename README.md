@@ -27,14 +27,14 @@ This 5-hour hands-on workshop covers everything from basic installation to advan
 
 A current PDF of the slides is rebuilt automatically whenever `slides.md` lands on `main` and attached to a rolling release. Stable download URL:
 
-**<https://github.com/kousen/gemini-training/releases/latest/download/gemini-training-slides.pdf>**
+**<https://github.com/kousen/antigravity-training/releases/latest/download/antigravity-training-slides.pdf>**
 
-No PDF is committed to the repo — it lives only in [GitHub Releases](https://github.com/kousen/gemini-training/releases/tag/slides-latest), built by [`.github/workflows/build-slides-pdf.yml`](.github/workflows/build-slides-pdf.yml).
+No PDF is committed to the repo — it lives only in [GitHub Releases](https://github.com/kousen/antigravity-training/releases/tag/slides-latest), built by [`.github/workflows/build-slides-pdf.yml`](.github/workflows/build-slides-pdf.yml).
 
 ## Repository Structure
 
 ```
-gemini-training/
+antigravity-training/
 ├── slides.md                     # Slidev presentation
 ├── lab_handout.md               # Progressive hands-on labs
 ├── exercises/                    # Hands-on lab projects
@@ -90,8 +90,8 @@ agy -p "Hello! What can you help me with?"
 
 ```bash
 # Clone this repository
-git clone https://github.com/kousen/gemini-training
-cd gemini-training
+git clone https://github.com/kousen/antigravity-training
+cd antigravity-training
 
 # Install dependencies for slides
 npm install

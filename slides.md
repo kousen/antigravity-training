@@ -1711,11 +1711,11 @@ agy --log-file ./agy.log
       :width="200"
       :height="200"
       type="svg"
-      data="https://github.com/kousen/gemini-training"
+      data="https://github.com/kousen/antigravity-training"
       :margin="5"
       :dotsOptions="{ type: 'rounded', color: '#10b981' }"
     />
-    <p class="text-sm mt-2">github.com/kousen/gemini-training</p>
+    <p class="text-sm mt-2">github.com/kousen/antigravity-training</p>
   </div>
 </div>
 
@@ -1737,7 +1737,7 @@ agy --log-file ./agy.log
 `https://modelcontextprotocol.io/registry`
 
 ### 💻 Course Materials
-`https://github.com/kousen/gemini-training`
+`https://github.com/kousen/antigravity-training`
 
 </v-clicks>
 
