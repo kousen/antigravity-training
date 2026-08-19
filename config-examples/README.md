@@ -27,8 +27,10 @@ default, no access outside the workspace, no G1 credit spend.
 **Use when**: exploring untrusted code or training new users.
 
 ### mcp_config.json
-Stdio (`command`/`args`/`env`) and remote (`serverUrl`/`headers`) servers,
-plus `disabledTools` and `disabled` for narrowing exposure.
+Context7 (remote, `serverUrl` + `headers`), filesystem (stdio, with
+`disabledTools`), and a disabled postgres entry. Remote servers must use
+`serverUrl` — `url`/`httpUrl` are rejected. No comment keys: keep the file to
+`mcpServers` only.
 
 ## Usage
 
@@ -43,14 +45,12 @@ mkdir -p .agents && cp mcp_config.json .agents/mcp_config.json
 
 Then start `agy` (or `/mcp` in a running session to reload MCP servers).
 
-## Environment Variables
+## API keys in MCP configs
 
-MCP configs use `${VAR_NAME}` for substitution. Export them before starting:
-
-```bash
-export FIRECRAWL_API_KEY="fc-..."
-export CONTEXT7_API_KEY="ctx7sk-..."
-```
+`${VAR_NAME}` is **not** expanded in `mcp_config.json` (verified on 1.1.15 —
+the literal string is sent to the server). Paste keys literally, and keep
+keyed servers in the global `~/.gemini/config/mcp_config.json` rather than a
+committed `.agents/mcp_config.json`. Context7 keys are free: <https://context7.com>.
 
 ### hooks.json (+ scripts/)
 Lifecycle hooks: a `PreToolUse` hook that denies `git push --force`, and a

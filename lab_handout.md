@@ -578,35 +578,40 @@ echo "# Config Test" > README.md
    ```
    Inside a session, `/mcp` shows server status and reloads the config.
 
-10. **Configure Firecrawl MCP** (stdio server):
+10. **Configure Context7** (remote server — current library docs):
+    Get a free API key at <https://context7.com> (sign in, then *API Keys*).
+    Add to the **global** `~/.gemini/config/mcp_config.json`:
     ```json
     {
       "mcpServers": {
-        "firecrawl": {
-          "command": "npx",
-          "args": ["-y", "firecrawl-mcp"],
-          "env": { "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}" }
+        "context7": {
+          "serverUrl": "https://mcp.context7.com/mcp",
+          "headers": { "CONTEXT7_API_KEY": "ctx7sk-your-key-here" }
         }
       }
     }
     ```
-    Restart `agy` so the server loads (servers initialize in parallel).
+    Paste the key literally: `${CONTEXT7_API_KEY}`-style substitution is **not**
+    performed in `mcp_config.json` (the literal string is sent and rejected).
+    That's why keyed servers belong in the global file, not a committed
+    `.agents/mcp_config.json`. Remote servers use `serverUrl`; `url`/`httpUrl`
+    are not supported. Restart `agy`, or `/mcp` to reload.
 
-11. **Configure a remote MCP server** (`serverUrl` — `url`/`httpUrl` are not supported):
+11. **Add a stdio server** (local process — no key):
     ```json
-    {
-      "mcpServers": {
-        "remote-tools": { "serverUrl": "https://mcp.example.com/sse" }
-      }
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/path/to/a/folder"]
     }
     ```
 
 12. **Test MCP integration**:
     In a session:
     ```
-    Use the Firecrawl MCP to search for "latest features of the Antigravity CLI"
-    and summarize the findings.
+    Use context7 to look up the current Flask 3 documentation for blueprints,
+    then tell me what changed versus what you already knew.
     ```
+    You should see `resolve-library-id` and `query-docs` tool calls.
 
 13. **Explore MCP tools**:
     ```

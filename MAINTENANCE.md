@@ -74,7 +74,7 @@ in class regardless, so a stale dep or two is not a teaching hazard.
 
 ## Refreshing against a new Antigravity CLI release
 
-Last done: 2026-08-17 against **agy 1.1.13** (materials had been at 1.0.6).
+Last done: 2026-08-17 against **agy 1.1.13** (materials had been at 1.0.6); re-checked 2026-08-19 on 1.1.15 (no teaching-relevant changes in 1.1.14/15).
 
 Ground truth, in order of trust:
 
@@ -107,6 +107,10 @@ Facts that bit us this round (don't reintroduce):
   1 hooks.json file(s)"). Re-test on each release; flip the slide/lab
   wording back to `.agents/` when it starts working. Also: a non-object
   top-level key (e.g. `_comment`) makes the CLI silently drop the whole file.
+- `${VAR}` is NOT expanded in `mcp_config.json` (verified 1.1.15: the literal
+  string was sent as the Context7 header and rejected). Keys go in the global
+  file, literally. Context7 replaced Firecrawl in Lab 6 on 2026-08-19.
+- Re-tested on 1.1.15: workspace `.agents/hooks.json` still not loaded.
 - Checkpointing is a Gemini-CLI feature, not agy. agy has `/rewind`, `/diff`,
   `/fork`, diff-review-before-write.
 

@@ -937,21 +937,22 @@ backgroundSize: cover
 
 ---
 
-# MCP Configuration: Firecrawl
+# MCP Configuration: Context7 (live library docs)
 
 ```json
 {
   "mcpServers": {
-    "firecrawl": {
-      "command": "npx",
-      "args": ["-y", "firecrawl-mcp"],
-      "env": {
-        "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}"
-      }
+    "context7": {
+      "serverUrl": "https://mcp.context7.com/mcp",
+      "headers": { "CONTEXT7_API_KEY": "ctx7sk-..." }
     }
   }
 }
 ```
+
+- Free key from [context7.com](https://context7.com); paste it literally — `${VAR}` is **not** expanded in `mcp_config.json`
+- So keep keyed servers in the **global** `~/.gemini/config/mcp_config.json`, not a committed `.agents/` file
+- Then: *"Use context7 to look up the current Flask 3 API for blueprints"*
 
 ---
 
@@ -1009,7 +1010,7 @@ Use `serverUrl` for HTTP/SSE remote MCP servers (`url`/`httpUrl` are **not** sup
   "mcpServers": {
     "remote-tools": {
       "serverUrl": "https://mcp.example.com/sse",
-      "headers": { "Authorization": "Bearer ${MY_TOKEN}" }
+      "headers": { "Authorization": "Bearer <token>" }
     }
   }
 }
@@ -1049,7 +1050,7 @@ Per-project servers go in `.agents/mcp_config.json`. Reload with `/mcp`.
 
 <v-clicks>
 
-- **Firecrawl** - Web scraping, search, content extraction
+- **Context7** - Current, version-specific library documentation
 - **PostgreSQL** - Database queries and schema
 - **Filesystem** - Extended file operations
 - **Slack** - Team communication
