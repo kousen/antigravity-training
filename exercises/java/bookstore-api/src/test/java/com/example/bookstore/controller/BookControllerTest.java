@@ -4,11 +4,12 @@ import com.example.bookstore.model.Book;
 import com.example.bookstore.service.BookService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
@@ -20,11 +21,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(BookController.class)
+@DisplayName("BookController WebMvc Slice Tests")
 class BookControllerTest {
 
     @Autowired
@@ -48,6 +51,7 @@ class BookControllerTest {
     }
 
     @Test
+    @DisplayName("GET /api/books should return list of books")
     void getAllBooks_shouldReturnListOfBooks() throws Exception {
         when(bookService.getAllBooks(anyInt(), anyInt(), anyString())).thenReturn(Arrays.asList(book1, book2));
 
@@ -59,6 +63,25 @@ class BookControllerTest {
     }
 
     @Test
+    @DisplayName("GET /api/books with negative page should return 400 Bad Request")
+    void getAllBooks_withNegativePage_shouldReturnBadRequest() throws Exception {
+        mockMvc.perform(get("/api/books")
+                .param("page", "-1")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("GET /api/books with excessive size should return 400 Bad Request")
+    void getAllBooks_withExcessiveSize_shouldReturnBadRequest() throws Exception {
+        mockMvc.perform(get("/api/books")
+                .param("size", "200")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("GET /api/books/{id} should return book when found")
     void getBookById_shouldReturnBookWhenFound() throws Exception {
         when(bookService.getBook(1L)).thenReturn(Optional.of(book1));
 
@@ -66,9 +89,12 @@ class BookControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("Title One"));
+
+        verify(bookService).getBook(1L);
     }
 
     @Test
+    @DisplayName("GET /api/books/{id} should return 404 when not found")
     void getBookById_shouldReturnNotFoundWhenNotFound() throws Exception {
         when(bookService.getBook(99L)).thenReturn(Optional.empty());
 
@@ -78,6 +104,16 @@ class BookControllerTest {
     }
 
     @Test
+    @DisplayName("GET /api/books/{id} with non-numeric ID should return 400 Bad Request")
+    void getBookById_withInvalidIdType_shouldReturnBadRequest() throws Exception {
+        mockMvc.perform(get("/api/books/invalid-id")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Type Mismatch"));
+    }
+
+    @Test
+    @DisplayName("POST /api/books should return 201 Created and Location header")
     void createBook_shouldReturnCreatedBookWhenValid() throws Exception {
         Book newBook = new Book(null, "New Title", "New Author", "333-3-333-333-3",
                 new BigDecimal("15.50"), LocalDate.of(2022, 3, 3), "Fantasy", 8);
@@ -92,9 +128,20 @@ class BookControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", "http://localhost/api/books/3"))
                 .andExpect(jsonPath("$.title").value("New Title"));
+
+        verify(bookService).addBook(
+                eq("New Title"),
+                eq("New Author"),
+                eq("333-3-333-333-3"),
+                eq(new BigDecimal("15.50")),
+                eq(LocalDate.of(2022, 3, 3)),
+                eq("Fantasy"),
+                eq(8)
+        );
     }
 
     @Test
+    @DisplayName("POST /api/books should return 400 Bad Request when validation fails")
     void createBook_shouldReturnBadRequestWhenInvalid() throws Exception {
         Book invalidBook = new Book(null, "", "Author", "ISBN",
                 new BigDecimal("-10.00"), LocalDate.of(2025, 1, 1), "", 0);
@@ -109,6 +156,17 @@ class BookControllerTest {
     }
 
     @Test
+    @DisplayName("POST /api/books with malformed JSON body should return 400 Bad Request")
+    void createBook_withMalformedJson_shouldReturnBadRequest() throws Exception {
+        mockMvc.perform(post("/api/books")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{ \"title\": \"Broken JSON..."))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Malformed JSON Request"));
+    }
+
+    @Test
+    @DisplayName("PUT /api/books/{id} should return 200 and updated book")
     void updateBook_shouldReturnUpdatedBookWhenValid() throws Exception {
         Book updatedBookDetails = new Book(null, "Updated Title", "Updated Author", "111-1-111-111-1",
                 new BigDecimal("12.00"), LocalDate.of(2020, 1, 1), "Fiction", 7);
@@ -125,6 +183,7 @@ class BookControllerTest {
     }
 
     @Test
+    @DisplayName("PUT /api/books/{id} should return 404 when book not found")
     void updateBook_shouldReturnNotFoundWhenBookToUpdateNotFound() throws Exception {
         Book updatedBookDetails = new Book(null, "Updated Title", "Updated Author", "111-1-111-111-1",
                 new BigDecimal("12.00"), LocalDate.of(2020, 1, 1), "Fiction", 7);
@@ -138,6 +197,7 @@ class BookControllerTest {
     }
 
     @Test
+    @DisplayName("PUT /api/books/{id} with invalid payload should return 400 Bad Request")
     void updateBook_shouldReturnBadRequestWhenInvalid() throws Exception {
         Book invalidBookUpdates = new Book(null, "", "Author", "ISBN",
                 new BigDecimal("-5.00"), LocalDate.of(2025, 1, 1), "Genre", 0);
@@ -151,15 +211,19 @@ class BookControllerTest {
     }
 
     @Test
+    @DisplayName("DELETE /api/books/{id} should return 204 No Content when deleted")
     void deleteBook_shouldReturnNoContentWhenFound() throws Exception {
         when(bookService.deleteBook(1L)).thenReturn(true);
 
         mockMvc.perform(delete("/api/books/{id}", 1L)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
+
+        verify(bookService).deleteBook(1L);
     }
 
     @Test
+    @DisplayName("DELETE /api/books/{id} should return 404 when not found")
     void deleteBook_shouldReturnNotFoundWhenNotFound() throws Exception {
         when(bookService.deleteBook(99L)).thenReturn(false);
 
@@ -169,6 +233,7 @@ class BookControllerTest {
     }
 
     @Test
+    @DisplayName("GET /api/books with pagination query params should return paginated books")
     void getAllBooks_shouldReturnPaginatedBooks() throws Exception {
         when(bookService.getAllBooks(eq(0), eq(1), eq("id"))).thenReturn(Arrays.asList(book1));
 
@@ -183,6 +248,7 @@ class BookControllerTest {
     }
 
     @Test
+    @DisplayName("GET /api/books/search should return matching books")
     void searchBooks_shouldReturnMatchingBooks() throws Exception {
         when(bookService.searchByTitle("One")).thenReturn(Arrays.asList(book1));
 
@@ -195,6 +261,16 @@ class BookControllerTest {
     }
 
     @Test
+    @DisplayName("GET /api/books/search without 'q' param should return 400 Bad Request")
+    void searchBooks_withoutQueryParam_shouldReturnBadRequest() throws Exception {
+        mockMvc.perform(get("/api/books/search")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("Missing Required Parameter"));
+    }
+
+    @Test
+    @DisplayName("GET /api/books/author/{author} should return books by author")
     void getByAuthor_shouldReturnBooksByAuthor() throws Exception {
         when(bookService.getByAuthor("Author One")).thenReturn(Arrays.asList(book1));
 
@@ -206,6 +282,7 @@ class BookControllerTest {
     }
 
     @Test
+    @DisplayName("GET /api/books/genre/{genre} should return books by genre")
     void getByGenre_shouldReturnBooksByGenre() throws Exception {
         when(bookService.getByGenre("Fiction")).thenReturn(Arrays.asList(book1));
 
@@ -217,6 +294,7 @@ class BookControllerTest {
     }
 
     @Test
+    @DisplayName("GET /api/books/in-stock should return in-stock books")
     void getInStock_shouldReturnInStockBooks() throws Exception {
         when(bookService.getInStockBooks()).thenReturn(Arrays.asList(book1, book2));
 

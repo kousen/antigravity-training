@@ -15,6 +15,8 @@ import java.util.concurrent.atomic.AtomicLong;
 @Service
 public class BookService {
 
+    public static final int MAX_CAPACITY = 10_000;
+
     private final Map<Long, Book> books = new ConcurrentHashMap<>();
     private final AtomicLong idCounter = new AtomicLong(1);
 
@@ -32,6 +34,9 @@ public class BookService {
 
     public Book addBook(String title, String author, String isbn,
                         BigDecimal price, LocalDate publishedDate, String genre, int stock) {
+        if (books.size() >= MAX_CAPACITY) {
+            throw new IllegalStateException("Catalog capacity limit of " + MAX_CAPACITY + " books reached");
+        }
         Long id = idCounter.getAndIncrement();
         Book book = new Book(id, title, author, isbn, price, publishedDate, genre, stock);
         books.put(id, book);
@@ -39,72 +44,80 @@ public class BookService {
     }
 
     public Optional<Book> getBook(Long id) {
+        if (id == null) return Optional.empty();
         return Optional.ofNullable(books.get(id));
     }
 
     public List<Book> getAllBooks() {
-        return new ArrayList<>(books.values());
+        return List.copyOf(books.values());
     }
 
     public List<Book> getAllBooks(int page, int size, String sortBy) {
+        if (page < 0 || size <= 0) {
+            return List.of();
+        }
+
         List<Book> allBooks = new ArrayList<>(books.values());
 
-        // Sort
-        allBooks.sort((b1, b2) -> {
-            switch (sortBy.toLowerCase()) {
-                case "title":
-                    return b1.getTitle().compareToIgnoreCase(b2.getTitle());
-                case "author":
-                    return b1.getAuthor().compareToIgnoreCase(b2.getAuthor());
-                case "price":
-                    return b1.getPrice().compareTo(b2.getPrice());
-                case "publisheddate":
-                    return b1.getPublishedDate().compareTo(b2.getPublishedDate());
-                case "genre":
-                    return b1.getGenre().compareToIgnoreCase(b2.getGenre());
-                case "stock":
-                    return Integer.compare(b1.getStock(), b2.getStock());
-                default:
-                    return Long.compare(b1.getId(), b2.getId()); // Default sort by ID
-            }
+        // Sort with null-safety and switch expression
+        String sortField = sortBy != null ? sortBy.toLowerCase() : "id";
+        allBooks.sort((b1, b2) -> switch (sortField) {
+            case "title" -> b1.title().compareToIgnoreCase(b2.title());
+            case "author" -> b1.author().compareToIgnoreCase(b2.author());
+            case "price" -> b1.price().compareTo(b2.price());
+            case "publisheddate" -> b1.publishedDate().compareTo(b2.publishedDate());
+            case "genre" -> b1.genre().compareToIgnoreCase(b2.genre());
+            case "stock" -> Integer.compare(b1.stock(), b2.stock());
+            default -> Long.compare(b1.id(), b2.id()); // Fallback sort by ID
         });
 
-        // Paginate
-        int start = Math.min(page * size, allBooks.size());
-        int end = Math.min(start + size, allBooks.size());
+        // Guard against 32-bit integer multiplication overflow and out-of-bounds
+        long startLong = (long) page * (long) size;
+        if (startLong >= allBooks.size()) {
+            return List.of();
+        }
+        int start = (int) startLong;
+        int end = (int) Math.min(startLong + size, (long) allBooks.size());
 
-        return allBooks.subList(start, end);
+        return List.copyOf(allBooks.subList(start, end));
     }
 
     public List<Book> searchByTitle(String query) {
+        if (query == null) return List.of();
         String lowerQuery = query.toLowerCase();
         return books.values().stream()
-                .filter(book -> book.getTitle().toLowerCase().contains(lowerQuery))
+                .filter(book -> book.title().toLowerCase().contains(lowerQuery))
                 .toList();
     }
 
     public List<Book> getByAuthor(String author) {
+        if (author == null) return List.of();
         String lowerAuthor = author.toLowerCase();
         return books.values().stream()
-                .filter(book -> book.getAuthor().toLowerCase().contains(lowerAuthor))
+                .filter(book -> book.author().toLowerCase().contains(lowerAuthor))
                 .toList();
     }
 
     public List<Book> getByGenre(String genre) {
+        if (genre == null) return List.of();
         return books.values().stream()
-                .filter(book -> book.getGenre().equalsIgnoreCase(genre))
+                .filter(book -> book.genre().equalsIgnoreCase(genre))
                 .toList();
     }
 
     public Optional<Book> updateBook(Long id, Book updates) {
+        if (id == null || updates == null) {
+            return Optional.empty();
+        }
+
         Book updated = books.computeIfPresent(id, (bookId, existing) -> {
-            String title = updates.getTitle() != null ? updates.getTitle() : existing.getTitle();
-            String author = updates.getAuthor() != null ? updates.getAuthor() : existing.getAuthor();
-            String isbn = updates.getIsbn() != null ? updates.getIsbn() : existing.getIsbn();
-            BigDecimal price = updates.getPrice() != null ? updates.getPrice() : existing.getPrice();
-            LocalDate publishedDate = updates.getPublishedDate() != null ? updates.getPublishedDate() : existing.getPublishedDate();
-            String genre = updates.getGenre() != null ? updates.getGenre() : existing.getGenre();
-            int stock = updates.getStock() >= 0 ? updates.getStock() : existing.getStock();
+            String title = updates.title() != null ? updates.title() : existing.title();
+            String author = updates.author() != null ? updates.author() : existing.author();
+            String isbn = updates.isbn() != null ? updates.isbn() : existing.isbn();
+            BigDecimal price = updates.price() != null ? updates.price() : existing.price();
+            LocalDate publishedDate = updates.publishedDate() != null ? updates.publishedDate() : existing.publishedDate();
+            String genre = updates.genre() != null ? updates.genre() : existing.genre();
+            int stock = updates.stock() >= 0 ? updates.stock() : existing.stock();
 
             return new Book(bookId, title, author, isbn, price, publishedDate, genre, stock);
         });
@@ -113,6 +126,7 @@ public class BookService {
     }
 
     public boolean deleteBook(Long id) {
+        if (id == null) return false;
         return books.remove(id) != null;
     }
 
