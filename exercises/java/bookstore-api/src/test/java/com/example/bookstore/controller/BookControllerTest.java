@@ -90,6 +90,7 @@ class BookControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(newBook)))
                 .andExpect(status().isCreated())
+                .andExpect(header().string("Location", "http://localhost/api/books/3"))
                 .andExpect(jsonPath("$.title").value("New Title"));
     }
 
@@ -179,5 +180,49 @@ class BookControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].title").value("Title One"));
+    }
+
+    @Test
+    void searchBooks_shouldReturnMatchingBooks() throws Exception {
+        when(bookService.searchByTitle("One")).thenReturn(Arrays.asList(book1));
+
+        mockMvc.perform(get("/api/books/search")
+                .param("q", "One")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].title").value("Title One"));
+    }
+
+    @Test
+    void getByAuthor_shouldReturnBooksByAuthor() throws Exception {
+        when(bookService.getByAuthor("Author One")).thenReturn(Arrays.asList(book1));
+
+        mockMvc.perform(get("/api/books/author/{author}", "Author One")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].author").value("Author One"));
+    }
+
+    @Test
+    void getByGenre_shouldReturnBooksByGenre() throws Exception {
+        when(bookService.getByGenre("Fiction")).thenReturn(Arrays.asList(book1));
+
+        mockMvc.perform(get("/api/books/genre/{genre}", "Fiction")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].genre").value("Fiction"));
+    }
+
+    @Test
+    void getInStock_shouldReturnInStockBooks() throws Exception {
+        when(bookService.getInStockBooks()).thenReturn(Arrays.asList(book1, book2));
+
+        mockMvc.perform(get("/api/books/in-stock")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2));
     }
 }

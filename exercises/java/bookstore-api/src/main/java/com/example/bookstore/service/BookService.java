@@ -8,7 +8,6 @@ import java.time.LocalDate;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 /**
  * Service for managing books in the bookstore.
@@ -81,37 +80,36 @@ public class BookService {
         String lowerQuery = query.toLowerCase();
         return books.values().stream()
                 .filter(book -> book.getTitle().toLowerCase().contains(lowerQuery))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<Book> getByAuthor(String author) {
         String lowerAuthor = author.toLowerCase();
         return books.values().stream()
                 .filter(book -> book.getAuthor().toLowerCase().contains(lowerAuthor))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public List<Book> getByGenre(String genre) {
         return books.values().stream()
                 .filter(book -> book.getGenre().equalsIgnoreCase(genre))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     public Optional<Book> updateBook(Long id, Book updates) {
-        Book existing = books.get(id);
-        if (existing == null) {
-            return Optional.empty();
-        }
+        Book updated = books.computeIfPresent(id, (bookId, existing) -> {
+            String title = updates.getTitle() != null ? updates.getTitle() : existing.getTitle();
+            String author = updates.getAuthor() != null ? updates.getAuthor() : existing.getAuthor();
+            String isbn = updates.getIsbn() != null ? updates.getIsbn() : existing.getIsbn();
+            BigDecimal price = updates.getPrice() != null ? updates.getPrice() : existing.getPrice();
+            LocalDate publishedDate = updates.getPublishedDate() != null ? updates.getPublishedDate() : existing.getPublishedDate();
+            String genre = updates.getGenre() != null ? updates.getGenre() : existing.getGenre();
+            int stock = updates.getStock() >= 0 ? updates.getStock() : existing.getStock();
 
-        if (updates.getTitle() != null) existing.setTitle(updates.getTitle());
-        if (updates.getAuthor() != null) existing.setAuthor(updates.getAuthor());
-        if (updates.getIsbn() != null) existing.setIsbn(updates.getIsbn());
-        if (updates.getPrice() != null) existing.setPrice(updates.getPrice());
-        if (updates.getPublishedDate() != null) existing.setPublishedDate(updates.getPublishedDate());
-        if (updates.getGenre() != null) existing.setGenre(updates.getGenre());
-        if (updates.getStock() >= 0) existing.setStock(updates.getStock());
+            return new Book(bookId, title, author, isbn, price, publishedDate, genre, stock);
+        });
 
-        return Optional.of(existing);
+        return Optional.ofNullable(updated);
     }
 
     public boolean deleteBook(Long id) {
@@ -121,6 +119,6 @@ public class BookService {
     public List<Book> getInStockBooks() {
         return books.values().stream()
                 .filter(Book::isInStock)
-                .collect(Collectors.toList());
+                .toList();
     }
 }
