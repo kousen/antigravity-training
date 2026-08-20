@@ -328,9 +328,9 @@ agy -p "Analyze the architecture in @./src/"
 <v-clicks>
 
 - Execute shell commands: `!git status`
-- Toggle persistent shell mode: `!`
 - The agent can observe and analyze output
 - Combine with AI analysis
+- Long-running command? `ctrl+b` backgrounds it; watch it in `/tasks`
 
 </v-clicks>
 
@@ -341,9 +341,6 @@ agy -p "Analyze the architecture in @./src/"
 
 > !git diff
 # Ask the agent to analyze the changes
-
-# Toggle persistent shell mode
-> !
 ```
 
 ---
