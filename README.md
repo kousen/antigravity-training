@@ -8,6 +8,7 @@ This 5-hour hands-on workshop covers everything from basic installation to advan
 
 ### What You'll Learn
 
+- **The Antigravity family**: how the CLI relates to the Antigravity 2.0 app and IDE
 - **Installation & Setup**: Authentication strategies, environment configuration
 - **Core Commands**: Interactive mode, one-shot prompts, file references
 - **Context Management**: AGENTS.md files, hierarchical context loading

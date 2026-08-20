@@ -76,6 +76,12 @@ in class regardless, so a stale dep or two is not a teaching hazard.
 
 Last done: 2026-08-17 against **agy 1.1.13** (materials had been at 1.0.6); re-checked 2026-08-19 on 1.1.15 (no teaching-relevant changes in 1.1.14/15).
 
+The "One Brand, Three Products" slide pins app/IDE/CLI version streams
+(2.8.x / 2.5.x / 1.1.x as of Aug 2026). Before each delivery check all three:
+`agy --version`, and on macOS
+`defaults read "/Applications/Antigravity.app/Contents/Info.plist" CFBundleShortVersionString`
+(same for "Antigravity IDE.app"). Update the slide if a stream rolled major.
+
 Ground truth, in order of trust:
 
 1. The installed CLI: `agy --help`, `agy changelog`, `agy plugin --help`,

@@ -114,6 +114,35 @@ Kousen IT, Inc.
 
 ---
 
+# One Brand, Three Products
+
+"Antigravity" is a family — each with its own release stream (versions as of Aug 2026):
+
+| | **Antigravity 2.0** (app) | **Antigravity IDE** | **Antigravity CLI** |
+|---|---|---|---|
+| What it is | Electron desktop app | AI-first IDE (VS Code base) | Terminal agent (`agy`) |
+| Built for | Launching & **monitoring agents**: projects, scheduled tasks, chat canvas | **Writing code**: Tab autocomplete, inline `⌘I`, sidebar agent, diff overlays | Terminal workflows, **headless/CI**, SSH boxes |
+| Version | 2.8.x | 2.5.x | 1.1.x |
+| Data dir | `~/.gemini/antigravity/` | `~/.gemini/antigravity-ide/` | `~/.gemini/antigravity-cli/` |
+
+Plus a **Python SDK**: `pip install google-antigravity` — spawn agents from scripts/tests
+
+---
+
+# The Family: What's Shared, What Isn't
+
+<v-clicks>
+
+- **Shared**: your Google sign-in and quota; global customizations in `~/.gemini/config/` — MCP servers, skills, agents, hooks; `AGENTS.md` rules in your repos
+- **Not shared**: settings and conversations — each product keeps its own under its data dir
+- Same agent-permission vocabulary everywhere: `request-review` / `always-proceed` / `strict` / `proceed-in-sandbox`, artifact review, sandbox
+- The app adds controls the CLI doesn't have: internet-access policy, browser allowlist, scheduled (cron) tasks
+- **This course = the CLI.** Concepts transfer; version numbers don't — check each product's own About / `--version`
+
+</v-clicks>
+
+---
+
 # What is Antigravity CLI?
 
 <v-clicks>
@@ -135,7 +164,7 @@ Kousen IT, Inc.
 - **Model choice**: mix Gemini, Claude, and GPT-OSS in one tool
 - **Google Search Grounding**: real-time web access
 - **Free tier + G1 credits**: keep working when quota runs out
-- **Desktop continuity**: same account, quota, and `~/.gemini` config as Antigravity 2.0
+- **Scriptable**: the only family member that runs headless — pipelines, CI, SSH
 - **MCP Native**: built-in Model Context Protocol support
 
 </v-clicks>
@@ -1246,13 +1275,14 @@ agy -p "Extract version from @./package.json" --output-format json \
 
 ---
 
-# Desktop Integration
+# Working Alongside the App and IDE
 
 <v-clicks>
 
-- **Antigravity 2.0 desktop app** and IDE live alongside the CLI under `~/.gemini`
-- **Shared MCP config**: `~/.gemini/config/mcp_config.json`
-- **Shared permissions**: rules carry across CLI and desktop
+- Configure MCP servers, skills, and hooks **once** in `~/.gemini/config/` — all three products pick them up
+- `AGENTS.md` rules in the repo apply whether the CLI or the IDE's agent is doing the work
+- The app's Skills & Customizations panel is a GUI view of the same customization system
+- Conversations don't transfer between products — finish a task where you started it
 - **External editor**: set `$EDITOR` for prompt and file editing
 
 </v-clicks>
