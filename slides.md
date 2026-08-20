@@ -121,11 +121,20 @@ Kousen IT, Inc.
 | | **Antigravity 2.0** (app) | **Antigravity IDE** | **Antigravity CLI** |
 |---|---|---|---|
 | What it is | Electron desktop app | AI-first IDE (VS Code base) | Terminal agent (`agy`) |
-| Built for | Launching & **monitoring agents**: projects, scheduled tasks, chat canvas | **Writing code**: Tab autocomplete, inline `⌘I`, sidebar agent, diff overlays | Terminal workflows, **headless/CI**, SSH boxes |
+| Built for | **Supervising agents**: projects, scheduled tasks, chat canvas | **You write, AI assists**: Tab autocomplete, inline `⌘I`, diff overlays — it's an editor | **You delegate, agent writes**: prompt → diffs to review; no editor. Plus headless/CI, SSH |
 | Version | 2.8.x | 2.5.x | 1.1.x |
 | Data dir | `~/.gemini/antigravity/` | `~/.gemini/antigravity-ide/` | `~/.gemini/antigravity-cli/` |
 
 Plus a **Python SDK**: `pip install google-antigravity` — spawn agents from scripts/tests
+
+<!--
+All three produce code — the row above is about who holds the keyboard.
+IDE: you are the author; AI completes/edits at the keystroke level, in an editor.
+CLI: you direct; the agent authors and you review diffs — there is no editor
+(closest it gets: /open and ctrl+g hand off to $EDITOR).
+Expect pushback that the CLI is "also for writing code" — concede it generates
+plenty of code, then draw the authoring-vs-delegating line.
+-->
 
 ---
 
