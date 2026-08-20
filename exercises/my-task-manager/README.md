@@ -1,6 +1,34 @@
 # Task Manager CLI
 
-A fast, interactive and direct command-line task management tool built with Node.js ES modules. Features persistent JSON storage, ANSI color-coded status & priority badges, human-friendly date parsing, overdue indicators, category tags, and Markdown (`TODO.md`) export.
+A modular, clean-architecture command-line task management tool built with Node.js ES modules. Features persistent JSON storage via the Repository Pattern, Dependency Injection in the Service Layer, ANSI color-coded status & priority badges, human-friendly date parsing, overdue indicators, category tags, and Markdown (`TODO.md`) export.
+
+---
+
+## Architecture & Design Patterns
+
+The project follows **SOLID principles** and a **Layered Clean Architecture**:
+
+```mermaid
+graph TD
+    CLI["Presentation Layer<br/>(src/cli.js, src/colors.js)"] --> Service["Service Layer<br/>(src/services/TaskService.js)"]
+    Service --> Domain["Domain Entities & Utils<br/>(src/Task.js, src/dateUtils.js)"]
+    Service --> RepoInterface["Repository Contract<br/>(src/repositories/TaskRepository.js)"]
+    JsonRepo["JsonTaskRepository<br/>(tasks.json)"] -.->|implements| RepoInterface
+    MemoryRepo["InMemoryTaskRepository<br/>(Fast unit testing)"] -.->|implements| RepoInterface
+```
+
+### Applied Patterns & Principles
+
+1. **Repository Pattern (`src/repositories/`)**:
+   - `TaskRepository`: Abstract base class specifying CRUD contracts.
+   - `JsonTaskRepository`: Handles JSON disk persistence, safe file creation, and syntax corruption detection.
+   - `InMemoryTaskRepository`: Lightweight in-memory storage for high-speed unit testing with zero disk I/O.
+2. **Dependency Injection & Service Layer (`src/services/TaskService.js`)**:
+   - `TaskService` receives any `TaskRepository` implementation, isolating all business logic (validation, filtering, sorting, searching, status transitions) from the underlying storage mechanism.
+3. **Facade Pattern (`src/taskManager.js`)**:
+   - Provides a clean, backwards-compatible functional API wrapping the default `TaskService` and `JsonTaskRepository`.
+4. **Single Responsibility & Pure Utilities**:
+   - `src/Task.js` (Domain invariant encapsulation), `src/dateUtils.js` (Natural language date parsing), `src/colors.js` (ANSI styling).
 
 ---
 
@@ -18,10 +46,8 @@ A fast, interactive and direct command-line task management tool built with Node
   - Automatically flags overdue pending tasks with `⚠️ [OVERDUE]`.
 - **Category Tags**: Tag tasks (e.g. `work`, `urgent`, `dev`) and filter or search by tags (`task list --tag work`).
 - **Markdown Export**: Export your tasks into a formatted `TODO.md` checklist (`task export`).
-- **JSON File Persistence**: Automatically persists to `tasks.json` with safe handling of missing, empty, or corrupted files.
-- **Multi-Criteria Filtering & Sorting**: Filter by status, priority, tag, overdue state, and sort by due date or priority.
 - **Zero External Runtime Dependencies**: Built entirely with native Node.js APIs.
-- **Comprehensive Automated Test Suite**: 27 unit, integration, and edge-case tests with Jest using `--experimental-vm-modules`.
+- **Comprehensive Automated Test Suite**: 40 unit, integration, and architecture tests with Jest using `--experimental-vm-modules`.
 
 ---
 
@@ -30,17 +56,25 @@ A fast, interactive and direct command-line task management tool built with Node
 ```text
 my-task-manager/
 ├── src/
-│   ├── Task.js           # Task data model with priorities, tags, & overdue check
-│   ├── dateUtils.js      # Natural language date parsing & overdue checking
-│   ├── taskManager.js    # Core CRUD, persistence, filtering, sorting, & markdown export
-│   ├── colors.js         # ANSI colors, status badges, priority badges, & overdue alerts
-│   └── cli.js            # Direct CLI argument dispatcher & interactive readline menu
+│   ├── Task.js                     # Domain model with priorities, tags, & overdue checks
+│   ├── dateUtils.js                # Natural language date parsing & arithmetic
+│   ├── colors.js                   # ANSI color constants & badge formatters
+│   ├── taskManager.js              # Facade bridging to TaskService & default repository
+│   ├── repositories/
+│   │   ├── TaskRepository.js       # Abstract repository interface
+│   │   ├── JsonTaskRepository.js   # JSON file persistence repository
+│   │   └── InMemoryTaskRepository.js # In-memory repository for tests/ephemeral sessions
+│   ├── services/
+│   │   └── TaskService.js          # Business service orchestrating domain logic & repositories
+│   └── cli.js                      # Direct CLI argument dispatcher & readline menu
 ├── tests/
-│   ├── dateUtils.test.js # Unit tests for date parsing & overdue detection
-│   └── taskManager.test.js # Jest unit & integration tests
-├── package.json          # ES module configuration & bin executables
-├── tasks.json            # Generated task persistence file (runtime)
-└── README.md             # Project documentation
+│   ├── dateUtils.test.js           # Unit tests for date parsing & overdue logic
+│   ├── repositories.test.js        # Tests for JsonTaskRepository & InMemoryTaskRepository
+│   ├── taskService.test.js         # Tests for TaskService with Dependency Injection
+│   └── taskManager.test.js         # Integration & edge-case test suite
+├── package.json                    # ES module configuration & bin executables
+├── tasks.json                      # Generated task persistence file (runtime)
+└── README.md                       # Project documentation
 ```
 
 ---
@@ -113,28 +147,11 @@ task help
 
 ### Interactive Menu Mode
 
-Launch the interactive prompt by running the command with no arguments:
+Launch the interactive prompt by running:
 
 ```bash
 npm start
 # or: node src/cli.js
-```
-
-```text
-==============================
-      Task Manager CLI        
-==============================
-
-Menu:
-  1. List all tasks
-  2. Filter tasks (Status / Priority / Tag / Overdue)
-  3. Sort tasks (Due Date / Priority)
-  4. Search tasks (title, description, tags)
-  5. Add new task
-  6. Update existing task
-  7. Remove task
-  8. Export to Markdown (TODO.md)
-  9. Exit
 ```
 
 ---
@@ -155,38 +172,39 @@ npm test -- --coverage
 
 ---
 
-## Programmatic API
+## Programmatic API & Dependency Injection
+
+You can use the default facade or construct custom services with your own storage backend:
 
 ```javascript
-import {
-  addTask,
-  listTasks,
-  updateTask,
-  removeTask,
-  exportTasksToFile
-} from './src/taskManager.js';
+import { TaskService } from './src/services/TaskService.js';
+import { JsonTaskRepository } from './src/repositories/JsonTaskRepository.js';
+import { InMemoryTaskRepository } from './src/repositories/InMemoryTaskRepository.js';
 
-// Add a task with human date, priority, and tags
-const task = await addTask({
+// Production setup with JSON persistence
+const repo = new JsonTaskRepository('./my-custom-tasks.json');
+const taskService = new TaskService(repo);
+
+// Or unit test setup with In-Memory storage (0 disk I/O)
+const testService = new TaskService(new InMemoryTaskRepository());
+
+// Add a task
+const task = await taskService.addTask({
   title: 'Implement OAuth2 flow',
-  description: 'Add Google and GitHub providers',
   dueDate: 'tomorrow',
   priority: 'high',
   tags: ['auth', 'api']
 });
 
-// List with multiple criteria
-const tasks = await listTasks({
+// List with criteria
+const tasks = await taskService.listTasks({
   priority: 'high',
   tag: 'auth',
   sortByDueDate: 'asc'
 });
 
 // Mark as completed
-await updateTask(task.id, { status: 'completed' });
-
-// Export to Markdown
-await exportTasksToFile('TODO.md');
+await taskService.completeTask(task.id);
 ```
 
 ---
