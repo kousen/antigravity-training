@@ -77,7 +77,7 @@ public class BookService {
             return List.of();
         }
         int start = (int) startLong;
-        int end = (int) Math.min(startLong + size, (long) allBooks.size());
+        int end = (int) Math.min(startLong + size, allBooks.size());
 
         return List.copyOf(allBooks.subList(start, end));
     }

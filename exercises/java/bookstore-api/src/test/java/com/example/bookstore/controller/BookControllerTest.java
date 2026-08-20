@@ -14,7 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -53,7 +53,7 @@ class BookControllerTest {
     @Test
     @DisplayName("GET /api/books should return list of books")
     void getAllBooks_shouldReturnListOfBooks() throws Exception {
-        when(bookService.getAllBooks(anyInt(), anyInt(), anyString())).thenReturn(Arrays.asList(book1, book2));
+        when(bookService.getAllBooks(anyInt(), anyInt(), anyString())).thenReturn(List.of(book1, book2));
 
         mockMvc.perform(get("/api/books")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -235,7 +235,7 @@ class BookControllerTest {
     @Test
     @DisplayName("GET /api/books with pagination query params should return paginated books")
     void getAllBooks_shouldReturnPaginatedBooks() throws Exception {
-        when(bookService.getAllBooks(eq(0), eq(1), eq("id"))).thenReturn(Arrays.asList(book1));
+        when(bookService.getAllBooks(eq(0), eq(1), eq("id"))).thenReturn(List.of(book1));
 
         mockMvc.perform(get("/api/books")
                 .param("page", "0")
@@ -250,7 +250,7 @@ class BookControllerTest {
     @Test
     @DisplayName("GET /api/books/search should return matching books")
     void searchBooks_shouldReturnMatchingBooks() throws Exception {
-        when(bookService.searchByTitle("One")).thenReturn(Arrays.asList(book1));
+        when(bookService.searchByTitle("One")).thenReturn(List.of(book1));
 
         mockMvc.perform(get("/api/books/search")
                 .param("q", "One")
@@ -272,7 +272,7 @@ class BookControllerTest {
     @Test
     @DisplayName("GET /api/books/author/{author} should return books by author")
     void getByAuthor_shouldReturnBooksByAuthor() throws Exception {
-        when(bookService.getByAuthor("Author One")).thenReturn(Arrays.asList(book1));
+        when(bookService.getByAuthor("Author One")).thenReturn(List.of(book1));
 
         mockMvc.perform(get("/api/books/author/{author}", "Author One")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -284,7 +284,7 @@ class BookControllerTest {
     @Test
     @DisplayName("GET /api/books/genre/{genre} should return books by genre")
     void getByGenre_shouldReturnBooksByGenre() throws Exception {
-        when(bookService.getByGenre("Fiction")).thenReturn(Arrays.asList(book1));
+        when(bookService.getByGenre("Fiction")).thenReturn(List.of(book1));
 
         mockMvc.perform(get("/api/books/genre/{genre}", "Fiction")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -296,7 +296,7 @@ class BookControllerTest {
     @Test
     @DisplayName("GET /api/books/in-stock should return in-stock books")
     void getInStock_shouldReturnInStockBooks() throws Exception {
-        when(bookService.getInStockBooks()).thenReturn(Arrays.asList(book1, book2));
+        when(bookService.getInStockBooks()).thenReturn(List.of(book1, book2));
 
         mockMvc.perform(get("/api/books/in-stock")
                 .contentType(MediaType.APPLICATION_JSON))

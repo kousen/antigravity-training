@@ -49,8 +49,8 @@ class BookValidationTest {
                 LocalDate.now().minusDays(1), "Fiction", 5);
 
         Set<ConstraintViolation<Book>> violations = validator.validate(book);
-        assertThat(violations).hasSize(1);
-        assertThat(violations.iterator().next().getMessage()).isEqualTo("Title cannot be blank");
+        assertThat(violations).extracting(ConstraintViolation::getMessage)
+                .containsExactly("Title cannot be blank");
     }
 
     @Test
@@ -60,8 +60,8 @@ class BookValidationTest {
                 LocalDate.now().plusDays(1), "Fiction", 5);
 
         Set<ConstraintViolation<Book>> violations = validator.validate(book);
-        assertThat(violations).hasSize(1);
-        assertThat(violations.iterator().next().getMessage()).isEqualTo("Published date cannot be in the future");
+        assertThat(violations).extracting(ConstraintViolation::getMessage)
+                .containsExactly("Published date cannot be in the future");
     }
 
     @Test
@@ -71,8 +71,8 @@ class BookValidationTest {
                 LocalDate.now().minusDays(1), "Fiction", -1);
 
         Set<ConstraintViolation<Book>> violations = validator.validate(book);
-        assertThat(violations).hasSize(1);
-        assertThat(violations.iterator().next().getMessage()).isEqualTo("Stock must be non-negative");
+        assertThat(violations).extracting(ConstraintViolation::getMessage)
+                .containsExactly("Stock must be non-negative");
     }
 
     @Test
@@ -82,8 +82,8 @@ class BookValidationTest {
                 LocalDate.now().minusDays(1), "Fiction", 5);
 
         Set<ConstraintViolation<Book>> violations = validator.validate(book);
-        assertThat(violations).hasSize(1);
-        assertThat(violations.iterator().next().getMessage()).isEqualTo("Price must be non-negative");
+        assertThat(violations).extracting(ConstraintViolation::getMessage)
+                .containsExactly("Price must be non-negative");
     }
 
     @Test

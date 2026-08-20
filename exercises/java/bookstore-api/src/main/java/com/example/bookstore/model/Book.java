@@ -30,7 +30,7 @@ public record Book(
         String isbn,
 
         @NotNull(message = "Price cannot be null")
-        @DecimalMin(value = "0.0", inclusive = true, message = "Price must be non-negative")
+        @DecimalMin(value = "0.0", message = "Price must be non-negative")
         @Digits(integer = 8, fraction = 2, message = "Price format must have up to 2 decimal places")
         @Schema(description = "Unit retail price", example = "14.99")
         BigDecimal price,
@@ -51,14 +51,4 @@ public record Book(
     public boolean isInStock() {
         return stock > 0;
     }
-
-    // JavaBean-style getter aliases for compatibility
-    public Long getId() { return id; }
-    public String getTitle() { return title; }
-    public String getAuthor() { return author; }
-    public String getIsbn() { return isbn; }
-    public BigDecimal getPrice() { return price; }
-    public LocalDate getPublishedDate() { return publishedDate; }
-    public String getGenre() { return genre; }
-    public int getStock() { return stock; }
 }

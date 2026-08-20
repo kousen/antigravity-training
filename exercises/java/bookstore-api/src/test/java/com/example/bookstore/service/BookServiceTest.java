@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class BookServiceTest {
 
@@ -80,12 +79,12 @@ class BookServiceTest {
         void shouldPaginateBooks() {
             List<Book> page0 = bookService.getAllBooks(0, 2, "id");
             assertThat(page0).hasSize(2);
-            assertThat(page0.get(0).id()).isEqualTo(1L);
+            assertThat(page0.getFirst().id()).isEqualTo(1L);
             assertThat(page0.get(1).id()).isEqualTo(2L);
 
             List<Book> page1 = bookService.getAllBooks(1, 2, "id");
             assertThat(page1).hasSize(2);
-            assertThat(page1.get(0).id()).isEqualTo(3L);
+            assertThat(page1.getFirst().id()).isEqualTo(3L);
             assertThat(page1.get(1).id()).isEqualTo(4L);
 
             List<Book> pageOut = bookService.getAllBooks(10, 2, "id");
@@ -198,7 +197,7 @@ class BookServiceTest {
         void shouldSearchByTitle() {
             List<Book> results = bookService.searchByTitle("great");
             assertThat(results).hasSize(1);
-            assertThat(results.get(0).title()).isEqualTo("The Great Gatsby");
+            assertThat(results.getFirst().title()).isEqualTo("The Great Gatsby");
 
             List<Book> noMatch = bookService.searchByTitle("NonExistent");
             assertThat(noMatch).isEmpty();
@@ -212,7 +211,7 @@ class BookServiceTest {
         void shouldGetByAuthor() {
             List<Book> results = bookService.getByAuthor("harper lee");
             assertThat(results).hasSize(1);
-            assertThat(results.get(0).title()).isEqualTo("To Kill a Mockingbird");
+            assertThat(results.getFirst().title()).isEqualTo("To Kill a Mockingbird");
 
             assertThat(bookService.getByAuthor(null)).isEmpty();
         }
@@ -253,7 +252,7 @@ class BookServiceTest {
             Optional<Book> updatedOpt = bookService.updateBook(1L, updates);
 
             assertThat(updatedOpt).isPresent();
-            Book updated = updatedOpt.get();
+            Book updated = updatedOpt.orElseThrow();
             assertThat(updated.title()).isEqualTo("The Great Gatsby - Remastered");
             assertThat(updated.author()).isEqualTo("F. Scott Fitzgerald"); // unchanged
             assertThat(updated.price()).isEqualTo(new BigDecimal("19.99"));

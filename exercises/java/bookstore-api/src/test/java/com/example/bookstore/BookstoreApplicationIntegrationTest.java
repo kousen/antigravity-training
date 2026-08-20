@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -64,7 +67,7 @@ class BookstoreApplicationIntegrationTest {
         // 3. SEARCH
         ResponseEntity<Book[]> searchResponse = restTemplate.getForEntity(getBaseUrl() + "/search?q=E2E", Book[].class);
         assertThat(searchResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(searchResponse.getBody()).isNotEmpty();
+        assertThat(searchResponse.getBody()).isNotNull().isNotEmpty();
 
         // 4. DELETE
         restTemplate.delete(getBaseUrl() + "/" + id);
@@ -80,12 +83,19 @@ class BookstoreApplicationIntegrationTest {
         Book invalidBook = new Book(null, "", "Author", "ISBN", new BigDecimal("-5.00"),
                 LocalDate.now(), "", -1);
 
-        ResponseEntity<Map> response = restTemplate.postForEntity(getBaseUrl(), invalidBook, Map.class);
+        ResponseEntity<Map<String, String>> response = restTemplate.exchange(
+                getBaseUrl(),
+                HttpMethod.POST,
+                new HttpEntity<>(invalidBook),
+                new ParameterizedTypeReference<>() {}
+        );
+
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(response.getBody()).isNotNull();
-        assertThat(response.getBody()).containsKey("title");
-        assertThat(response.getBody()).containsKey("price");
-        assertThat(response.getBody()).containsKey("genre");
-        assertThat(response.getBody()).containsKey("stock");
+        assertThat(response.getBody())
+                .isNotNull()
+                .containsKey("title")
+                .containsKey("price")
+                .containsKey("genre")
+                .containsKey("stock");
     }
 }

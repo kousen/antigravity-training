@@ -21,9 +21,8 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error -> {
-            errors.put(error.getField(), error.getDefaultMessage());
-        });
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+                errors.put(error.getField(), error.getDefaultMessage()));
         return errors;
     }
 
@@ -31,11 +30,10 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleHandlerMethodValidationException(HandlerMethodValidationException ex) {
         Map<String, String> errors = new HashMap<>();
-        ex.getAllValidationResults().forEach(result -> {
+        ex.getValueResults().forEach(result -> {
             String paramName = result.getMethodParameter().getParameterName();
-            result.getResolvableErrors().forEach(error -> {
-                errors.put(paramName != null ? paramName : "parameter", error.getDefaultMessage());
-            });
+            result.getResolvableErrors().forEach(error ->
+                    errors.put(paramName != null ? paramName : "parameter", error.getDefaultMessage()));
         });
         return errors;
     }
@@ -44,10 +42,8 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleConstraintViolationException(ConstraintViolationException ex) {
         Map<String, String> errors = new HashMap<>();
-        ex.getConstraintViolations().forEach(violation -> {
-            String property = violation.getPropertyPath().toString();
-            errors.put(property, violation.getMessage());
-        });
+        ex.getConstraintViolations().forEach(violation ->
+                errors.put(violation.getPropertyPath().toString(), violation.getMessage()));
         return errors;
     }
 
