@@ -20,14 +20,15 @@ export const colors = {
   gray: '\x1b[90m',
 
   // Bright colors
+  brightRed: '\x1b[91m',
   brightGreen: '\x1b[92m',
   brightYellow: '\x1b[93m',
-  brightCyan: '\x1b[96m'
+  brightCyan: '\x1b[96m',
+  brightMagenta: '\x1b[95m'
 };
 
 /**
  * Returns colored text for specific status values.
- * Handles custom/unknown statuses gracefully.
  * @param {string} [status]
  * @param {boolean} [useColors=true]
  * @returns {string}
@@ -58,4 +59,44 @@ export function getStatusBadge(status, useColors = true) {
     default:
       return `${colors.gray}${colors.bold}[${norm || 'Unknown'}]${colors.reset}`;
   }
+}
+
+/**
+ * Returns colored badge for task priority.
+ * @param {string} [priority='medium']
+ * @param {boolean} [useColors=true]
+ * @returns {string}
+ */
+export function getPriorityBadge(priority = 'medium', useColors = true) {
+  const norm = (priority || '').toLowerCase();
+
+  if (!useColors) {
+    switch (norm) {
+      case 'high':
+        return '[HIGH]';
+      case 'low':
+        return '[LOW]';
+      default:
+        return '[MED]';
+    }
+  }
+
+  switch (norm) {
+    case 'high':
+      return `${colors.red}${colors.bold}[HIGH]${colors.reset}`;
+    case 'low':
+      return `${colors.blue}${colors.bold}[LOW]${colors.reset}`;
+    default:
+      return `${colors.yellow}${colors.bold}[MED]${colors.reset}`;
+  }
+}
+
+/**
+ * Returns overdue warning indicator.
+ * @param {boolean} [useColors=true]
+ * @returns {string}
+ */
+export function getOverdueBadge(useColors = true) {
+  if (!useColors) return '⚠️ [OVERDUE]';
+  return `${colors.brightRed}${colors.bold}⚠️ [OVERDUE]${colors.reset}`;
 }

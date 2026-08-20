@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { Task } from './Task.js';
+import { Task, normalizePriority, normalizeTags } from './Task.js';
 
 export const DEFAULT_STORAGE_PATH = path.resolve('tasks.json');
 
@@ -16,8 +16,6 @@ export function normalizeStatus(status) {
 
 /**
  * Loads tasks from the JSON storage file.
- * Handles missing files and empty files gracefully.
- * Throws a descriptive error on corrupted JSON.
  * @param {string} [storagePath=DEFAULT_STORAGE_PATH]
  * @returns {Promise<Task[]>}
  */
@@ -67,8 +65,36 @@ export function filterByStatus(tasks, status) {
 }
 
 /**
+ * Filters an array of tasks by priority level.
+ * @param {Task[]} tasks
+ * @param {string} [priority]
+ * @returns {Task[]}
+ */
+export function filterByPriority(tasks, priority) {
+  if (!priority || typeof priority !== 'string' || !priority.trim()) {
+    return tasks;
+  }
+  const target = normalizePriority(priority);
+  return tasks.filter(t => t.priority === target);
+}
+
+/**
+ * Filters an array of tasks by tag name.
+ * @param {Task[]} tasks
+ * @param {string} [tag]
+ * @returns {Task[]}
+ */
+export function filterByTag(tasks, tag) {
+  if (!tag || typeof tag !== 'string' || !tag.trim()) {
+    return tasks;
+  }
+  const target = tag.trim().replace(/^#/, '').toLowerCase();
+  return tasks.filter(t => t.tags && t.tags.includes(target));
+}
+
+/**
  * Sorts an array of tasks by due date.
- * Invalid, null, or missing dates are consistently sorted to the end in both asc and desc orders.
+ * Invalid, null, or missing dates are placed at the end.
  * @param {Task[]} tasks
  * @param {'asc'|'desc'} [order='asc']
  * @returns {Task[]}
@@ -84,7 +110,7 @@ export function sortByDueDate(tasks, order = 'asc') {
     const validB = !isNaN(timeB);
 
     if (!validA && !validB) return 0;
-    if (!validA) return 1; // Move invalid/empty dates to the end
+    if (!validA) return 1;
     if (!validB) return -1;
 
     return normalizedOrder === 'desc' ? timeB - timeA : timeA - timeB;
@@ -92,8 +118,24 @@ export function sortByDueDate(tasks, order = 'asc') {
 }
 
 /**
- * Searches an array of tasks by matching query in title or description.
- * Safe with special characters, punctuation, and non-string inputs.
+ * Sorts tasks by priority (high > medium > low by default).
+ * @param {Task[]} tasks
+ * @param {'desc'|'asc'} [order='desc']
+ * @returns {Task[]}
+ */
+export function sortByPriority(tasks, order = 'desc') {
+  const weight = { high: 3, medium: 2, low: 1 };
+  const normalizedOrder = order === 'asc' ? 'asc' : 'desc';
+
+  return [...tasks].sort((a, b) => {
+    const valA = weight[a.priority] || 2;
+    const valB = weight[b.priority] || 2;
+    return normalizedOrder === 'asc' ? valA - valB : valB - valA;
+  });
+}
+
+/**
+ * Searches an array of tasks by matching query in title, description, or tags.
  * @param {Task[]} tasks
  * @param {string} query
  * @returns {Task[]}
@@ -106,8 +148,36 @@ export function searchByQuery(tasks, query) {
   return tasks.filter(task => {
     const titleMatch = (task.title || '').toLowerCase().includes(q);
     const descMatch = (task.description || '').toLowerCase().includes(q);
-    return titleMatch || descMatch;
+    const tagMatch = task.tags && task.tags.some(t => t.toLowerCase().includes(q));
+    return titleMatch || descMatch || tagMatch;
   });
+}
+
+/**
+ * Converts a list of tasks into formatted Markdown.
+ * @param {Task[]} tasks
+ * @param {string} [title='Tasks']
+ * @returns {string}
+ */
+export function exportToMarkdown(tasks, title = 'Task List') {
+  const lines = [`# ${title}\n`];
+
+  if (tasks.length === 0) {
+    lines.push('_No tasks found._\n');
+    return lines.join('\n');
+  }
+
+  tasks.forEach(task => {
+    const check = task.status === 'completed' ? 'x' : ' ';
+    const prio = task.priority ? ` [${task.priority.toUpperCase()}]` : '';
+    const due = task.dueDate ? ` *(Due: ${task.dueDate})*` : '';
+    const tags = task.tags && task.tags.length > 0 ? ` ${task.tags.map(t => `#${t}`).join(' ')}` : '';
+    const desc = task.description ? `\n  > ${task.description}` : '';
+
+    lines.push(`- [${check}] **#${task.id}** ${task.title}${prio}${due}${tags}${desc}`);
+  });
+
+  return lines.join('\n');
 }
 
 /**
@@ -117,10 +187,22 @@ export function searchByQuery(tasks, query) {
  * @param {string} [taskData.description='']
  * @param {string} [taskData.status='pending']
  * @param {string|null} [taskData.dueDate=null]
+ * @param {string} [taskData.priority='medium']
+ * @param {string[]|string} [taskData.tags=[]]
  * @param {string} [storagePath=DEFAULT_STORAGE_PATH]
  * @returns {Promise<Task>}
  */
-export async function addTask({ title, description = '', status = 'pending', dueDate = null }, storagePath = DEFAULT_STORAGE_PATH) {
+export async function addTask(
+  {
+    title,
+    description = '',
+    status = 'pending',
+    dueDate = null,
+    priority = 'medium',
+    tags = []
+  },
+  storagePath = DEFAULT_STORAGE_PATH
+) {
   const tasks = await loadTasks(storagePath);
   const nextId = tasks.length > 0 ? Math.max(...tasks.map(t => Number(t.id) || 0)) + 1 : 1;
   const newTask = new Task({
@@ -128,7 +210,9 @@ export async function addTask({ title, description = '', status = 'pending', due
     title,
     description: description ? description.trim() : '',
     status: normalizeStatus(status),
-    dueDate: dueDate ? dueDate.trim() : null
+    dueDate,
+    priority,
+    tags
   });
   tasks.push(newTask);
   await saveTasks(tasks, storagePath);
@@ -139,7 +223,11 @@ export async function addTask({ title, description = '', status = 'pending', due
  * Lists tasks with optional filtering, sorting, and search query.
  * @param {Object} [options={}]
  * @param {string} [options.status]
+ * @param {string} [options.priority]
+ * @param {string} [options.tag]
+ * @param {boolean} [options.overdueOnly=false]
  * @param {'asc'|'desc'} [options.sortByDueDate]
+ * @param {'asc'|'desc'} [options.sortByPriority]
  * @param {string} [options.search]
  * @param {string} [storagePath=DEFAULT_STORAGE_PATH]
  * @returns {Promise<Task[]>}
@@ -150,11 +238,23 @@ export async function listTasks(options = {}, storagePath = DEFAULT_STORAGE_PATH
   if (options.status) {
     tasks = filterByStatus(tasks, options.status);
   }
+  if (options.priority) {
+    tasks = filterByPriority(tasks, options.priority);
+  }
+  if (options.tag) {
+    tasks = filterByTag(tasks, options.tag);
+  }
+  if (options.overdueOnly) {
+    tasks = tasks.filter(t => t.isOverdue());
+  }
   if (options.search) {
     tasks = searchByQuery(tasks, options.search);
   }
   if (options.sortByDueDate) {
     tasks = sortByDueDate(tasks, options.sortByDueDate);
+  }
+  if (options.sortByPriority) {
+    tasks = sortByPriority(tasks, options.sortByPriority);
   }
 
   return tasks;
@@ -183,7 +283,7 @@ export async function sortTasksByDueDate(order = 'asc', storagePath = DEFAULT_ST
 }
 
 /**
- * Searches tasks from storage by query in title or description.
+ * Searches tasks from storage by query in title, description, or tags.
  * @param {string} query
  * @param {string} [storagePath=DEFAULT_STORAGE_PATH]
  * @returns {Promise<Task[]>}
@@ -195,8 +295,6 @@ export async function searchTasks(query, storagePath = DEFAULT_STORAGE_PATH) {
 
 /**
  * Updates a task by ID.
- * Supports partial updates and clearing fields (description, dueDate).
- * Preserves ID integrity.
  * @param {string|number} id
  * @param {Object} updates
  * @param {string} [storagePath=DEFAULT_STORAGE_PATH]
@@ -223,15 +321,25 @@ export async function updateTask(id, updates, storagePath = DEFAULT_STORAGE_PATH
     : existing.status;
 
   const newDueDate = updates.dueDate !== undefined
-    ? (updates.dueDate ? updates.dueDate.trim() : null)
+    ? (updates.dueDate ? String(updates.dueDate).trim() : null)
     : existing.dueDate;
 
+  const newPriority = updates.priority !== undefined
+    ? normalizePriority(updates.priority)
+    : existing.priority;
+
+  const newTags = updates.tags !== undefined
+    ? normalizeTags(updates.tags)
+    : existing.tags;
+
   const updatedTask = new Task({
-    id: existing.id, // Guarantee ID is never mutated
+    id: existing.id,
     title: newTitle,
     description: newDescription,
     status: newStatus,
-    dueDate: newDueDate
+    dueDate: newDueDate,
+    priority: newPriority,
+    tags: newTags
   });
 
   tasks[index] = updatedTask;
@@ -254,4 +362,17 @@ export async function removeTask(id, storagePath = DEFAULT_STORAGE_PATH) {
   tasks.splice(index, 1);
   await saveTasks(tasks, storagePath);
   return true;
+}
+
+/**
+ * Exports tasks to a Markdown file.
+ * @param {string} [exportPath='TODO.md']
+ * @param {string} [storagePath=DEFAULT_STORAGE_PATH]
+ * @returns {Promise<string>} Content written
+ */
+export async function exportTasksToFile(exportPath = 'TODO.md', storagePath = DEFAULT_STORAGE_PATH) {
+  const tasks = await loadTasks(storagePath);
+  const md = exportToMarkdown(tasks);
+  await fs.writeFile(path.resolve(exportPath), md, 'utf8');
+  return md;
 }
