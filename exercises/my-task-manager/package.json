@@ -1,0 +1,14 @@
+{
+  "name": "my-task-manager",
+  "version": "1.0.0",
+  "description": "CLI Task Manager in Node.js",
+  "type": "module",
+  "main": "src/cli.js",
+  "scripts": {
+    "start": "node src/cli.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
