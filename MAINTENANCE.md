@@ -117,6 +117,9 @@ Facts that bit us this round (don't reintroduce):
   string was sent as the Context7 header and rejected). Keys go in the global
   file, literally. Context7 replaced Firecrawl in Lab 6 on 2026-08-19.
 - Re-tested on 1.1.15: workspace `.agents/hooks.json` still not loaded.
+- Bare `!` "persistent shell mode" toggle is Gemini CLI, not agy (Ken
+  confirmed live, Aug 2026; docs don't mention it). `!command` works;
+  `ctrl+b` backgrounds a running one.
 - Checkpointing is a Gemini-CLI feature, not agy. agy has `/rewind`, `/diff`,
   `/fork`, diff-review-before-write.
 
