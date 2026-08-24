@@ -125,6 +125,10 @@ Facts that bit us this round (don't reintroduce):
 
 ## Exercise repos
 
+- Live-delivery solutions live on per-delivery branches, never `main`:
+  `agy_aug2026` (Aug 2026: bookstore-api hardening + my-task-manager build),
+  `weather-app-demos`. After a delivery, cherry-pick slide/lab fixes from the
+  delivery branch to `main` and leave the solution commits behind.
 - `exercises/python/weather-app` on `main` is the **student baseline**
   (restored to commit 9a5d244 on 2026-08-19). Live-demo results (config,
   error handling, caching, ARCHITECTURE.md) live on branch
