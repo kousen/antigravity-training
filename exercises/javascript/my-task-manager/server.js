@@ -1,5 +1,7 @@
 const express = require('express');
 const path = require('path');
+const cookieParser = require('cookie-parser');
+const csrf = require('csurf');
 const TaskManager = require('./taskManager');
 
 const app = express();
@@ -8,12 +10,19 @@ const taskManager = new TaskManager();
 
 // Middleware
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(csrf({ cookie: true }));
 
 // Initialize TaskManager
 (async () => {
     await taskManager.loadTasks();
 })();
+
+// CSRF token endpoint
+app.get('/api/csrf-token', (req, res) => {
+    res.json({ csrfToken: req.csrfToken() });
+});
 
 // API Endpoints
 

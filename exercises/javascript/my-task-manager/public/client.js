@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const taskForm = document.getElementById('addTaskForm');
     const tasksContainer = document.getElementById('tasksContainer');
     const searchInput = document.getElementById('searchInput');
@@ -6,6 +6,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const sortDateBtn = document.getElementById('sortDateBtn');
 
     let currentSort = null;
+    let csrfToken = '';
+
+    // Fetch CSRF token once on load
+    const tokenRes = await fetch('/api/csrf-token');
+    const tokenData = await tokenRes.json();
+    csrfToken = tokenData.csrfToken;
 
     // Initial Load
     fetchTasks();
@@ -46,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             await fetch('/api/tasks', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'CSRF-Token': csrfToken },
                 body: JSON.stringify({ title, description, dueDate })
             });
             taskForm.reset();
@@ -60,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             await fetch(`/api/tasks/${id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'CSRF-Token': csrfToken },
                 body: JSON.stringify({ status: newStatus })
             });
             fetchTasks();
@@ -72,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
     async function deleteTask(id) {
         if (!confirm('Are you sure you want to delete this task?')) return;
         try {
-            await fetch(`/api/tasks/${id}`, { method: 'DELETE' });
+            await fetch(`/api/tasks/${id}`, { method: 'DELETE', headers: { 'CSRF-Token': csrfToken } });
             fetchTasks();
         } catch (error) {
             console.error('Error deleting task:', error);
