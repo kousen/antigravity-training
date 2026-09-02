@@ -153,6 +153,43 @@ plenty of code, then draw the authoring-vs-delegating line.
 
 ---
 
+# The Antigravity Ecosystem
+
+```mermaid
+graph TD
+    subgraph Config ["Shared Configuration (~/.gemini/config/ & Repo)"]
+        Auth["Google Sign-In • Quota • G1 Credits"]
+        Custom["MCP Servers • Skills • Subagents • Hooks"]
+        Rules["Repo Memory (AGENTS.md)"]
+    end
+
+    subgraph Products ["The Antigravity Product Family"]
+        App["Antigravity 2.0 (App)<br/>Supervise & Canvas<br/>Desktop Electron App"]
+        IDE["Antigravity IDE<br/>Assisted Authoring<br/>VS Code Editor Base"]
+        CLI["Antigravity CLI (agy)<br/>Autonomous Terminal Agent<br/>Interactive • Headless/CI • SSH"]
+        SDK["Python SDK<br/>Programmatic Automation<br/>google-antigravity"]
+    end
+
+    Auth --> App
+    Auth --> IDE
+    Auth --> CLI
+    Auth --> SDK
+
+    Custom --> App
+    Custom --> IDE
+    Custom --> CLI
+
+    Rules --> App
+    Rules --> IDE
+    Rules --> CLI
+
+    style Config fill:#f8fafc,stroke:#64748b,stroke-width:1px
+    style Products fill:#f1f5f9,stroke:#64748b,stroke-width:1px
+    style CLI fill:#dbeafe,stroke:#2563eb,stroke-width:2px
+```
+
+---
+
 # What is Antigravity CLI?
 
 <v-clicks>
@@ -593,6 +630,30 @@ Ctrl+R
 
 ---
 
+# Agent Execution & Review Loop
+
+```mermaid
+flowchart TD
+    Prompt(["User Prompt / Task"]) --> LoadContext["Load Context & AGENTS.md"]
+    LoadContext --> Reasoning["Model Reasoning & Plan"]
+    Reasoning --> NeedTool{"Tool Call Needed?"}
+    NeedTool -- No --> TerminalReply(["Terminal Response"])
+    NeedTool -- Yes --> PreHook{"PreToolUse Hook"}
+    PreHook -- Deny --> Reasoning
+    PreHook -- Allow --> ModeCheck{"Agent Mode"}
+    ModeCheck -- "default" --> DiffReview["Artifact Review (Ctrl+R / Diff)"]
+    DiffReview -- "User Approves" --> ExecTool["Execute Tool / Edit Files"]
+    DiffReview -- "User Rejects" --> Reasoning
+    ModeCheck -- "accept-edits" --> ExecTool
+    ExecTool --> PostHook["PostToolUse Hook / Tests"]
+    PostHook --> MoreSteps{"More Steps?"}
+    MoreSteps -- Yes --> Reasoning
+    MoreSteps -- No --> StopHook["Stop Hook / Notification"]
+    StopHook --> TerminalReply
+```
+
+---
+
 # Sandbox Mode
 
 <v-clicks>
@@ -973,6 +1034,34 @@ backgroundSize: cover
 
 ---
 
+# MCP Architecture: Local & Remote
+
+```mermaid
+graph LR
+    subgraph Client ["Antigravity CLI (agy)"]
+        Agent["Agent Engine"]
+    end
+
+    subgraph Stdio ["Local Servers (stdio)"]
+        FS["Filesystem<br/>@modelcontextprotocol/server-filesystem"]
+        PG["PostgreSQL<br/>@modelcontextprotocol/server-postgres"]
+    end
+
+    subgraph Remote ["Remote Servers (HTTP / SSE)"]
+        C7["Context7 (serverUrl)<br/>https://mcp.context7.com/mcp"]
+        Custom["Custom API Services<br/>Bearer Token / OAuth"]
+    end
+
+    Agent <-->|"stdin / stdout<br/>(local process)"| Stdio
+    Agent <-->|"HTTPS / SSE<br/>(serverUrl + headers)"| Remote
+
+    style Client fill:#e0f2fe,stroke:#0284c7,stroke-width:2px
+    style Stdio fill:#f1f5f9,stroke:#64748b,stroke-width:1px
+    style Remote fill:#f8fafc,stroke:#64748b,stroke-width:1px
+```
+
+---
+
 # MCP Configuration: Context7 (live library docs)
 
 ```json
@@ -1140,6 +1229,27 @@ model: flash
 ---
 # Test writer
 You write focused unit tests. Never modify source files.
+```
+
+---
+
+# Subagent Delegation Workflow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Developer
+    participant Main as Primary Agent (agy)
+    participant Sub as Subagent (test-writer)
+    participant FS as Workspace Code
+
+    User->>Main: "Delegate to test-writer: write unit tests for @./src/utils.py"
+    Main->>Sub: invoke_subagent(prompt, role, model: flash)
+    Note over Sub: Runs in isolated subagent context<br/>(Cannot pollute main session)
+    Sub->>FS: Read target file & generate tests
+    Sub-->>Main: Return test file changes
+    Main->>User: Present changes via Artifact Review (/diff)
+    Note over User,Main: Monitored live via /agents
 ```
 
 ---
@@ -1637,12 +1747,75 @@ backgroundSize: cover
 
 ---
 
+# Chat vs. Agentic Prompting
+
+<div class="grid grid-cols-2 gap-6 mt-4 text-sm">
+<div>
+
+### ❌ Chat Prompting (Passive)
+*Treating the CLI like a web chatbot*
+
+```text
+"How do I fix this 500 error in my API?"
+```
+
+- Returns abstract explanations
+- Forces manual copy & paste
+- Ignores project context and dependencies
+- Requires multiple tedious follow-ups
+
+</div>
+<div>
+
+### ✅ Agentic Prompting (Actionable)
+*Treating agy as an autonomous teammate*
+
+```text
+"Inspect @tests/error.log.
+Find the root cause in @./src/routes.py,
+apply the fix, run !npm test to verify,
+and summarize the diff."
+```
+
+- Grounded in file references (`@`)
+- Directs investigation & implementation
+- Specifies automated verification (`!`)
+- Leaves clean diffs for Artifact Review
+
+</div>
+</div>
+
+---
+
+# Context Hygiene & Token Management
+
+<v-clicks>
+
+- **Long sessions degrade quality**: As context fills up, agents get slower and more prone to drift
+- **`/btw` for side questions**: Ask quick side questions without polluting the active task history
+- **`/fork` for experiments**: Branch a session before trying an alternative or risky implementation
+- **`/rewind` on dead ends**: Roll back turns rather than prompting in circles
+- **`/context` checks**: Monitor token usage and actively loaded context files
+- **Fresh session for fresh tasks**: Don't carry unrelated refactoring history into a new feature
+
+</v-clicks>
+
+```bash
+# Ask a side question without polluting the main prompt history
+> /btw what does the regex in @./src/parser.py match?
+
+# Roll back the conversation to try a different approach
+> /rewind
+```
+
+---
+
 # Safety Guidelines
 
 <v-clicks>
 
 - **Start in default mode** - Get comfortable first
-- **Enable checkpointing** - Safety net for mistakes
+- **Use session rollback** - /rewind, /diff, and /fork for safety
 - **Review generated code** - Don't blindly accept
 - **Use sandbox** for exploratory work
 - **Commit often** - Git is your safety net

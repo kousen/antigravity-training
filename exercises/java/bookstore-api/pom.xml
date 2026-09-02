@@ -15,7 +15,7 @@
     <artifactId>bookstore-api</artifactId>
     <version>1.0.0</version>
     <name>Bookstore API</name>
-    <description>A Spring Boot REST API for Gemini CLI training</description>
+    <description>A Spring Boot REST API for Antigravity CLI training</description>
 
     <properties>
         <java.version>21</java.version>

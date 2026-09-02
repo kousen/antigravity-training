@@ -1,6 +1,6 @@
-# Global Gemini Context
+# Global Antigravity Context
 
-Place this file at `~/.gemini/GEMINI.md` for settings that apply to all projects.
+Place this file at `~/.gemini/AGENTS.md` (or `~/.gemini/GEMINI.md`) for settings that apply to all projects.
 
 ## About Me
 - Senior software developer with 10+ years experience
@@ -60,5 +60,5 @@ Place this file at `~/.gemini/GEMINI.md` for settings that apply to all projects
 When starting work on a new project:
 1. First, analyze the existing structure and patterns
 2. Identify the tech stack and conventions in use
-3. Note any GEMINI.md files in the project
+3. Note any AGENTS.md or GEMINI.md files in the project
 4. Adapt recommendations to match existing style

@@ -446,7 +446,7 @@ echo "# Config Test" > README.md
    ```
    Observe how sandbox mode affects file operations.
 
-5. **Checkpoints and Artifact Review**:
+5. **Diff Inspection and Artifact Review**:
 
    Create a complex file structure:
    ```

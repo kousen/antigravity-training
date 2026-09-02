@@ -1,7 +1,7 @@
 {
   "name": "task-manager",
   "version": "1.0.0",
-  "description": "A simple task manager for Gemini CLI training",
+  "description": "A simple task manager for Antigravity CLI training",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",

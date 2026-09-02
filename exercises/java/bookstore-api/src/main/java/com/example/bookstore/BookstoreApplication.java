@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * Bookstore API - A Spring Boot REST API for managing books.
- * Exercise project for Gemini CLI training.
+ * Exercise project for Antigravity CLI training.
  */
 @SpringBootApplication
 public class BookstoreApplication {

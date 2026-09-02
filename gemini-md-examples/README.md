@@ -1,6 +1,6 @@
-# GEMINI.md Examples
+# AGENTS.md / GEMINI.md Examples
 
-This folder contains example GEMINI.md files for different project types.
+This folder contains example context files for different project types. In the Antigravity CLI (`agy`), **`AGENTS.md`** is the standard project context file. Antigravity also recognizes `GEMINI.md` and `CLAUDE.md`, so existing files keep working without changes.
 
 ## Files
 
@@ -26,7 +26,7 @@ Context file for React TypeScript applications.
 - Vitest testing setup
 
 ### global-context.md
-Template for global context at `~/.gemini/GEMINI.md`.
+Template for global context at `~/.gemini/AGENTS.md` (or `~/.gemini/GEMINI.md`).
 - Personal preferences
 - Communication style
 - Git workflow standards
@@ -36,26 +36,26 @@ Template for global context at `~/.gemini/GEMINI.md`.
 
 ### Project-Specific Context
 
-Copy the appropriate template to your project root:
+Copy the appropriate template to your project root as `AGENTS.md`:
 
 ```bash
 # For a Flask project
-cp python-flask.md /path/to/your/project/GEMINI.md
+cp python-flask.md /path/to/your/project/AGENTS.md
 
 # Customize for your project
-vim /path/to/your/project/GEMINI.md
+$EDITOR /path/to/your/project/AGENTS.md
 ```
 
 ### Global Context
 
-Copy the global template to your Gemini CLI config:
+Copy the global template to your global Antigravity config directory:
 
 ```bash
 mkdir -p ~/.gemini
-cp global-context.md ~/.gemini/GEMINI.md
+cp global-context.md ~/.gemini/AGENTS.md
 
 # Customize with your preferences
-vim ~/.gemini/GEMINI.md
+$EDITOR ~/.gemini/AGENTS.md
 ```
 
 ## Best Practices
@@ -71,10 +71,10 @@ vim ~/.gemini/GEMINI.md
 - Reference actual technologies and versions
 
 ### Use Imports for Large Contexts
-Break down large GEMINI.md files:
+Break down large `AGENTS.md` files:
 
 ```markdown
-# GEMINI.md
+# AGENTS.md
 
 ## Project Overview
 This is our main application.
@@ -87,35 +87,38 @@ This is our main application.
 ```
 
 ### Hierarchical Context
-Use subdirectory GEMINI.md files for component-specific rules:
+Use subdirectory `AGENTS.md` files for component-specific rules:
 
 ```
 project/
-├── GEMINI.md              # Project-wide rules
+├── AGENTS.md              # Project-wide rules
 ├── frontend/
-│   └── GEMINI.md          # React-specific rules
+│   └── AGENTS.md          # React-specific rules
 └── backend/
-    └── GEMINI.md          # Python-specific rules
+    └── AGENTS.md          # Python-specific rules
 ```
 
-### Use .geminiignore
-Create a `.geminiignore` file in your project root alongside your `GEMINI.md` to prevent the CLI from reading unnecessary, generated, or sensitive files:
+### File Filtering
+Antigravity CLI respects `.gitignore` by default. You can also configure `fileFiltering` in your `settings.json`:
 
-```text
-node_modules/
-target/
-.env
-dist/
-build/
+```json
+{
+  "context": {
+    "fileFiltering": {
+      "respectGitIgnore": true,
+      "enableRecursiveFileSearch": true
+    }
+  }
+}
 ```
 
 ## Verification
 
-After setting up your GEMINI.md, verify it's loaded:
+After setting up your `AGENTS.md`, verify it is loaded:
 
 ```bash
-gemini
-/memory show
+agy
+> /context
 ```
 
-This shows the combined context from all loaded GEMINI.md files.
+This displays the combined context loaded from your global and project files, along with active token counts.
