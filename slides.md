@@ -111,29 +111,23 @@ SCHEDULE BREAKDOWN (5 hours total):
 
 # What's New in Antigravity CLI 1.1.x
 
-<div class="text-sm">
-
 <v-clicks>
 
-- **Execution modes**: `Shift+Tab` cycles `default` → `accept-edits` → `plan`; `--mode` flag (1.1.0)
-- **Structured headless output**: `--output-format json|stream-json`, `--json-schema` (1.1.8)
-- **Slash commands in `-p`**: skills expand; read-only commands answer without spending quota (1.1.9–1.1.12)
-- **Model slugs + `--effort`**: pin `gemini-3.1-pro-high`, tune reasoning with `/effort` (1.1.5)
-- **Custom agents in Markdown**: `agent.md` with YAML frontmatter; `--agent`, `agy agents` (1.1.1/1.1.6)
-- **`/codesearch`** (1.1.3), **Vim editor mode** (1.1.11), `/fork`, `/btw`, `/rewind`
-- **Direct Gemini API**: `GEMINI_API_KEY` + `modelProvider: "gemini"` — no sign-in (1.1.13)
-- **Since 1.1.13**: `agy mcp add|list|remove` (1.1.16), `/model <name>` saves a default (1.1.22), `/voice` dictation (1.1.21)
-- **Latest stable track**: Antigravity CLI `1.1.24` — see `agy changelog`
+- **Safer control**: cycle `default` → `accept-edits` → `plan`, with review before writes
+- **Automation-ready output**: print mode supports JSON, streaming events, and response schemas
+- **Composable workflows**: custom agents, MCP management, workspace search, and voice input
 
 </v-clicks>
 
+<div class="mt-10 text-lg opacity-70">
+Full version-by-version reference in the appendix
 </div>
 
 <!--
 TIMING: ~0:15 into class.
 PRESENTER NOTE:
-- Don't get bogged down explaining every line here; use this slide to set expectations on what is covered later.
-- Emphasize execution modes (Shift+Tab) and structured JSON output as the big productivity leaps in 1.1.x.
+- Use this slide to establish the three themes developed throughout the course.
+- The appendix preserves the detailed 1.1.x feature and version reference.
 -->
 
 ---
@@ -144,12 +138,12 @@ PRESENTER NOTE:
 
 | | **Antigravity 2.0** (app) | **Antigravity IDE** | **Antigravity CLI** |
 |---|---|---|---|
-| What it is | Electron desktop app | AI-first IDE (VS Code base) | Terminal agent (`agy`) |
-| Built for | **Supervising agents**: projects, scheduled tasks, chat canvas | **You write, AI assists**: Tab autocomplete, inline `⌘I`, diff overlays — it's an editor | **You delegate, agent writes**: prompt → diffs to review; no editor. Plus headless/CI, SSH |
+| What it is | Desktop supervisor | VS Code-based IDE | Terminal agent (`agy`) |
+| Best for | Agent oversight and scheduled work | Coding inside an editor | Delegated coding, CI, and SSH |
 | Version | 2.8.x | 2.5.x | 1.1.x |
-| Data dir | `~/.gemini/antigravity/` | `~/.gemini/antigravity-ide/` | `~/.gemini/antigravity-cli/` |
+| Data subdir | `antigravity/` | `antigravity-ide/` | `antigravity-cli/` |
 
-Plus a **Python SDK**: `pip install google-antigravity` — spawn agents from scripts/tests
+Base path: `~/.gemini/` · Python SDK: `pip install google-antigravity`
 
 <!--
 All three produce code — the row above is about who holds the keyboard.
@@ -178,37 +172,21 @@ plenty of code, then draw the authoring-vs-delegating line.
 
 # The Antigravity Ecosystem
 
-```mermaid
-graph TD
-    subgraph Config ["Shared Configuration (~/.gemini/config/ & Repo)"]
-        Auth["Google Sign-In • Quota • G1 Credits"]
-        Custom["MCP Servers • Skills • Subagents • Hooks"]
-        Rules["Repo Memory (AGENTS.md)"]
-    end
+```mermaid {scale: 0.72}
+flowchart TB
+    Identity["Shared identity & capacity<br/>Google sign-in • Quota • G1 credits"]
+    Context["Shared agent configuration<br/>MCP • Skills • Subagents • Hooks • AGENTS.md"]
 
-    subgraph Products ["The Antigravity Product Family"]
-        App["Antigravity 2.0 (App)<br/>Supervise & Canvas<br/>Desktop Electron App"]
-        IDE["Antigravity IDE<br/>Assisted Authoring<br/>VS Code Editor Base"]
-        CLI["Antigravity CLI (agy)<br/>Autonomous Terminal Agent<br/>Interactive • Headless/CI • SSH"]
-        SDK["Python SDK<br/>Programmatic Automation<br/>google-antigravity"]
-    end
+    App["Antigravity 2.0<br/>Supervision & canvas"]
+    IDE["Antigravity IDE<br/>Assisted authoring"]
+    CLI["Antigravity CLI (agy)<br/>Terminal delegation • CI • SSH"]
+    SDK["Python SDK<br/>Programmatic automation"]
 
-    Auth --> App
-    Auth --> IDE
-    Auth --> CLI
-    Auth --> SDK
+    Identity --> App & IDE & CLI & SDK
+    Context --> App & IDE & CLI
 
-    Custom --> App
-    Custom --> IDE
-    Custom --> CLI
-
-    Rules --> App
-    Rules --> IDE
-    Rules --> CLI
-
-    style Config fill:#f8fafc,stroke:#64748b,stroke-width:1px
-    style Products fill:#f1f5f9,stroke:#64748b,stroke-width:1px
-    style CLI fill:#dbeafe,stroke:#2563eb,stroke-width:2px
+    class CLI focus
+    classDef focus stroke:#38bdf8,stroke-width:3px
 ```
 
 ---
@@ -662,24 +640,24 @@ Ctrl+R
 
 # Agent Execution & Review Loop
 
-```mermaid
-flowchart TD
-    Prompt(["User Prompt / Task"]) --> LoadContext["Load Context & AGENTS.md"]
-    LoadContext --> Reasoning["Model Reasoning & Plan"]
-    Reasoning --> NeedTool{"Tool Call Needed?"}
-    NeedTool -- No --> TerminalReply(["Terminal Response"])
-    NeedTool -- Yes --> PreHook{"PreToolUse Hook"}
-    PreHook -- Deny --> Reasoning
-    PreHook -- Allow --> ModeCheck{"Agent Mode"}
-    ModeCheck -- "default" --> DiffReview["Artifact Review (Ctrl+R / Diff)"]
-    DiffReview -- "User Approves" --> ExecTool["Execute Tool / Edit Files"]
-    DiffReview -- "User Rejects" --> Reasoning
-    ModeCheck -- "accept-edits" --> ExecTool
-    ExecTool --> PostHook["PostToolUse Hook / Tests"]
-    PostHook --> MoreSteps{"More Steps?"}
-    MoreSteps -- Yes --> Reasoning
-    MoreSteps -- No --> StopHook["Stop Hook / Notification"]
-    StopHook --> TerminalReply
+```mermaid {scale: 0.72}
+stateDiagram-v2
+    direction LR
+    state "Load context<br/>and plan" as Plan
+    state "Pre-tool hook<br/>default review / accept-edits" as Review
+    state "Execute tool<br/>or edit files" as Execute
+    state "Post-tool hooks<br/>and tests" as Verify
+    state "Respond" as Reply
+
+    [*] --> Plan: Task
+    Plan --> Reply: No tool needed
+    Plan --> Review: Tool needed
+    Review --> Plan: Deny or reject
+    Review --> Execute: Approve / auto
+    Execute --> Verify
+    Verify --> Plan: More work
+    Verify --> Reply: Stop hook
+    Reply --> [*]
 ```
 
 ---
@@ -785,16 +763,11 @@ backgroundSize: cover
 
 # Hierarchical Loading
 
-```mermaid
+```mermaid {scale: 0.88}
 graph TD
     A[~/.gemini/AGENTS.md<br/>Global Rules] --> B[project/AGENTS.md<br/>Project Standards]
     B --> C[project/frontend/AGENTS.md<br/>Frontend Conventions]
     B --> D[project/backend/AGENTS.md<br/>Backend Patterns]
-
-    style A fill:#FFE5CC,stroke:#333,stroke-width:2px,color:#000
-    style B fill:#CCE5FF,stroke:#333,stroke-width:2px,color:#000
-    style C fill:#E5CCFF,stroke:#333,stroke-width:2px,color:#000
-    style D fill:#CCFFE5,stroke:#333,stroke-width:2px,color:#000
 ```
 
 More specific files override general ones
@@ -1066,28 +1039,27 @@ backgroundSize: cover
 
 # MCP Architecture: Local & Remote
 
-```mermaid
-graph LR
-    subgraph Client ["Antigravity CLI (agy)"]
-        Agent["Agent Engine"]
+```mermaid {scale: 0.94}
+flowchart LR
+    subgraph Local ["Local MCP servers"]
+        FS["Filesystem"]
+        PG["PostgreSQL"]
     end
 
-    subgraph Stdio ["Local Servers (stdio)"]
-        FS["Filesystem<br/>@modelcontextprotocol/server-filesystem"]
-        PG["PostgreSQL<br/>@modelcontextprotocol/server-postgres"]
+    Agent["Antigravity CLI<br/>Agent engine"]
+
+    subgraph Remote ["Remote MCP servers"]
+        C7["Context7"]
+        Custom["Custom APIs"]
     end
 
-    subgraph Remote ["Remote Servers (HTTP / SSE)"]
-        C7["Context7 (serverUrl)<br/>https://mcp.context7.com/mcp"]
-        Custom["Custom API Services<br/>Bearer Token / OAuth"]
-    end
+    FS <-->|stdio| Agent
+    PG <-->|stdio| Agent
+    Agent <-->|"HTTPS / SSE"| C7
+    Agent <-->|"HTTPS + auth"| Custom
 
-    Agent <-->|"stdin / stdout<br/>(local process)"| Stdio
-    Agent <-->|"HTTPS / SSE<br/>(serverUrl + headers)"| Remote
-
-    style Client fill:#e0f2fe,stroke:#0284c7,stroke-width:2px
-    style Stdio fill:#f1f5f9,stroke:#64748b,stroke-width:1px
-    style Remote fill:#f8fafc,stroke:#64748b,stroke-width:1px
+    class Agent focus
+    classDef focus stroke:#38bdf8,stroke-width:3px
 ```
 
 ---
@@ -1265,7 +1237,8 @@ You write focused unit tests. Never modify source files.
 
 # Subagent Delegation Workflow
 
-```mermaid
+```mermaid {scale: 0.66}
+%%{init: {"sequence": {"mirrorActors": false}}}%%
 sequenceDiagram
     autonumber
     actor User as Developer
@@ -1273,8 +1246,8 @@ sequenceDiagram
     participant Sub as Subagent (test-writer)
     participant FS as Workspace Code
 
-    User->>Main: "Delegate to test-writer: write unit tests for @./src/utils.py"
-    Main->>Sub: invoke_subagent(prompt, role, model: flash)
+    User->>Main: Delegate tests for @./src/utils.py
+    Main->>Sub: invoke_subagent(..., model: flash)
     Note over Sub: Runs in isolated subagent context<br/>(Cannot pollute main session)
     Sub->>FS: Read target file & generate tests
     Sub-->>Main: Return test file changes
@@ -1345,7 +1318,7 @@ Review the referenced code for security, performance, and test gaps…
 
 ---
 
-# Hooks: Examples
+# Hook Example: Block Force Push
 
 ```json
 {
@@ -1354,9 +1327,6 @@ Review the referenced code for security, performance, and test gaps…
       "matcher": "run_command",
       "hooks": [{ "command": "./scripts/block-force-push.sh" }]
     }]
-  },
-  "notify-done": {
-    "Stop": [{ "command": "osascript -e 'display notification \"agy finished\"'; echo '{}'" }]
   }
 }
 ```
@@ -1370,7 +1340,33 @@ else
 fi
 ```
 
-Example `config-examples/hooks.json` in this repo. ⚠️ As of 1.1.24 the CLI loads hooks from `~/.gemini/config/` and plugins — a workspace `.agents/hooks.json` is documented but still not picked up (re-verified 2026-09-02).
+Complete example: `config-examples/hooks.json`
+
+---
+
+# Hook Example: Completion Notification
+
+```json
+{
+  "notify-done": {
+    "Stop": [{
+      "command": "osascript -e 'display notification \"agy finished\"'; echo '{}'"
+    }]
+  }
+}
+```
+
+<v-clicks>
+
+- `Stop` runs after the agent has satisfied its completion criteria
+- The hook receives JSON on stdin and must return valid JSON on stdout
+- Notification commands can be platform-specific; this example uses macOS
+
+</v-clicks>
+
+<div class="mt-8 border-l-4 border-amber-400 pl-4 opacity-80">
+As of 1.1.24, the CLI loads hooks from <code>~/.gemini/config/</code> and plugins. A workspace <code>.agents/hooks.json</code> is documented but was still not picked up when re-verified on 2026-09-02.
+</div>
 
 ---
 
@@ -1932,58 +1928,92 @@ agy --log-file ./agy.log
 
 ---
 
-# Quick Access
+# Resources
 
-<div class="grid grid-cols-2 gap-8 mt-8 place-items-center">
+<div class="grid grid-cols-2 gap-8 mt-4 place-items-center">
   <div class="flex flex-col items-center">
     <h3>Antigravity CLI Docs</h3>
-    <QRCode
-      :width="200"
-      :height="200"
-      type="svg"
-      data="https://antigravity.google/docs"
-      :margin="5"
-      :dotsOptions="{ type: 'rounded', color: '#3b82f6' }"
-    />
+    <div class="bg-white p-3 rounded-xl shadow-lg">
+      <QRCode
+        :width="180"
+        :height="180"
+        type="svg"
+        data="https://antigravity.google/docs"
+        :margin="8"
+        :dotsOptions="{ type: 'rounded', color: '#111827' }"
+        :backgroundOptions="{ color: '#ffffff' }"
+      />
+    </div>
     <p class="text-sm mt-2">antigravity.google/docs</p>
   </div>
   <div class="flex flex-col items-center">
     <h3>Course Repository</h3>
-    <QRCode
-      :width="200"
-      :height="200"
-      type="svg"
-      data="https://github.com/kousen/antigravity-training"
-      :margin="5"
-      :dotsOptions="{ type: 'rounded', color: '#10b981' }"
-    />
+    <div class="bg-white p-3 rounded-xl shadow-lg">
+      <QRCode
+        :width="180"
+        :height="180"
+        type="svg"
+        data="https://github.com/kousen/antigravity-training"
+        :margin="8"
+        :dotsOptions="{ type: 'rounded', color: '#111827' }"
+        :backgroundOptions="{ color: '#ffffff' }"
+      />
+    </div>
     <p class="text-sm mt-2">github.com/kousen/antigravity-training</p>
   </div>
 </div>
 
+<div class="grid grid-cols-2 gap-8 mt-3 text-center">
+  <div><strong>CLI source:</strong> <a href="https://github.com/google-antigravity/antigravity-cli">github.com/google-antigravity/antigravity-cli</a></div>
+  <div><strong>MCP registry:</strong> <a href="https://modelcontextprotocol.io/registry">modelcontextprotocol.io/registry</a></div>
+</div>
+
 ---
 
-# Important Links
+# Thank You!
 
-<div class="mt-8 space-y-6 text-xl">
+<div class="text-center">
 
-<v-clicks>
+## Questions?
 
-### 📚 Official Documentation
-`https://antigravity.google/docs`
+<div class="pt-12">
+  <span class="text-6xl"><carbon:logo-github /></span>
+</div>
 
-### 💾 Source Repository
-`https://github.com/google-antigravity/antigravity-cli`
+<div class="mt-5 text-xl font-bold">Kenneth Kousen</div>
+<div class="text-lg italic">Author, Speaker, Java & AI Expert</div>
 
-### 📦 MCP Server Registry
-`https://modelcontextprotocol.io/registry`
-
-### 💻 Course Materials
-`https://github.com/kousen/antigravity-training`
-
-</v-clicks>
+[kousenit.com](https://kousenit.com) | [@kenkousen](https://twitter.com/kenkousen)
 
 </div>
+
+---
+layout: section
+---
+
+# Appendix
+
+Version details and command reference
+
+---
+
+# Interaction & Models
+
+- **Execution modes**: `Shift+Tab` cycles `default` → `accept-edits` → `plan`; `--mode` flag (1.1.0)
+- **Model slugs + `--effort`**: pin `gemini-3.1-pro-high`, tune reasoning with `/effort` (1.1.5)
+- **Custom agents in Markdown**: `agent.md` with YAML frontmatter; `--agent`, `agy agents` (1.1.1/1.1.6)
+- **Workspace navigation**: `/codesearch` (1.1.3) and Vim editor mode (1.1.11)
+- **Session control**: `/fork`, `/btw`, and `/rewind`
+
+---
+
+# Automation & Extensibility
+
+- **Structured output**: `--output-format json|stream-json`, `--json-schema` (1.1.8)
+- **Slash commands in `-p`**: skills expand; read-only commands avoid quota use (1.1.9–1.1.12)
+- **Direct Gemini API**: `GEMINI_API_KEY` + `modelProvider: "gemini"` — no sign-in (1.1.13)
+- **Later additions**: `agy mcp add|list|remove` (1.1.16), `/voice` (1.1.21), saved `/model <name>` defaults (1.1.22)
+- **Latest stable track**: Antigravity CLI `1.1.24` — see `agy changelog`
 
 ---
 
@@ -2044,22 +2074,3 @@ agy --print-timeout 2m -p "prompt"
 # Write logs to a file
 agy --log-file ./agy.log
 ```
-
----
-
-# Thank You!
-
-<div class="text-center">
-
-## Questions?
-
-<div class="pt-12">
-  <span class="text-6xl"><carbon:logo-github /></span>
-</div>
-
-**Kenneth Kousen**
-*Author, Speaker, Java & AI Expert*
-
-[kousenit.com](https://kousenit.com) | [@kenkousen](https://twitter.com/kenkousen)
-
-</div>
