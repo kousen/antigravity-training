@@ -3,5 +3,8 @@
  * Starter file for Antigravity CLI training exercises.
  */
 
+import Task from "./task.js";
+import TaskManager from "./taskManager.js";
+
 console.log("Task Manager CLI initialized.");
 console.log("Complete the exercise goals in README.md to build the interactive CLI interface!");

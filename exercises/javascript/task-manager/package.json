@@ -1,11 +1,12 @@
 {
   "name": "task-manager",
   "version": "1.0.0",
+  "type": "module",
   "description": "A simple task manager for Antigravity CLI training",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "test": "jest"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
   },
   "keywords": ["task", "manager", "cli", "training"],
   "author": "Kenneth Kousen",

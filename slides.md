@@ -81,6 +81,18 @@ Kousen IT, Inc.
 
 </v-clicks>
 
+<!--
+TIMING: ~0:05 into class.
+SCHEDULE BREAKDOWN (5 hours total):
+- 0:00 - 0:45: Foundation, Setup & First Project (Lab 1)
+- 0:45 - 1:45: Code Exploration & Core Operations (Lab 2)
+- 1:45 - 2:45: Context Management & AGENTS.md (Lab 3) + Test Gen (Lab 4)
+- 2:45 - 3:00: Break (15 min)
+- 3:00 - 4:00: Configuration, Safety & Permissions (Lab 5)
+- 4:00 - 4:45: MCP, Plugins & Subagents (Lab 6)
+- 4:45 - 5:00: Automation Patterns, Governance & Q&A (Lab 7 / Wrap-up)
+-->
+
 ---
 
 # Topics Covered
@@ -99,6 +111,8 @@ Kousen IT, Inc.
 
 # What's New in Antigravity CLI 1.1.x
 
+<div class="text-sm">
+
 <v-clicks>
 
 - **Execution modes**: `Shift+Tab` cycles `default` → `accept-edits` → `plan`; `--mode` flag (1.1.0)
@@ -112,6 +126,15 @@ Kousen IT, Inc.
 - **Latest stable track**: Antigravity CLI `1.1.24` — see `agy changelog`
 
 </v-clicks>
+
+</div>
+
+<!--
+TIMING: ~0:15 into class.
+PRESENTER NOTE:
+- Don't get bogged down explaining every line here; use this slide to set expectations on what is covered later.
+- Emphasize execution modes (Shift+Tab) and structured JSON output as the big productivity leaps in 1.1.x.
+-->
 
 ---
 
@@ -605,6 +628,13 @@ agy --mode plan
 # Persist a default in ~/.gemini/antigravity-cli/settings.json
 { "agentMode": "accept-edits" }
 ```
+
+<!--
+PRESENTER NOTE:
+- Live Demo: Open a terminal, start `agy`, and press `Shift+Tab` repeatedly.
+- Point out the status line badge changing: default -> accept-edits -> plan.
+- Emphasize that "default" is the recommended mode for beginners because of the built-in diff review before file writes.
+-->
 
 ---
 

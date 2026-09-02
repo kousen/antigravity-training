@@ -2,9 +2,9 @@
  * TaskManager - Manages a collection of tasks.
  */
 
-const fs = require("fs").promises;
-const path = require("path");
-const Task = require("./task");
+import fs from "node:fs/promises";
+import path from "node:path";
+import Task from "./task.js";
 
 class TaskManager {
   constructor(storageFile = "tasks.json") {
@@ -109,4 +109,4 @@ class TaskManager {
   }
 }
 
-module.exports = TaskManager;
+export default TaskManager;

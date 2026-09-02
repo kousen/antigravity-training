@@ -13,32 +13,32 @@ students or the taught material.** Triage below.
 | Lockfile | Before | After |
 |---|---|---|
 | Root `package-lock.json` (Slidev toolchain) | 18 (2 low / 7 mod / 9 high) | **4** (all high, one root cause) |
-| `exercises/javascript/my-task-manager` | 0 | 0 |
-
+| `solutions/javascript/my-task-manager` | 0 | 0 |
+ 
 What fixed it (2026-08-19): regenerating the lockfile (`rm -rf node_modules
 package-lock.json && npm install --ignore-scripts`) took Slidev 52.12 → 52.19
 and cleared most of it; a `package.json` override `"dompurify": "^3.4.14"`
 cleared the `monaco-editor`/`mermaid` → `dompurify` chain.
-
+ 
 The remaining 4 are all `image-size <=2.0.2` reached via
 `@slidev/cli → @slidev/client → pptxgenjs → image-size`. **There is no patched
 `image-size` release** (2.0.2 is the latest and is itself flagged), so no
 override can clear them — wait for upstream. `npm audit fix --force` would
 *downgrade* `@slidev/cli` to 52.6.0; don't.
-
+ 
 GitHub's Dependabot banner counts the whole repo (Java/Python exercise
 manifests included), so its number will be higher than `npm audit`'s.
-
+ 
 ### Re-running the audit next time
-
+ 
 ```bash
 # Root (Slidev toolchain - only affects the laptop building the deck)
 npm audit fix --ignore-scripts   # --ignore-scripts avoids a Playwright
                                   # post-install that tries to fetch
                                   # Chromium (can fail behind proxies)
-
-# Exercise lockfile
-cd exercises/javascript/my-task-manager
+ 
+# Solution lockfile
+cd solutions/javascript/my-task-manager
 npm audit fix --ignore-scripts
 ```
 

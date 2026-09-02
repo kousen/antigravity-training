@@ -19,18 +19,20 @@ This 5-hour hands-on workshop covers everything from basic installation to advan
 ## Prerequisites
 
 - Command-line experience
-- Basic programming knowledge in at least one language
+- Basic programming knowledge in at least one language (Python, JS, or Java)
 - Git familiarity
 - Google account for sign-in (or an `ANTIGRAVITY_API_KEY`)
 - Node.js 18+ (only needed to run the Slidev presentation locally)
 
-### 📄 Latest PDF
+Run the pre-flight verification script to check your local environment before class:
+```bash
+./verify-setup.sh
+```
 
-A current PDF of the slides is rebuilt automatically whenever `slides.md` lands on `main` and attached to a rolling release. Stable download URL:
+### 📄 Latest PDF & Cheatsheet
 
-**<https://github.com/kousen/antigravity-training/releases/latest/download/antigravity-training-slides.pdf>**
-
-No PDF is committed to the repo — it lives only in [GitHub Releases](https://github.com/kousen/antigravity-training/releases/tag/slides-latest), built by [`.github/workflows/build-slides-pdf.yml`](.github/workflows/build-slides-pdf.yml).
+- **[Latest Slides PDF](https://github.com/kousen/antigravity-training/releases/latest/download/antigravity-training-slides.pdf)** (Auto-built on `main`)
+- **[Quick Reference Cheatsheet](./CHEATSHEET.md)** (CLI syntax, shortcuts, slash commands)
 
 ## Repository Structure
 
@@ -38,19 +40,23 @@ No PDF is committed to the repo — it lives only in [GitHub Releases](https://g
 antigravity-training/
 ├── slides.md                     # Slidev presentation
 ├── lab_handout.md               # Progressive hands-on labs
+├── CHEATSHEET.md                # 1-page quick reference cheatsheet
+├── verify-setup.sh              # Pre-flight environment check
 ├── exercises/                    # Hands-on lab projects
 │   ├── python/                  # Python projects
 │   │   └── weather-app/         # Flask weather application
 │   ├── javascript/              # JavaScript/TypeScript projects
-│   │   └── task-manager/        # Node.js task manager
+│   │   └── task-manager/        # Node.js task manager (ESM)
 │   └── java/                    # Java projects
-│       └── bookstore-api/       # Spring Boot REST API
+│       └── bookstore-api/       # Spring Boot REST API (with mvnw)
+├── solutions/                    # Reference solutions & demos
+│   └── javascript/              # Task manager full solution
 ├── config-examples/              # Sample configurations
 │   ├── settings-basic.json      # Starter settings
 │   ├── settings-advanced.json   # Full-featured settings
 │   ├── settings-safe.json       # Safety-focused settings
 │   └── mcp_config.json          # MCP server config
-├── gemini-md-examples/          # AGENTS.md / GEMINI.md templates
+├── context-examples/             # AGENTS.md / GEMINI.md templates
 │   ├── python-flask.md          # Python Flask template
 │   ├── java-spring.md           # Spring Boot template
 │   └── typescript-react.md      # React project template
@@ -198,11 +204,12 @@ agy --conversation <id>             # Resume a specific conversation
 
 ## Resources
 
+- [Quick Reference Cheatsheet](./CHEATSHEET.md)
+- [Course Slides](./slides.md)
+- [Lab Exercises](./lab_handout.md)
 - [Official Antigravity CLI Documentation](https://antigravity.google/docs)
 - [Antigravity CLI Source Repository](https://github.com/google-antigravity/antigravity-cli)
 - [MCP Server Registry](https://modelcontextprotocol.io/registry)
-- [Course Slides](./slides.md)
-- [Lab Exercises](./lab_handout.md)
 
 ## Instructor
 

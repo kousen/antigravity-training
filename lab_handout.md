@@ -23,6 +23,8 @@ This document contains hands-on exercises for learning to use the Antigravity CL
   `export ANTIGRAVITY_API_KEY="your-key"` for scripts/headless use.
 - Git installed and configured
 - Development environment for Python, JavaScript, or Java
+- Pre-flight check: run `./verify-setup.sh` to verify all prerequisites
+- Keep the [Quick Reference Cheatsheet](./CHEATSHEET.md) handy during exercises
 
 ## Heads-up: Tool Permissions
 
