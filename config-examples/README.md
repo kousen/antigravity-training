@@ -60,9 +60,9 @@ Lifecycle hooks: a `PreToolUse` hook that denies `git push --force`, and a
 cp hooks.json ~/.gemini/config/ && cp -r scripts ~/.gemini/config/
 ```
 
-Start `agy` and run `/hooks` to see them registered. (CLI 1.1.13 loads hooks
+Start `agy` and run `/hooks` to see them registered. (CLI 1.1.24 loads hooks
 from `~/.gemini/config/` and from plugins; a workspace `.agents/hooks.json` is
-documented but not picked up yet — verified 2026-08-19.) If you already have a
+documented but still not picked up — re-verified 2026-09-02.) If you already have a
 `~/.gemini/config/hooks.json`, merge the named entries instead of overwriting.
 Don't add `_comment`-style keys: every top-level key must be a hook object, and
 a stray string makes the CLI silently drop the entire file (`/hooks` shows nothing). Hook commands run from the

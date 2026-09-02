@@ -139,7 +139,7 @@ npm run dev
 - Conversation management (SQLite) and Artifact Review
 - Structured headless output (`--output-format json|stream-json`, `--json-schema`)
 
-### New in Antigravity CLI 1.1.x (materials verified against 1.1.13)
+### New in Antigravity CLI 1.1.x (materials verified against 1.1.24)
 - Execution modes: `Shift+Tab` cycles `default` → `accept-edits` → `plan`; `--mode`; `agentMode` setting (1.1.0)
 - Structured headless output: `--output-format json|stream-json`, `--json-schema` (1.1.8)
 - Slash commands and skills expand in `-p`; read-only commands answer without spending quota (1.1.9–1.1.12)
@@ -147,6 +147,7 @@ npm run dev
 - Custom agents in Markdown (`agent.md` frontmatter), `--agent`, `agy agents` (1.1.1/1.1.6)
 - `/codesearch` (1.1.3), Vim editor mode (1.1.11), `/fork`, `/btw`, `/rewind`
 - Direct Gemini API access via `GEMINI_API_KEY` + `modelProvider: "gemini"` (1.1.13)
+- Since 1.1.13: `agy mcp add|remove|list|enable|disable` (1.1.16), `--input-format stream-json` (1.1.15), `/voice` dictation (1.1.21), `/model <name>` saves a default (1.1.22)
 - Run `agy changelog` for the full release notes
 
 ## Tips for Success

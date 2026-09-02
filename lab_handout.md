@@ -14,7 +14,7 @@ This document contains hands-on exercises for learning to use the Antigravity CL
 
 ## Prerequisites
 
-- Antigravity CLI installed (version 1.1.13 or later — check with `agy --version`, update with `agy update`):
+- Antigravity CLI installed (version 1.1.24 or later — check with `agy --version`, update with `agy update`):
   ```bash
   curl -fsSL https://antigravity.google/cli/install.sh | bash
   ```
@@ -576,6 +576,8 @@ echo "# Config Test" > README.md
    $EDITOR ~/.gemini/config/mcp_config.json   # global
    $EDITOR .agents/mcp_config.json            # this project only
    ```
+   Or from the shell (1.1.16+): `agy mcp add -H "CONTEXT7_API_KEY: <key>" context7 https://mcp.context7.com/mcp`
+   writes the global file; `agy mcp list` shows what is configured.
    Inside a session, `/mcp` shows server status and reloads the config.
 
 10. **Configure Context7** (remote server — current library docs):
@@ -730,7 +732,7 @@ After completing this lab:
 5. **Enforce policy with a hook**:
    Copy `config-examples/hooks.json` and `config-examples/scripts/` from the
    course repo into `~/.gemini/config/` (hooks are global or plugin-scoped in
-   CLI 1.1.13 — a workspace `.agents/hooks.json` isn't loaded yet). The
+   CLI 1.1.24 — a workspace `.agents/hooks.json` still isn't loaded). The
    `PreToolUse` hook on `run_command` reads the tool call from stdin and
    answers `{"decision":"deny"}` for `git push --force`. Start `agy`, run
    `/hooks` to confirm it loaded, then ask:

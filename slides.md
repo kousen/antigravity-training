@@ -108,7 +108,8 @@ Kousen IT, Inc.
 - **Custom agents in Markdown**: `agent.md` with YAML frontmatter; `--agent`, `agy agents` (1.1.1/1.1.6)
 - **`/codesearch`** (1.1.3), **Vim editor mode** (1.1.11), `/fork`, `/btw`, `/rewind`
 - **Direct Gemini API**: `GEMINI_API_KEY` + `modelProvider: "gemini"` — no sign-in (1.1.13)
-- **Latest stable track**: Antigravity CLI `1.1.13` — see `agy changelog`
+- **Since 1.1.13**: `agy mcp add|list|remove` (1.1.16), `/model <name>` saves a default (1.1.22), `/voice` dictation (1.1.21)
+- **Latest stable track**: Antigravity CLI `1.1.24` — see `agy changelog`
 
 </v-clicks>
 
@@ -184,7 +185,7 @@ plenty of code, then draw the authoring-vs-delegating line.
 
 <v-clicks>
 
-- **Gemini 3.7 / 3.6 / 3.5 Flash**: fast Gemini models, each in Low/Medium/High effort
+- **Gemini 3.8 / 3.7 / 3.6 Flash**: fast Gemini models, each in Low/Medium/High effort
 - **Gemini 3.1 Pro**: high-capability Gemini model for complex coding (Low/High)
 - **Claude Sonnet 4.6 / Opus 4.6**: Anthropic models (thinking)
 - **GPT-OSS 120B**: open-weights option
@@ -551,7 +552,7 @@ agy --dangerously-skip-permissions
 
 <v-clicks>
 
-- **`default`**: pauses for an interactive diff review before writing files (`f` = full diff)
+- **`default`**: pauses for an interactive diff review before writing files (`f` = full diff); workspace reads are auto-approved (1.1.20)
 - **`accept-edits`**: auto-approves file edits and creations
 - **`plan`**: prepends `/plan` — analyze and outline before writing code
 - **Cycle** with `Shift+Tab`; the current mode shows in the status line
@@ -1011,11 +1012,13 @@ backgroundSize: cover
 
 # Managing MCP Servers
 
-Edit the config file directly, then reload from `/mcp`:
+Edit the config file directly, or let `agy mcp` write the global one (1.1.16+); reload from `/mcp`:
 
 ```bash
 # Global config
 $EDITOR ~/.gemini/config/mcp_config.json
+agy mcp add -H "CONTEXT7_API_KEY: <key>" context7 https://mcp.context7.com/mcp
+agy mcp list
 
 # Per-project config (checked into the repo)
 $EDITOR .agents/mcp_config.json
@@ -1227,7 +1230,7 @@ else
 fi
 ```
 
-Example `config-examples/hooks.json` in this repo. ⚠️ As of 1.1.13 the CLI loads hooks from `~/.gemini/config/` and plugins — a workspace `.agents/hooks.json` is documented but not picked up yet (verified).
+Example `config-examples/hooks.json` in this repo. ⚠️ As of 1.1.24 the CLI loads hooks from `~/.gemini/config/` and plugins — a workspace `.agents/hooks.json` is documented but still not picked up (re-verified 2026-09-02).
 
 ---
 

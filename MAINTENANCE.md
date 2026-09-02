@@ -63,7 +63,7 @@ in class regardless, so a stale dep or two is not a teaching hazard.
 
 - **Do not** run `npm audit fix --force` at the root without testing the
   deck rebuild afterwards. It will bump Slidev across a major version.
-- **Do not** upgrade Gemini CLI mid-class. Pin a version on students'
+- **Do not** upgrade Antigravity CLI mid-class. Pin a version on students'
   machines during the prereq step.
 - **Do not** commit a slides PDF. CI builds `antigravity-training-slides.pdf`
   on every push to `main` that touches `slides.md` and attaches it to the
@@ -74,7 +74,7 @@ in class regardless, so a stale dep or two is not a teaching hazard.
 
 ## Refreshing against a new Antigravity CLI release
 
-Last done: 2026-08-17 against **agy 1.1.13** (materials had been at 1.0.6); re-checked 2026-08-19 on 1.1.15 (no teaching-relevant changes in 1.1.14/15).
+Last done: 2026-08-17 against **agy 1.1.13** (materials had been at 1.0.6); re-checked 2026-08-19 on 1.1.15 (no teaching-relevant changes in 1.1.14/15); re-checked 2026-09-02 on **1.1.24** (Gemini 3.8 Flash added, 3.5 Flash gone; `agy mcp` subcommands; workspace hooks still not loaded — see below).
 
 The "One Brand, Three Products" slide pins app/IDE/CLI version streams
 (2.8.x / 2.5.x / 1.1.x as of Aug 2026). Before each delivery check all three:
@@ -85,7 +85,7 @@ The "One Brand, Three Products" slide pins app/IDE/CLI version streams
 Ground truth, in order of trust:
 
 1. The installed CLI: `agy --help`, `agy changelog`, `agy plugin --help`,
-   `agy models` (needs a TTY — run it yourself, not from a script),
+   `agy models` (needs a TTY — from a script use `script -q /dev/null agy models`),
    `agy -p "/settings"` (dumps every settings key + current value, no quota).
 2. Docs shipped inside the CLI:
    `~/.gemini/antigravity-cli/builtin/skills/agy-customizations/docs/*.md`
@@ -93,6 +93,7 @@ Ground truth, in order of trust:
 3. https://antigravity.google/docs/cli/{settings,modes,mcp,headless,subagents}
 4. https://antigravity.google/docs/cli/reference — **partly stale**: still
    listed `/planning` and `/fast` after 1.1.0 removed them. Cross-check.
+   Also client-rendered: `curl` gets no command list, read it in a browser.
 
 Quick probe for whether a slash command really exists:
 `agy -p "/foo"` — a real interactive-only command errors with
@@ -116,7 +117,13 @@ Facts that bit us this round (don't reintroduce):
 - `${VAR}` is NOT expanded in `mcp_config.json` (verified 1.1.15: the literal
   string was sent as the Context7 header and rejected). Keys go in the global
   file, literally. Context7 replaced Firecrawl in Lab 6 on 2026-08-19.
-- Re-tested on 1.1.15: workspace `.agents/hooks.json` still not loaded.
+- Re-tested on 1.1.15 and 1.1.24: workspace `.agents/hooks.json` still not
+  loaded from the primary workspace. Quirk on 1.1.24: a `.agents/hooks.json`
+  inside a directory passed with `--add-dir` IS loaded (log: "from 2
+  hooks.json file(s)"), so don't let an `--add-dir` probe fool you. Probe at
+  the repo root: `mkdir -p .agents && cp config-examples/hooks.json .agents/
+  && cp -r config-examples/scripts .agents/ && agy -p "/hooks"`, then
+  `rm -rf .agents`.
 - Bare `!` "persistent shell mode" toggle is Gemini CLI, not agy (Ken
   confirmed live, Aug 2026; docs don't mention it). `!command` works;
   `ctrl+b` backgrounds a running one.
@@ -129,10 +136,12 @@ Facts that bit us this round (don't reintroduce):
   `agy_aug2026` (Aug 2026: bookstore-api hardening + my-task-manager build),
   `weather-app-demos`. After a delivery, cherry-pick slide/lab fixes from the
   delivery branch to `main` and leave the solution commits behind.
-- `exercises/python/weather-app` on `main` is the **student baseline**
-  (restored to commit 9a5d244 on 2026-08-19). Live-demo results (config,
-  error handling, caching, ARCHITECTURE.md) live on branch
-  `weather-app-demos`. Demo on a branch or `git stash` afterwards — if the
+- `exercises/python/weather-app` on `main` is the **student baseline**.
+  The 2026-08-19 restore removed generated reports, caching and
+  ARCHITECTURE.md; the June config/error-handling commits (`app/config.py`,
+  `app/exceptions.py`, `app/routes/errors.py` — 1c1dbca, 722b088) are still
+  on `main` and are part of the baseline. Other live-demo results live on
+  branch `weather-app-demos`. Demo on a branch or `git stash` afterwards — if the
   app arrives in class fully tested, Lab 4 has nothing to generate.
 - `statusline.py` in weather-app is referenced from the Status Line slide and
   from `~/.gemini/antigravity-cli/settings.json` on Ken's machine.
