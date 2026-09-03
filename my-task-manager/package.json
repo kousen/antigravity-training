@@ -1,0 +1,17 @@
+{
+  "name": "my-task-manager",
+  "version": "1.0.0",
+  "description": "Node.js task manager application with JSON persistence and a CLI interface",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
+  },
+  "keywords": ["task-manager", "cli", "nodejs"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
