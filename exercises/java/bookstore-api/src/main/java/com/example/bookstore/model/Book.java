@@ -1,5 +1,6 @@
 package com.example.bookstore.model;
 
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -7,9 +8,10 @@ import jakarta.validation.constraints.PastOrPresent;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Objects;
 
 /**
- * Represents a book in the bookstore.
+ * Domain entity representing a book in the bookstore.
  */
 public class Book {
     private Long id;
@@ -24,7 +26,7 @@ public class Book {
     private String isbn;
 
     @NotNull(message = "Price cannot be null")
-    @Min(value = 0, message = "Price must be non-negative")
+    @DecimalMin(value = "0.0", inclusive = true, message = "Price must be non-negative")
     private BigDecimal price;
 
     @PastOrPresent(message = "Published date cannot be in the future")
@@ -77,5 +79,32 @@ public class Book {
 
     public boolean isInStock() {
         return stock > 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Book book = (Book) o;
+        return Objects.equals(id, book.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
+
+    @Override
+    public String toString() {
+        return "Book{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", author='" + author + '\'' +
+                ", isbn='" + isbn + '\'' +
+                ", price=" + price +
+                ", publishedDate=" + publishedDate +
+                ", genre='" + genre + '\'' +
+                ", stock=" + stock +
+                '}';
     }
 }
