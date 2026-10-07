@@ -1,14 +1,31 @@
+const crypto = require('crypto');
 const express = require('express');
 const path = require('path');
 const TaskManager = require('./taskManager');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const API_KEY = process.env.API_KEY;
 const taskManager = new TaskManager();
 
 // Middleware
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Require a valid API key on every /api request
+function requireApiKey(req, res, next) {
+    const provided = req.get('x-api-key') || '';
+    const expected = API_KEY || '';
+    const match = expected.length > 0 &&
+        provided.length === expected.length &&
+        crypto.timingSafeEqual(Buffer.from(provided), Buffer.from(expected));
+
+    if (!match) {
+        return res.status(401).json({ error: 'Unauthorized' });
+    }
+    next();
+}
+app.use('/api', requireApiKey);
 
 // Initialize TaskManager
 (async () => {
