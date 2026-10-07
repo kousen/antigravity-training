@@ -1,6 +1,8 @@
 package com.example.bookstore.controller;
 
 import com.example.bookstore.exception.BookNotFoundException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -24,6 +26,8 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex,
@@ -42,13 +46,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             invalidFields.put(fieldError.getField(), fieldError.getDefaultMessage());
         }
         problemDetail.setProperty("invalidFields", invalidFields);
-        problemDetail.setProperty("errors", invalidFields);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(problemDetail);
     }
 
     @ExceptionHandler(BookNotFoundException.class)
     public ProblemDetail handleBookNotFound(BookNotFoundException ex) {
+        log.warn("Book not found: {}", ex.getMessage());
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, ex.getMessage());
         problemDetail.setTitle("Resource Not Found");
         problemDetail.setType(URI.create("https://example.com/errors/not-found"));
@@ -58,6 +62,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ProblemDetail handleGenericException(Exception ex) {
+        log.error("Unhandled server exception: {}", ex.getMessage(), ex);
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
                 HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected internal error occurred");
         problemDetail.setTitle("Internal Server Error");

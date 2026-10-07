@@ -153,17 +153,17 @@ class BookServiceTest {
     @Test
     @DisplayName("Should sort books by various fields correctly")
     void shouldSortBooksByDifferentFields() {
-        assertThat(bookService.getAllBooks(0, 4, "author").get(0).getAuthor())
+        assertThat(bookService.getBooksPage(null, null, null, null, 0, 4, "author").content().get(0).author())
                 .isEqualTo("F. Scott Fitzgerald");
-        assertThat(bookService.getAllBooks(0, 4, "price").get(0).getPrice())
+        assertThat(bookService.getBooksPage(null, null, null, null, 0, 4, "price").content().get(0).price())
                 .isEqualTo(new BigDecimal("11.99"));
-        assertThat(bookService.getAllBooks(0, 4, "publisheddate").get(0).getPublishedDate())
+        assertThat(bookService.getBooksPage(null, null, null, null, 0, 4, "publisheddate").content().get(0).publishedDate())
                 .isEqualTo(LocalDate.of(1925, 4, 10));
-        assertThat(bookService.getAllBooks(0, 4, "genre").get(0).getGenre())
+        assertThat(bookService.getBooksPage(null, null, null, null, 0, 4, "genre").content().get(0).genre())
                 .isEqualTo("Dystopian");
-        assertThat(bookService.getAllBooks(0, 4, "stock").get(0).getStock())
+        assertThat(bookService.getBooksPage(null, null, null, null, 0, 4, "stock").content().get(0).stock())
                 .isEqualTo(15);
-        assertThat(bookService.getAllBooks(0, 4, "unknown").get(0).getId())
+        assertThat(bookService.getBooksPage(null, null, null, null, 0, 4, "unknown").content().get(0).id())
                 .isEqualTo(1L);
     }
 
@@ -176,17 +176,32 @@ class BookServiceTest {
     }
 
     @Test
-    @DisplayName("Should update book using domain Book instance")
-    void shouldUpdateUsingDomainBook() {
-        Book updates = new Book();
-        updates.setTitle("Updated Gatsby");
-        updates.setStock(50);
+    @DisplayName("Should clear publishedDate when null in BookRequest")
+    void shouldClearOptionalPublishedDateOnUpdate() {
+        BookRequest clearDateRequest = new BookRequest(
+                "The Great Gatsby",
+                "F. Scott Fitzgerald",
+                "978-0743273565",
+                new BigDecimal("14.99"),
+                null,
+                "Fiction",
+                25
+        );
 
-        Optional<Book> result = bookService.updateBook(1L, updates);
+        Optional<Book> result = bookService.updateBook(1L, clearDateRequest);
         assertThat(result).isPresent();
-        assertThat(result.get().getTitle()).isEqualTo("Updated Gatsby");
-        assertThat(result.get().getStock()).isEqualTo(50);
+        assertThat(result.get().getPublishedDate()).isNull();
 
-        assertThat(bookService.updateBook(9999L, updates)).isEmpty();
+        assertThat(bookService.updateBook(9999L, clearDateRequest)).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Should prevent integer overflow with very large page and size")
+    void shouldPreventIntegerOverflowInPagination() {
+        PageResponse<BookResponse> response = PageResponse.of(
+                List.of(), 2, Integer.MAX_VALUE);
+        assertThat(response.content()).isEmpty();
+        assertThat(response.page()).isEqualTo(2);
+        assertThat(response.totalElements()).isEqualTo(0);
     }
 }

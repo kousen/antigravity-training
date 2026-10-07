@@ -32,14 +32,12 @@ Once running:
 - **OpenAPI 3 / Swagger Documentation:** Annotations on controllers and DTOs with automated interactive Swagger UI.
 - **Testing:** Web slice tests with `@WebMvcTest` and `@MockitoBean`, plus unit tests for `BookService`.
 
-## Exercise Goals
+## Exercise Goals & Progress
 
-Use Antigravity CLI to:
-
-1. Explore the Spring Boot architecture
-2. Add input validation with Bean Validation
-3. Add proper exception handling with @ControllerAdvice / RFC 7807 ProblemDetail
-4. Create comprehensive JUnit 5 tests
-5. Add OpenAPI/Swagger documentation
-6. Implement pagination for book listings
-7. Add a review/rating system for books
+- [x] 1. Explore the Spring Boot architecture
+- [x] 2. Add input validation with Bean Validation & DTO records
+- [x] 3. Add proper exception handling with @RestControllerAdvice & RFC 7807/9457 ProblemDetail
+- [x] 4. Create comprehensive JUnit 5 tests (Unit, Slice, and Integration tests with JaCoCo)
+- [x] 5. Add OpenAPI/Swagger 3 documentation
+- [x] 6. Implement pagination and sorting for book listings
+- [ ] 7. Add a review/rating system for books (Next Exercise)

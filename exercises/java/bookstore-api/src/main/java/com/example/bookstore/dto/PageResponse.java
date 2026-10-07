@@ -36,8 +36,10 @@ public record PageResponse<T>(
             totalPages = 1;
         }
 
-        int start = Math.min(safePage * safeSize, totalElements);
-        int end = Math.min(start + safeSize, totalElements);
+        long startIndex = (long) safePage * safeSize;
+        int start = (int) Math.min(startIndex, (long) totalElements);
+        long endIndex = (long) start + safeSize;
+        int end = (int) Math.min(endIndex, (long) totalElements);
         List<T> content = allItems.subList(start, end);
 
         return new PageResponse<>(

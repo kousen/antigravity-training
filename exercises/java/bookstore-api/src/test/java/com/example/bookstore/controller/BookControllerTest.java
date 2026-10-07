@@ -108,7 +108,7 @@ class BookControllerTest {
     @Test
     void createBook_shouldReturnProblemDetailBadRequestWhenInvalid() throws Exception {
         BookRequest invalidRequest = new BookRequest("", "Author", "ISBN",
-                new BigDecimal("-10.00"), LocalDate.of(2025, 1, 1), "", null);
+                new BigDecimal("-10.00"), LocalDate.now().plusYears(1), "", null);
 
         mockMvc.perform(post("/api/books")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -118,6 +118,7 @@ class BookControllerTest {
                 .andExpect(jsonPath("$.invalidFields.title").value("Title cannot be blank"))
                 .andExpect(jsonPath("$.invalidFields.price").value("Price must be non-negative"))
                 .andExpect(jsonPath("$.invalidFields.genre").value("Genre cannot be blank"))
+                .andExpect(jsonPath("$.invalidFields.publishedDate").value("Published date cannot be in the future"))
                 .andExpect(jsonPath("$.invalidFields.stock").value("Stock cannot be null"));
     }
 
@@ -225,5 +226,17 @@ class BookControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2));
+    }
+
+    @Test
+    void unhandledException_shouldReturn500ProblemDetail() throws Exception {
+        when(bookService.getBook(1L)).thenThrow(new RuntimeException("Simulated unexpected failure"));
+
+        mockMvc.perform(get("/api/books/{id}", 1L)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.title").value("Internal Server Error"))
+                .andExpect(jsonPath("$.status").value(500))
+                .andExpect(jsonPath("$.detail").value("An unexpected internal error occurred"));
     }
 }

@@ -62,13 +62,6 @@ public class BookService {
         return new ArrayList<>(books.values());
     }
 
-    public List<Book> getAllBooks(int page, int size, String sortBy) {
-        List<Book> allBooks = getSortedBooks(new ArrayList<>(books.values()), sortBy);
-        int start = Math.min(Math.max(page, 0) * Math.max(size, 1), allBooks.size());
-        int end = Math.min(start + Math.max(size, 1), allBooks.size());
-        return allBooks.subList(start, end);
-    }
-
     public PageResponse<BookResponse> getBooksPage(String query, String author, String genre,
                                                    Boolean inStock, int page, int size, String sortBy) {
         List<Book> filtered = books.values().stream()
@@ -86,7 +79,7 @@ public class BookService {
         return PageResponse.of(responses, page, size);
     }
 
-    private List<Book> getSortedBooks(List<Book> list, String sortBy) {
+    public List<Book> getSortedBooks(List<Book> list, String sortBy) {
         String safeSort = sortBy != null ? sortBy.toLowerCase() : "id";
         list.sort((b1, b2) -> switch (safeSort) {
             case "title" -> b1.getTitle().compareToIgnoreCase(b2.getTitle());
@@ -140,32 +133,19 @@ public class BookService {
             return Optional.empty();
         }
 
-        if (updates.title() != null) existing.setTitle(updates.title());
-        if (updates.author() != null) existing.setAuthor(updates.author());
-        if (updates.isbn() != null) existing.setIsbn(updates.isbn());
-        if (updates.price() != null) existing.setPrice(updates.price());
-        if (updates.publishedDate() != null) existing.setPublishedDate(updates.publishedDate());
-        if (updates.genre() != null) existing.setGenre(updates.genre());
-        if (updates.stock() != null) existing.setStock(updates.stock());
+        Book updated = new Book(
+                id,
+                updates.title() != null ? updates.title() : existing.getTitle(),
+                updates.author() != null ? updates.author() : existing.getAuthor(),
+                updates.isbn() != null ? updates.isbn() : existing.getIsbn(),
+                updates.price() != null ? updates.price() : existing.getPrice(),
+                updates.publishedDate(), // replaces publishedDate, allowing null to clear
+                updates.genre() != null ? updates.genre() : existing.getGenre(),
+                updates.stock() != null ? updates.stock() : existing.getStock()
+        );
 
-        return Optional.of(existing);
-    }
-
-    public Optional<Book> updateBook(Long id, Book updates) {
-        Book existing = books.get(id);
-        if (existing == null) {
-            return Optional.empty();
-        }
-
-        if (updates.getTitle() != null) existing.setTitle(updates.getTitle());
-        if (updates.getAuthor() != null) existing.setAuthor(updates.getAuthor());
-        if (updates.getIsbn() != null) existing.setIsbn(updates.getIsbn());
-        if (updates.getPrice() != null) existing.setPrice(updates.getPrice());
-        if (updates.getPublishedDate() != null) existing.setPublishedDate(updates.getPublishedDate());
-        if (updates.getGenre() != null) existing.setGenre(updates.getGenre());
-        if (updates.getStock() >= 0) existing.setStock(updates.getStock());
-
-        return Optional.of(existing);
+        books.replace(id, updated);
+        return Optional.of(updated);
     }
 
     public boolean deleteBook(Long id) {
