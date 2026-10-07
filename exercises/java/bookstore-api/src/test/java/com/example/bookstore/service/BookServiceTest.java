@@ -149,4 +149,44 @@ class BookServiceTest {
         boolean notFoundDeleted = bookService.deleteBook(9999L);
         assertThat(notFoundDeleted).isFalse();
     }
+
+    @Test
+    @DisplayName("Should sort books by various fields correctly")
+    void shouldSortBooksByDifferentFields() {
+        assertThat(bookService.getAllBooks(0, 4, "author").get(0).getAuthor())
+                .isEqualTo("F. Scott Fitzgerald");
+        assertThat(bookService.getAllBooks(0, 4, "price").get(0).getPrice())
+                .isEqualTo(new BigDecimal("11.99"));
+        assertThat(bookService.getAllBooks(0, 4, "publisheddate").get(0).getPublishedDate())
+                .isEqualTo(LocalDate.of(1925, 4, 10));
+        assertThat(bookService.getAllBooks(0, 4, "genre").get(0).getGenre())
+                .isEqualTo("Dystopian");
+        assertThat(bookService.getAllBooks(0, 4, "stock").get(0).getStock())
+                .isEqualTo(15);
+        assertThat(bookService.getAllBooks(0, 4, "unknown").get(0).getId())
+                .isEqualTo(1L);
+    }
+
+    @Test
+    @DisplayName("Should gracefully handle null query filters")
+    void shouldHandleNullFilters() {
+        assertThat(bookService.searchByTitle(null)).isEmpty();
+        assertThat(bookService.getByAuthor(null)).isEmpty();
+        assertThat(bookService.getByGenre(null)).isEmpty();
+    }
+
+    @Test
+    @DisplayName("Should update book using domain Book instance")
+    void shouldUpdateUsingDomainBook() {
+        Book updates = new Book();
+        updates.setTitle("Updated Gatsby");
+        updates.setStock(50);
+
+        Optional<Book> result = bookService.updateBook(1L, updates);
+        assertThat(result).isPresent();
+        assertThat(result.get().getTitle()).isEqualTo("Updated Gatsby");
+        assertThat(result.get().getStock()).isEqualTo(50);
+
+        assertThat(bookService.updateBook(9999L, updates)).isEmpty();
+    }
 }
