@@ -43,6 +43,12 @@ jobs:
           test -s antigravity-training-slides.pdf \
             || { echo "::error::antigravity-training-slides.pdf is missing or empty — export failed or the output name changed"; exit 1; }
 
+      - name: Recreate the release so its date and source archives track this commit
+        # Updating the asset in place leaves the release's publish date at the first build.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release delete slides-latest --cleanup-tag --yes || true
+
       - name: Publish rolling "latest" release
         uses: softprops/action-gh-release@v3
         with:
