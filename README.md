@@ -32,6 +32,7 @@ Run the pre-flight verification script to check your local environment before cl
 ### 📄 Latest PDF & Cheatsheet
 
 - **[Latest Slides PDF](https://github.com/kousen/antigravity-training/releases/latest/download/antigravity-training-slides.pdf)** (Auto-built on `main`)
+- **[Slides in the browser](<https://kousen.github.io/antigravity-training/>)** (GitHub Pages, deployed by [`deploy-slides-pages.yml`](.github/workflows/deploy-slides-pages.yml))
 - **[Quick Reference Cheatsheet](./CHEATSHEET.md)** (CLI syntax, shortcuts, slash commands)
 
 ## Repository Structure
